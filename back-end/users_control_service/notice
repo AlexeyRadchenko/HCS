@@ -1,0 +1,3 @@
+To generate a secure random secret key use the command:
+openssl rand -hex 32
+And copy the output to the variable SECRET_KEY
