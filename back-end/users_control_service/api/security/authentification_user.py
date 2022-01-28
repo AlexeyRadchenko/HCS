@@ -14,7 +14,6 @@ from ..database.database import row2dict, user_many2many2dict
 pwd_context = CryptContext(schemes=[settings.CRYPT_CONTEXT_SCHEME], deprecated=settings.PWD_CONTEXT_DEPRECATED)
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=settings.TOKEN_URL,
-    #scopes={"me": "Read information about the current user.", "items": "Read items.", "admin": "admin test"} # read from admin settings in db
     scopes={}
 )
 

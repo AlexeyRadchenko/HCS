@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import users
-from uvicorn import run
+from .routers import contacts
+
 
 app = FastAPI(docs_url='/api/v1/docs', redoc_url='/api/v1/redoc')
-app.include_router(users.router, prefix="/api/v1/users_control_service")
+
+app.include_router(contacts.router, prefix="/api/v1/contacts_service")
 
 origins = [
     "http://localhost",

@@ -1,6 +1,6 @@
 from datetime import timedelta
 from re import I
-from fastapi import APIRouter, Form
+from fastapi import APIRouter
 from fastapi import Depends, HTTPException, status, Security
 from fastapi.security import OAuth2PasswordRequestForm
 from six import create_unbound_method

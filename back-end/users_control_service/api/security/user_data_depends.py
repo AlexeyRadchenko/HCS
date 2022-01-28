@@ -38,7 +38,6 @@ async def get_current_user(
     except (JWTError, ValidationError):
         raise credentials_exception   
     user = await get_user(db_session, login=token_data.login)
-    print(user)
     if user is None:
         raise credentials_exception
     for scope in security_scopes.scopes:
