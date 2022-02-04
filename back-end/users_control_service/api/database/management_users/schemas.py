@@ -1,8 +1,4 @@
-from typing import List, Optional
 from pydantic import BaseModel
-
-from api.database.management_users.models import Base
-
 
 class ManagementUserBaseSchema(BaseModel):
     login: str

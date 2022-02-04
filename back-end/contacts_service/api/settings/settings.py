@@ -18,7 +18,7 @@ class Settings(BaseModel):
     DATABASE_URL: str
     SELF_USER_SCOPE: str
     ADMIN_SCOPE: str
-    MANAGEMENT_SCOPE: str
+    MANAGEMENT_CONTACTS_SCOPE: str
 
 with open(f"{PATH}/{API_CONFIG_FILE}", "r") as stream:
     try:

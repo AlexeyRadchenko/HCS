@@ -13,9 +13,9 @@ TOKEN_URL: token
 
 # Database settings
 # for Alembic use alembic.ini in root
-DATABASE_URL: sqlite+aiosqlite:///./contacts_test.db
+DATABASE_URL: sqlite+aiosqlite:///./contacts.db
 
 #Security scope settings
 SELF_USER_SCOPE: me
 ADMIN_SCOPE: admin
-MANAGEMENT_SCOPE: management_contacts
+MANAGEMENT_CONTACTS_SCOPE: management_contacts
