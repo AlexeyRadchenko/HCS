@@ -8,17 +8,28 @@ class ContactsClientSchema(BaseModel):
     second_name:str
     surname: str
 
-class ContactsAddress(BaseModel):
+class ContactsAddressSchema(BaseModel):
     street: str
     house_number: str
     entrance: str
     appartment: str
 
+    class Config:
+        orm_mode = True
+
+class ContactsOrganisationsSchema(BaseModel):
+    full_name: str
+    short_name: str
+
+    class Config:
+        orm_mode = True
+
 class ContactsCientFullDataSchema(ContactsClientSchema):
-    addresses: List[ContactsAddress]
+    addresses: List[ContactsAddressSchema]
     full_owner: bool
     part_owner:bool
     part_size: str
+    organisations: List[ContactsOrganisationsSchema]
 
     class Config:
         orm_mode = True
