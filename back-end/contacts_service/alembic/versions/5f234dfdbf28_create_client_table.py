@@ -21,7 +21,6 @@ depends_on = None
 def upgrade():
     op.create_table(
         'clients',
-        sa.Column('id', sa.Integer, primary_key=True),
         #sa.Column('uuid', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4), # use in postgress db
         sa.Column('uuid', sa.Text(length=36), default=lambda: str(uuid.uuid4()), primary_key=True), # use for dev sqlite
         sa.Column('name', sa.String(50), nullable=True),
