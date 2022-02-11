@@ -45,6 +45,15 @@ class ContactsEmails(Base):
     client_uuid = Column(Text(length=36), ForeignKey('clients.uuid'), nullable=True)
     email = Column(String, nullable=False)
 
+class ContactsPhones(Base):
+    __tablename__ = "phones"
+
+    id = Column(Integer, primary_key=True, index=True, nullable=False, autoincrement=True)
+    client_uuid = Column(Text(length=36), ForeignKey('clients.uuid'), nullable=True)
+    home_phone = Column(String, nullable=False)
+    work_phone = Column(String, nullable=False)
+    mobile_phone = Column(String, nullable=False)    
+
 
 class ContactsOrganisations(Base):
     __tablename__ = "organisations"
@@ -66,10 +75,10 @@ class ContactsClients(Base):
     second_name = Column(String, nullable=True)
     surname = Column(String, nullable=True)
     phones = relationship(
-        'ContactsPhones', backref='cleints', lazy='joined'
+        'ContactsPhones', backref='clients', lazy='joined'
     )
     emails = relationship(
-        'ContactsEmails', backref='cleints', lazy='joined'
+        'ContactsEmails', backref='clients', lazy='joined'
     )
     note = Column(Text(), nullable=True)
     client_del = Column(Boolean, default=False)
@@ -79,12 +88,4 @@ class ContactsClients(Base):
     organisations = relationship(
         'ContactsOrganisations', secondary='client_organisations', back_populates='clients', lazy='joined'
     )
-
-class ContactsPhones(Base):
-    __tablename__ = "phones"
-
-    id = Column(Integer, primary_key=True, index=True, nullable=False, autoincrement=True)
-    client_uuid = Column(Text(length=36), ForeignKey('clients.uuid'), nullable=True)
-    home_phone = Column(String, nullable=False)
-    work_phone = Column(String, nullable=False)
-    mobile_phone = Column(String, nullable=False)   
+   

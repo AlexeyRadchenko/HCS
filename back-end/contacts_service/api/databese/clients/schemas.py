@@ -14,7 +14,7 @@ class ContactsClientSchema(BaseModel):
         orm_mode = True
 
 
-class ContactsAddressSchema(BaseModel):
+class ContactsAddressesSchema(BaseModel):
     id: Optional[int]
     street: str
     house_number: str
@@ -34,6 +34,7 @@ class ContactsOrganisationsSchema(BaseModel):
 
 class ContactsPhonesSchema(BaseModel):
     id: Optional[int]
+    client_uuid: Optional[UUID]
     home_phone: str
     work_phone: str
     mobile_phone: str
@@ -43,12 +44,16 @@ class ContactsPhonesSchema(BaseModel):
 
 class ContactsEmailsOrMsgers(BaseModel):
     id: Optional[int]
-    email: Optional[str]
+    client_uuid: Optional[UUID]
+    email: str
+
+    class Config:
+        orm_mode = True
 
 class ContactsClientFullDataSchema(ContactsClientSchema):
-    phones: Optional[ContactsPhonesSchema]
-    emails: Optional[ContactsEmailsOrMsgers]
-    address: Optional[List[ContactsAddressSchema]]
+    phones: Optional[List[ContactsPhonesSchema]]
+    emails: Optional[List[ContactsEmailsOrMsgers]]
+    addresses: Optional[List[ContactsAddressesSchema]]
     organisations: Optional[List[ContactsOrganisationsSchema]]
 
     class Config:
