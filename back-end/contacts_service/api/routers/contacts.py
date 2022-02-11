@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio.session import AsyncSession
 from ..security.access_depends import user_scope_authorize
 from .depends import contact_address_decode_depends, create_contact_organisation_decode_depends, create_contact_user_decode_depends
 from ..settings.settings import settings
-from ..databese.database import get_async_session
+from ..databese.database import get_async_session, contacts_obj_list_to_dicts_list
 from ..databese.clients.schemas import ContactsClientSchema, ContactsClientFullDataSchema, ContactsAddressSchema, ContactsOrganisationsSchema
 from ..databese.clients.crud import get_contacts_clients, create_contacts_db_oject
 from ..databese.clients.models import (
@@ -103,5 +103,9 @@ async def get_contacts_users_list(
     db_session: AsyncSession = Depends(get_async_session)
     ):
     contacts_clients = await get_contacts_clients(db_session)
-    print('---------------------------------', contacts_clients)
-    return contacts_clients
+    #print(contacts_clients)
+    #print(contacts_obj_list_to_dicts_list(contacts_clients))
+    result_clients = [contact[0] for contact in contacts_clients]
+    print(result_clients)
+    print(result_clients[0].address)
+    return result_clients

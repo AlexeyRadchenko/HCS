@@ -47,9 +47,9 @@ class ContactsEmailsOrMsgers(BaseModel):
 
 class ContactsClientFullDataSchema(ContactsClientSchema):
     phones: Optional[ContactsPhonesSchema]
-    #emails: Optional[ContactsEmailsOrMsgers]
-    #addresses: Optional[List[ContactsAddressSchema]]
-    #organisations: Optional[List[ContactsOrganisationsSchema]]
+    emails: Optional[ContactsEmailsOrMsgers]
+    address: Optional[List[ContactsAddressSchema]]
+    organisations: Optional[List[ContactsOrganisationsSchema]]
 
     class Config:
         orm_mode = True
