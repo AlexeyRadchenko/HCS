@@ -5,7 +5,8 @@ export const useAuthStore = defineStore({
   id: 'AuthStore',
   state: () => ({
     token: '',
-    error: ''
+    error: '',
+    user: null
   }),
   getters: {
     getToken () {
@@ -16,6 +17,12 @@ export const useAuthStore = defineStore({
     },
     getError () {
       return this.error
+    },
+    getUser() {
+      if (this.user)
+        return this.user
+      else
+        return secureStorage.getItem('user')
     }
   },
   actions: {
@@ -25,6 +32,14 @@ export const useAuthStore = defineStore({
     },
     setError(error) {
       this.error = error
+    },
+    async setUser(user) {
+      try {
+        secureStorage.setItem('user', user)
+        this.user = user
+      } catch (error) {
+        return error
+      }
     }
   }
 })

@@ -3,7 +3,7 @@ import secureStorage from '../storage/secStorage'
 
 
 const http = axios.create({
-  baseURL: 'http://localhost:8000/api/v1'
+  baseURL: 'http://localhost:8030/api/v1'
 })
 
 var setHeaders = function (axios_instance) {
@@ -42,7 +42,6 @@ export var login = function(authStore, userFormData, loading, router) {
   }
 
 export var current_active_user = async function () {
-    console.log('storage', secureStorage.getItem('token'))
     setHeaders(http)
     return await http.get('users_control_service/management_users/me')
     .then(response => {

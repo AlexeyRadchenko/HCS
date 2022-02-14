@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { current_active_user } from '../http/http-common'
 import Authorisation from '../components/Authorisation.vue'
 import Services from '../components/Services.vue'
+import { useAuthStore } from '../storage/auth';
 //import Contacts from '../components/Contacts.vue'
 
 const router = createRouter({
@@ -30,10 +31,10 @@ const router = createRouter({
 })
 
 router.beforeEach(async(to, from, next) => {
-  console.log(to.name, from.name)
+  var authStore = useAuthStore()
   if (to.name !== 'LoginPage')
     var user = await current_active_user()
-    //var userd = user.then((response) => response.data)
+    await authStore.setUser(user)
   if (to.name !== 'LoginPage' && !user) next({ name: 'LoginPage' })
   else next()
 })

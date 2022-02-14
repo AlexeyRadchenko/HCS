@@ -30,8 +30,6 @@ async def decode_organisations_data_to_db_params(organisations_str):
     return organisations_str.split('; ')
 
 
-
-
 async def contact_address_decode_depends(
     street: str = Form(...),
     house_number: str = Form(...),
@@ -64,7 +62,7 @@ async def create_contact_user_decode_depends(
     work_phones: Optional[str] = Form(None),
     mobile_phones: Optional[str] = Form(None),
     emails: Optional[str] = Form(None),
-    note: Optional[str] = Form(None), 
+    note: Optional[str] = Form(None)
 ):    
     return {
         'name': await decode_string_from_latin(name),
