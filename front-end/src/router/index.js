@@ -32,9 +32,10 @@ const router = createRouter({
 
 router.beforeEach(async(to, from, next) => {
   var authStore = useAuthStore()
-  if (to.name !== 'LoginPage')
+  if (to.name !== 'LoginPage') {
     var user = await current_active_user()
     await authStore.setUser(user)
+  }  
   if (to.name !== 'LoginPage' && !user) next({ name: 'LoginPage' })
   else next()
 })

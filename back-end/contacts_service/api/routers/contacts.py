@@ -7,8 +7,12 @@ from ..security.access_depends import user_scope_authorize
 from .depends import contact_address_decode_depends, create_contact_organisation_decode_depends, create_contact_user_decode_depends
 from ..settings.settings import settings
 from ..databese.database import get_async_session, row2dict
-from ..databese.clients.schemas import ContactsClientSchema, ContactsClientFullDataSchema, ContactsAddressesSchema, ContactsOrganisationsSchema
-from ..databese.clients.crud import get_contacts_clients_list, create_contacts_db_oject, get_contacts_client_by_uuid, update_contacts_client_by_uuid
+from ..databese.clients.schemas import (
+    ContactsClientSchema, ContactsClientFullDataSchema, ContactsAddressesSchema, ContactsOrganisationsSchema, ContactsAddressesHouseStreetOrgIdScheme
+    )
+from ..databese.clients.crud import (
+    get_contacts_clients_list, create_contacts_db_oject, get_contacts_client_by_uuid, update_contacts_client_by_uuid, get_addressess_house_street_from_db_by_org_id
+    )
 from ..databese.clients.models import (
     ContactsClients, ContactsOrganisations, ContactsClientsAddresses, ContactsClientOrganisations, ContactsPhones, ContactsEmails, ContactsAddresses
     )
@@ -24,7 +28,8 @@ async def create_contact_address_handler(
     form_data: dict = Depends(contact_address_decode_depends)
     ):
     address = ContactsAddresses(
-        street=form_data['street'], house_number=form_data['house_number'], entrance=form_data['entrance'], appartment=form_data['appartment']
+        street=form_data['street'], house_number=form_data['house_number'], entrance=form_data['entrance'], appartment=form_data['appartment'],
+        organisation_id=form_data['organisation_id']
     )
     created_address_in_db = await create_contacts_db_oject(db_session, address)
     return created_address_in_db
@@ -40,8 +45,16 @@ async def create_contact_address_handler(
         full_name=form_data['full_name'], short_name=form_data['short_name']
     )
     created_organisation_in_db = await create_contacts_db_oject(db_session, organisation)
-    return created_organisation_in_db    
-  
+    return created_organisation_in_db
+
+@router.get("/organisation/{id}/addresses_house_street", response_model=List[ContactsAddressesHouseStreetOrgIdScheme])
+async def get_addresses_house_street_list_by_organisation_id(
+    id: int,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_CONTACTS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+):
+    addresses = await get_addressess_house_street_from_db_by_org_id(db_session, id)
+    return addresses
 
 @router.post("/contacts_users/create_contact", response_model=ContactsClientSchema)
 async def create_contact_user_handler(
@@ -86,14 +99,16 @@ async def create_contact_user_handler(
 
     return created_client_in_db
 
-@router.get("/contacts_users/contacts", response_model=List[ContactsClientFullDataSchema])
+@router.get("/contacts_users/contacts", response_model=List[ContactsClientFullDataSchema]) #
 async def get_contacts_users_list(
     user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_CONTACTS_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
     contacts_clients = await get_contacts_clients_list(db_session)
-    result_clients = [contact[0] for contact in contacts_clients]
-    return result_clients
+    #result_clients = [contact for contact in contacts_clients]
+    #print(contacts_clients)
+    #print(result_clients)
+    return contacts_clients
 
 @router.get("/contacts_users/contact/{uuid}", response_model=ContactsClientFullDataSchema)
 async def get_contacts_user_data(
@@ -102,7 +117,6 @@ async def get_contacts_user_data(
     db_session: AsyncSession = Depends(get_async_session)
     ):
     contact = await get_contacts_client_by_uuid (db_session, uuid)
-    
     return contact
 
 @router.put("/contacts_users/contact/{uuid}", response_model=ContactsClientSchema)
@@ -127,7 +141,6 @@ async def update_contacts_user_data(
         client_emails_or_messengers = ContactsEmails(email=form_data['emails'])
 
     result = await update_contacts_client_by_uuid(db_session, update_client, client_phones, client_emails_or_messengers, uuid)
-    print('------------------------------', result)
     return result
 
     # 372d0fb3-d9ca-4f59-98c5-5e4fb25059ea

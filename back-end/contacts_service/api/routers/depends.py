@@ -34,13 +34,15 @@ async def contact_address_decode_depends(
     street: str = Form(...),
     house_number: str = Form(...),
     entrance: str = Form(...),
-    appartment: str = Form(...)
+    appartment: str = Form(...),
+    organisation_id: str = Form(...)
 ):
     return {
         'street': await decode_string_from_latin(street),
         'house_number': await decode_string_from_latin(house_number),
         'entrance': await decode_string_from_latin(entrance),
         'appartment': await decode_string_from_latin(appartment),
+        'organisation_id': await decode_string_from_latin(organisation_id),
     }
 
 async def create_contact_organisation_decode_depends(

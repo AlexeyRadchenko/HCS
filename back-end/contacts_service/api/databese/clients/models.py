@@ -1,5 +1,6 @@
 import uuid
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, select
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import UUID
@@ -16,10 +17,15 @@ class ContactsAddresses(Base):
     house_number = Column(String, nullable=True)
     entrance = Column(String, nullable=True)
     appartment = Column(String, nullable=True)
-    clients = relationship(
-        'ContactsClients', secondary='clients_addresses', back_populates='addresses'
-    )  
-    
+    organisation_id = Column(Integer, ForeignKey('organisations.id'))
+
+    """clients = relationship(
+        'ContactsClients', secondary='clients_addresses', back_populates='addresses', lazy='dynamic'
+    )"""
+    clients = relationship('ContactsClientsAddresses', back_populates='address')
+    #address_extend = relationship('ContactsClientsAddresses', backref='addresses', lazy='joined')
+
+
     
 class ContactsClientOrganisations(Base):
     __tablename__ = "client_organisations"
@@ -35,8 +41,19 @@ class ContactsClientsAddresses(Base):
     address_id = Column(Integer, ForeignKey('addresses.id'), primary_key=True)
     full_owner = Column(Boolean, default=False)
     part_owner = Column(Boolean, default=False)
-    part_size = Column(String, nullable=True)    
+    part_size = Column(String, nullable=True)
+    address = relationship('ContactsAddresses', back_populates='clients', lazy='joined')
+    client = relationship('ContactsClients', back_populates='addresses')
 
+    @hybrid_property
+    def address_data(self):
+        return self.address
+        
+
+    @address_data.expression
+    def owners(cls):
+        return (select([ContactsAddresses])
+                .where(ContactsClientsAddresses.id == cls.address_id))
 
 class ContactsEmails(Base):
     __tablename__ = "emails_msgers"
@@ -63,8 +80,11 @@ class ContactsOrganisations(Base):
     short_name = Column(String(300), nullable=True)
     clients = relationship(
         'ContactsClients', secondary='client_organisations', back_populates='organisations'
-
     )
+    """
+    addresses = relationship(
+        'ContactsAddresses', backref='organisations', lazy='joined'
+    )"""
 
 class ContactsClients(Base):
     __tablename__ = "clients"
@@ -82,10 +102,13 @@ class ContactsClients(Base):
     )
     note = Column(Text(), nullable=True)
     client_del = Column(Boolean, default=False)
-    addresses = relationship(
+
+    addresses = relationship('ContactsClientsAddresses', back_populates='client', lazy='joined')
+
+    """addresses = relationship(
         'ContactsAddresses', secondary='clients_addresses', back_populates='clients', lazy='joined'
-    )
+    )"""
+    
     organisations = relationship(
         'ContactsOrganisations', secondary='client_organisations', back_populates='clients', lazy='joined'
     )
-   

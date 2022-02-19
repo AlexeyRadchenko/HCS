@@ -34,11 +34,9 @@ export const useAuthStore = defineStore({
       this.error = error
     },
     async setUser(user) {
-      try {
+      if (user) {
         secureStorage.setItem('user', user)
         this.user = user
-      } catch (error) {
-        return error
       }
     }
   }
