@@ -1,9 +1,10 @@
 import uuid
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, select
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, DateTime, select
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.sql import func
 
 Base = declarative_base()
 
@@ -52,8 +53,8 @@ class ContactsClientsAddresses(Base):
 
     @address_data.expression
     def owners(cls):
-        return (select([ContactsAddresses])
-                .where(ContactsClientsAddresses.id == cls.address_id))
+        return (select([ContactsAddresses]) 
+                .where(ContactsAddresses.id == cls.address_id)) # ContactsClientsAddresses
 
 class ContactsEmails(Base):
     __tablename__ = "emails_msgers"
@@ -112,3 +113,24 @@ class ContactsClients(Base):
     organisations = relationship(
         'ContactsOrganisations', secondary='client_organisations', back_populates='clients', lazy='joined'
     )
+
+    edit_journal = relationship('ContactsEditJournal', back_populates="clients", uselist=False)
+
+class ContactsEditJournal(Base):
+    __tablename__ = "edit_journal"
+    
+    id = Column(Integer, primary_key=True, index=True, nullable=False, autoincrement=True)
+    client_uuid = Column(Text(length=36), ForeignKey('clients.uuid'), nullable=False)
+    date_create = Column(DateTime, nullable=False, server_default=func.now())
+    date_update = Column(DateTime, nullable=True, onupdate=func.now())
+    date_delete = Column(DateTime, nullable=True, onupdate=func.now())
+    who_make = Column(String, nullable=False)
+    who_update = Column(String, nullable=True)
+    who_delete = Column(String, nullable=True)
+
+    clients = relationship('ContactsClients', back_populates="edit_journal", uselist=False)
+
+
+"""
+https://stackoverflow.com/questions/13370317/sqlalchemy-default-datetime
+"""

@@ -17,7 +17,7 @@
                       <el-input v-model="streetHouseSearchValueKomf" placeholder="улица или номер дома" clearable />
                     </div>
                     <div v-for="(item, index) in StreetsHousesKomfFilteredList" :key="item" style="margin: 10px;">
-                      <el-button color="#626aef" style="color: white" class="scrollbar-address-item" type="primary">{{ item }}</el-button>
+                      <el-button color="#626aef" style="color: white" class="scrollbar-address-item" type="primary" @click="handleClickStreetHouse(item)">{{ item }}</el-button>
                     </div>
                   </el-collapse-item>
                   <el-collapse-item title="ЖилКомСервис - Трехгорный" name="2">
@@ -25,7 +25,7 @@
                       <el-input v-model="streetHouseSearchValueJKS" placeholder="улица или номер дома" clearable />
                     </div>
                     <div v-for="(item, index) in StreetsHousesJKSFilteredList" :key="item" style="margin: 10px;">
-                      <el-button color="#626aef" style="color: white" class="scrollbar-address-item" type="primary">{{ item }}</el-button>
+                      <el-button color="#626aef" style="color: white" class="scrollbar-address-item" type="primary" @click="handleClickStreetHouse(item)">{{ item }}</el-button>
                     </div> 
                   </el-collapse-item>   
                 </el-collapse>
@@ -34,31 +34,63 @@
           </el-container>
         </el-aside>
         <el-main>
-          <el-container class="table-container">
+          <el-container>
             <el-row>
-              <el-col :span="24"></el-col>
-            </el-row>
-            <el-row >
               <el-col :span="24">
-                <div class="grid-content bg-purple-dark">
-                  <el-table
-                     :data="tableData"
-                     height="100%"
-                     stripe
-                     style="width: 100%">
-                    <el-table-column prop="house" label="Дом" width="180" />
-                    <el-table-column prop="entrance" label="Подъезд" width="80" align="center" />
-                    <el-table-column prop="appartment" label="Квартира" width="85" align="center" />
-                    <el-table-column prop="FIO" label="ФИО" width="300" header-align="center" align="center" />
-                    <el-table-column prop="part_have" label="Доля имущества" width="135" align="center" />
-                    <el-table-column prop="home_phone" label="Домашный телефон" width="140" />
-                    <el-table-column prop="work_phone" label="Рабочий телефон" width="140" />
-                    <el-table-column prop="mobile_phone" label="Мобильный телефон" width="140" />
-                    <el-table-column prop="email" label="Электронная почта" width="180" />
-                    <el-table-column prop="note" label="Примечание" width="180" />
-                  </el-table>
+                <div class="tags-wrapper">
+                  <el-tag
+                    v-for="tag in dynamicTags"
+                    :key="tag"
+                    class="tag-space"
+                    closable
+                    :disable-transitions="false"
+                    @close="handleClose(tag)"
+                    >
+                    {{ tag }}
+                  </el-tag>
                 </div>
               </el-col>
+            </el-row>
+          </el-container>
+          <el-container>
+            <el-row >
+              <el-col :span="24">
+                <el-table
+                  :data="pagedTableData"
+                  stripe
+                  style="width: 100%">
+                  <el-table-column prop="house" label="Дом" width="180" />
+                  <el-table-column prop="entrance" label="Подъезд" width="80" align="center" />
+                  <el-table-column prop="appartment" label="Квартира" width="85" align="center" />
+                  <el-table-column prop="FIO" label="ФИО" width="300" header-align="center" align="center">
+                      <template #header>
+                      <el-input v-model="searchFIO" size="small" placeholder="Type to search" />
+                      </template>
+                  </el-table-column>
+                  <el-table-column prop="part_have" label="Доля имущества" width="135" align="center" />
+                  <el-table-column prop="home_phone" label="Домашный телефон" width="140" />
+                  <el-table-column prop="work_phone" label="Рабочий телефон" width="140" />
+                  <el-table-column prop="mobile_phone" label="Мобильный телефон" width="140" />
+                  <el-table-column prop="email" label="Электронная почта" width="180" />
+                  <el-table-column prop="note" label="Примечание" width="180" />
+                </el-table>
+              </el-col>
+            </el-row>
+          </el-container>
+          <el-container>
+            <el-row >
+                <el-col :span="24">
+                  <div class="pagination-wrapper">
+                    <el-pagination
+                    background
+                    layout="prev, pager, next"
+                    :total="filteredByHouseTableData.length"
+                    :page-size="pageSize"
+                    @current-change="setPage"
+                    >
+                    </el-pagination>
+                  </div>   
+                </el-col>
             </el-row>
           </el-container>    
         </el-main>
@@ -73,38 +105,21 @@ import { handleAddresses, serverDataToTableRows } from '../utils/utils';
 export default {
     data() {
       return {
-        tableData: [
-          {
-            date: '2016-05-03',
-            name: 'Tom',
-            address: 'No. 189, Grove St, Los Angeles',
-          },
-          {
-            date: '2016-05-02',
-            name: 'John',
-            address: 'No. 189, Grove St, Los Angeles',
-          },
-          {
-            date: '2016-05-04',
-            name: 'Morgan',
-            address: 'No. 189, Grove St, Los Angeles',
-          },
-          {
-            date: '2016-05-01',
-            name: 'Jessy',
-            address: 'No. 200, Grove St, Los Angeles',
-          },
-        ],
-        search: '',
+        tableData: [],
+        filteredByHouseTableData: [],
+        searchFIO: '',
         serviceTitle: 'Справочник',
         loading: true,
         streetHouseSearchValueKomf: '',
-        streetsHousesKomf: ['Володина-12','Володина-14', 'Володина-16', 'Мира-27'],
+        streetsHousesKomf: [],
         streetHouseSearchValueJKS: '',
-        streetsHousesJKS: ['Володина-12','Володина-14', 'Володина-16', 'Мира-27'],
+        streetsHousesJKS: [],
         activeNames: ['1'],
         dataReady: false,
-        activeName: 'first'
+        activeName: 'first',
+        dynamicTags: [],
+        pageSize: 15,
+        page: 1,
       } 
     },
     methods: {
@@ -117,11 +132,20 @@ export default {
       handleChange (val) {
         console.log(val)
       },
-      createAlarm() {
-        console.log('Create moment!!!')
+      searchData(dataTable) {
+        var fDT = dataTable.filter(data => !this.search || data.FIO.toLowerCase().includes(this.search.toLowerCase()))
+        return fDT.slice(this.pageSize * this.page - this.pageSize, this.pageSize * this.page)
       },
-      handleClickTab (tab, event) {
-        console.log(tab, event)
+      handleClickStreetHouse (item) {
+        if (!this.dynamicTags.includes(item)) {
+          this.dynamicTags.push(item)
+        }
+      },
+      handleClose (tag) {
+        this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1)
+      },
+      setPage (val) {
+        this.page = val
       }
     },
     computed: {
@@ -134,7 +158,20 @@ export default {
         return this.streetsHousesJKS.filter((street) => {
           return this.streetHouseSearchValueJKS.toLowerCase().split(' - ').every(v => street.toLowerCase().includes(v));
         });
-      }
+      },
+      pagedTableData() {
+        this.filteredByHouseTableData = this.tableData.filter((row) => {
+          if (this.dynamicTags.length) {
+            console.log('first')
+            return this.dynamicTags.includes(row.house)
+          }
+          return true
+        })
+        if (this.searchFIO){
+          this.filteredByHouseTableData = this.filteredByHouseTableData.filter(data => !this.searchFIO || data.FIO.toLowerCase().includes(this.searchFIO.toLowerCase()))
+        }
+        return this.filteredByHouseTableData.slice(this.pageSize * this.page - this.pageSize, this.pageSize * this.page)
+     }
     },
     async mounted() {
       var komfAddresses = await get_addresses_house_street_by_org_id(1)
@@ -186,6 +223,24 @@ export default {
 }
 .table-container {
   width:100%
+}
+
+.el-row {
+  margin-bottom: 20px;
+  width: 100%;
+}
+.el-row:last-child {
+  margin-bottom: 0;
+}
+.pagination-wrapper {
+  margin-top: 20px;
+  text-align: center;
+}
+.tag-space {
+  margin: 0.3em;
+}
+.tags-wrapper {
+  min-height: 31.19px;
 }
 
 </style>

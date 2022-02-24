@@ -23,10 +23,10 @@ export var serverDataToTableRows = async function (srcLs) {
                 contactData['appartment'] = addressElement.address_data.appartment
                 contactData['FIO'] = srcElement.name + ' ' + srcElement.second_name + ' ' + srcElement.surname
                 contactData['part_have'] = getOwner(addressElement)
-                contactData['home_phone'] = srcElement.phones[0].home_phone
-                contactData['work_phone'] = srcElement.phones[0].work_phone
-                contactData['mobile_phone'] = srcElement.phones[0].mobile_phone
-                contactData['email'] = srcElement.emails[0].email
+                contactData['home_phone'] = !srcElement.phones.length ? "" : srcElement.phones[0].home_phone
+                contactData['work_phone'] = !srcElement.phones.length ? "" : srcElement.phones[0].work_phone
+                contactData['mobile_phone'] = !srcElement.phones.length ? "" : srcElement.phones[0].mobile_phone
+                contactData['email'] = !srcElement.emails.length ? "" : srcElement.emails[0].email
                 contactData['note'] = srcElement.note
                 resultTableStr.push(contactData)
         })

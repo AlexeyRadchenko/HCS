@@ -67,7 +67,7 @@ async def get_contacts_clients_list(db: AsyncSession, skip: int = 0, limit: int 
     result = await db.execute(
         select(
             ContactsClients
-        ))
+        )) #.offset(skip).limit(limit))
     return result.scalars().unique().all()
 
 async def create_contacts_db_oject(db: AsyncSession, obj: Any):

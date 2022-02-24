@@ -18,7 +18,7 @@ class ContactsAddressesSchema(BaseModel):
     id: Optional[int]
     street: str
     house_number: str
-    entrance: str
+    entrance: Optional[str]
     appartment: str
     organisation_id: int
 
