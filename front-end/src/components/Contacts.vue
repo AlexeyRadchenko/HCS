@@ -3,10 +3,11 @@
     <el-header>
       <el-row>
         <el-col :span="4"><div class="service-title"><h1>{{ serviceTitle }}</h1></div></el-col>  
-        <el-col :span="20"><div class="grid-content bg-purple-light"></div></el-col>
+        <el-col :span="16"><div></div></el-col>
+        <el-col :span="4"><div class="new-contact-btn-wrapper"><el-button type="primary" @click="dialogVisible = true">Добавить запись</el-button></div></el-col>
       </el-row>  
     </el-header>
-      <el-container v-if="dataReady">
+      <el-container v-loading="dataLoading">
         <el-aside class="contacts-sidebar-style">
           <el-container>
             <el-main>
@@ -64,13 +65,13 @@
                   <el-table-column prop="appartment" label="Квартира" width="85" align="center" />
                   <el-table-column prop="FIO" label="ФИО" width="300" header-align="center" align="center">
                       <template #header>
-                      <el-input v-model="searchFIO" size="small" placeholder="Type to search" />
+                      <el-input v-model="searchFIO" size="small" placeholder="Type to search" clearable />
                       </template>
                   </el-table-column>
                   <el-table-column prop="part_have" label="Доля имущества" width="135" align="center" />
-                  <el-table-column prop="home_phone" label="Домашный телефон" width="140" />
-                  <el-table-column prop="work_phone" label="Рабочий телефон" width="140" />
-                  <el-table-column prop="mobile_phone" label="Мобильный телефон" width="140" />
+                  <el-table-column prop="home_phone" label="Домашный тел." width="135" />
+                  <el-table-column prop="work_phone" label="Рабочий тел." width="135" />
+                  <el-table-column prop="mobile_phone" label="Мобильный тел." width="140" />
                   <el-table-column prop="email" label="Электронная почта" width="180" />
                   <el-table-column prop="note" label="Примечание" width="180" />
                 </el-table>
@@ -95,14 +96,36 @@
           </el-container>    
         </el-main>
       </el-container>
+          <el-dialog
+            v-model="dialogVisible"
+            title="Добавление новой записи"
+            width="50%"
+            :before-close="handleCloseModalW"
+          >
+            <ContactsModal :modalKomfAddresses="komfAddresses" :modalJKSAddresses="JKSAddresses" />
+            <template #footer>
+              <span class="dialog-footer">
+                <el-button @click="dialogVisible = false">Отмена</el-button>
+                <el-button type="primary" @click="dialogVisible = false"
+                  >Сохранить</el-button
+                >
+              </span>
+            </template>
+          </el-dialog>
   </el-container>
 </template>
 
 <script>
 import { get_addresses_house_street_by_org_id, get_contacts_list } from '../http/http-common';
 import { handleAddresses, serverDataToTableRows } from '../utils/utils';
+import { ElMessageBox } from 'element-plus';
+import ContactsModal from './ContactsModal.vue'
+
 // <p v-for="(item, index) in StreetsHousesKomfFilteredList" :key="item" class="scrollbar-address-item">{{ item }}</p> 
 export default {
+    components: {
+      ContactsModal
+    },
     data() {
       return {
         tableData: [],
@@ -115,11 +138,14 @@ export default {
         streetHouseSearchValueJKS: '',
         streetsHousesJKS: [],
         activeNames: ['1'],
-        dataReady: false,
+        dataLoading: true,
         activeName: 'first',
         dynamicTags: [],
         pageSize: 15,
         page: 1,
+        dialogVisible: false,
+        komfAddresses: [],
+        JKSAddresses: [],
       } 
     },
     methods: {
@@ -146,6 +172,15 @@ export default {
       },
       setPage (val) {
         this.page = val
+      },
+      handleCloseModalW (done) {
+        ElMessageBox.confirm('Are you sure to close this dialog?')
+        .then(function () {
+            done();
+        })
+        .catch(function () {
+            // catch error
+        })
       }
     },
     computed: {
@@ -170,17 +205,18 @@ export default {
         if (this.searchFIO){
           this.filteredByHouseTableData = this.filteredByHouseTableData.filter(data => !this.searchFIO || data.FIO.toLowerCase().includes(this.searchFIO.toLowerCase()))
         }
+        
         return this.filteredByHouseTableData.slice(this.pageSize * this.page - this.pageSize, this.pageSize * this.page)
      }
     },
     async mounted() {
-      var komfAddresses = await get_addresses_house_street_by_org_id(1)
-      var JKSAddresses = await get_addresses_house_street_by_org_id(2)
+      this.komfAddresses = await get_addresses_house_street_by_org_id(1)
+      this.JKSAddresses = await get_addresses_house_street_by_org_id(2)
       var servContacts = await get_contacts_list()
       this.tableData = await serverDataToTableRows(servContacts)
-      this.streetsHousesKomf = await handleAddresses(komfAddresses)
-      this.streetsHousesJKS = await handleAddresses(JKSAddresses)
-      this.dataReady = true
+      this.streetsHousesKomf = await handleAddresses(this.komfAddresses)
+      this.streetsHousesJKS = await handleAddresses(this.JKSAddresses)
+      this.dataLoading = false
     }
   }
 </script>
@@ -241,6 +277,11 @@ export default {
 }
 .tags-wrapper {
   min-height: 31.19px;
+}
+
+.new-contact-btn-wrapper {
+  padding-top: 0.8em;
+  text-align: right;
 }
 
 </style>

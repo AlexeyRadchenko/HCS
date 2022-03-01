@@ -6,6 +6,17 @@ export var handleAddresses = async function(adresses) {
     return resultArr
   }
 
+export var handleModalAddresses = function (addresses) {
+    var result_list = []
+    addresses.forEach(element => {
+        result_list.push({
+            value: element.street + ' - ' + element.house_number + '_' + element.organisation_id,
+            label: element.street + ' - ' + element.house_number
+        })
+    })
+    return result_list
+}  
+
 var getOwner = function (ownerData) {
     if (ownerData.full_owner)
         return 'Владелец'
