@@ -102,11 +102,11 @@
             width="50%"
             :before-close="handleCloseModalW"
           >
-            <ContactsModal :modalKomfAddresses="komfAddresses" :modalJKSAddresses="JKSAddresses" />
+            <ContactsModal :modalKomfAddresses="komfAddresses" :modalJKSAddresses="JKSAddresses" :formDataModal="formData" />
             <template #footer>
               <span class="dialog-footer">
                 <el-button @click="dialogVisible = false">Отмена</el-button>
-                <el-button type="primary" @click="dialogVisible = false"
+                <el-button type="primary" @click="sendFormModalData"
                   >Сохранить</el-button
                 >
               </span>
@@ -116,8 +116,8 @@
 </template>
 
 <script>
-import { get_addresses_house_street_by_org_id, get_contacts_list } from '../http/http-common';
-import { handleAddresses, serverDataToTableRows } from '../utils/utils';
+import { get_addresses_house_street_by_org_id, get_contacts_list, create_new_record_in_contacts } from '../http/http-common';
+import { handleAddresses, serverDataToTableRows, getModalFormObject } from '../utils/utils';
 import { ElMessageBox } from 'element-plus';
 import ContactsModal from './ContactsModal.vue'
 
@@ -146,6 +146,20 @@ export default {
         dialogVisible: false,
         komfAddresses: [],
         JKSAddresses: [],
+        formData: {
+          name: '',
+          second_name: '',
+          surname: '',
+          street_house: '',
+          entrance: '',
+          appartment: '',
+          part_own: '',
+          mobile_phones: '',
+          home_phones: '',
+          work_phones: '',
+          emails: '',
+          note: '',
+        },
       } 
     },
     methods: {
@@ -181,6 +195,12 @@ export default {
         .catch(function () {
             // catch error
         })
+      },
+      sendFormModalData () {
+        var formData = getModalFormObject(this.formData)
+        var response = create_new_record_in_contacts (formData)
+        console.log(response)
+        this.dialogVisible = false
       }
     },
     computed: {

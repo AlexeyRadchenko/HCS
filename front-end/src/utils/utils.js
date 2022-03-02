@@ -24,6 +24,15 @@ var getOwner = function (ownerData) {
         return ownerData.part_size
 }
 
+export var getModalFormObject = function (formModalData) {
+    var formData = new FormData ()
+    for (const [key, value] of Object.entries(formModalData)) {
+        formData.append(`${key}`, `${value}`)
+    }
+    return formData
+       
+}
+
 export var serverDataToTableRows = async function (srcLs) {
     var resultTableStr = []
     srcLs.forEach(function (srcElement) {
