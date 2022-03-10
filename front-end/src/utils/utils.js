@@ -18,6 +18,8 @@ export var handleModalAddresses = function (addresses) {
 }  
 
 var getOwner = function (ownerData) {
+    if (ownerData == 'Владелец')
+        return ownerData
     if (ownerData.full_owner)
         return 'Владелец'
     if (ownerData.part_owner)
@@ -25,6 +27,8 @@ var getOwner = function (ownerData) {
 }
 
 export var getModalFormObject = function (formModalData) {
+    if (formModalData.part_own == 'Владелец')
+        formModalData.part_own = '1'
     var formData = new FormData ()
     for (const [key, value] of Object.entries(formModalData)) {
         formData.append(`${key}`, `${value}`)
@@ -38,6 +42,7 @@ export var serverDataToTableRows = async function (srcLs) {
     srcLs.forEach(function (srcElement) {
         var contactData = {}
         srcElement.addresses.forEach(function (addressElement) {
+                contactData['uuid'] = srcElement.uuid
                 contactData['house'] = addressElement.address_data.street + ' - ' + addressElement.address_data.house_number
                 contactData['entrance'] = addressElement.address_data.entrance
                 contactData['appartment'] = addressElement.address_data.appartment
@@ -52,4 +57,20 @@ export var serverDataToTableRows = async function (srcLs) {
         })
     })
     return resultTableStr
+}
+
+export var ContactDataObjectToTableObject = async function (fData) {
+    var contactData = {}
+    contactData['uuid'] = fData['uuid']
+    contactData['house'] = fData['street_house'].split('_')[0]
+    contactData['entrance'] = fData['entrance']
+    contactData['appartment'] = fData['appartment']
+    contactData['FIO'] = fData['name'] + ' ' + fData['second_name'] + ' ' + fData['surname']
+    contactData['part_have'] = (fData['part_own'] == '1') ? 'Владелец' : fData['part_own']
+    contactData['home_phone'] = fData['home_phones']
+    contactData['work_phone'] = fData['work_phones']
+    contactData['mobile_phone'] = fData['mobile_phones']
+    contactData['email'] = fData['emails']
+    contactData['note'] = fData['note']
+    return contactData
 }

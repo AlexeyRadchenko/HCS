@@ -11,7 +11,8 @@ from ..databese.clients.schemas import (
     ContactsClientSchema, ContactsClientFullDataSchema, ContactsAddressesSchema, ContactsOrganisationsSchema, ContactsAddressesHouseStreetOrgIdScheme
     )
 from ..databese.clients.crud import (
-    get_contacts_clients_list, create_contacts_db_oject, get_contacts_client_by_uuid, update_contacts_client_by_uuid, get_addressess_house_street_from_db_by_org_id
+    get_contacts_clients_list, create_contacts_db_oject, get_contacts_client_by_uuid, update_contacts_client_by_uuid, get_addressess_house_street_from_db_by_org_id,
+    get_address_id_by_street_house_appartment, get_client_by_name_secondname_surname
     )
 from ..databese.clients.models import (
     ContactsClients, ContactsOrganisations, ContactsClientsAddresses, ContactsClientOrganisations, ContactsPhones, ContactsEmails, ContactsAddresses
@@ -63,6 +64,10 @@ async def create_contact_user_handler(
     form_data: dict = Depends(create_contact_user_decode_depends)
     ):
 
+    existing_client = await get_client_by_name_secondname_surname(db_session, form_data['name'], form_data['second_name'], form_data['surname'])
+    print('------------------------------------', existing_client)
+    if existing_client:
+        return existing_client    
     client = ContactsClients(
         name=form_data['name'], second_name=form_data['second_name'], surname=form_data['surname'], note=form_data['note']
     )
@@ -83,19 +88,16 @@ async def create_contact_user_handler(
      
     if form_data['addresses']:
         for address_data in form_data['addresses']:
+            address_id = await get_address_id_by_street_house_appartment(db_session, address_data['street'], address_data['house'], address_data['appartment'])
             client_address = ContactsClientsAddresses(
                 client_uuid=created_client_in_db.uuid, 
-                address_id=address_data['address_id'],
+                address_id=address_id,
                 full_owner=address_data['full_owner'],
                 part_owner=address_data['part_owner'],
                 part_size=address_data['part_size'])
             created_client_address_in_db = await create_contacts_db_oject(db_session, client_address)
-
-
-    if form_data['organisations']:
-        for organisation in form_data['organisations']:
-            client_organisation = ContactsClientOrganisations(client_uuid=created_client_in_db.uuid, org_id=organisation)
-            created_cleint_organisation_in_db = await create_contacts_db_oject(db_session, client_organisation)
+            client_organisation = ContactsClientOrganisations(client_uuid=created_client_in_db.uuid, org_id=address_data['org'])
+            created_cleint_organisation_in_db = await create_contacts_db_oject(db_session, client_organisation)        
 
     return created_client_in_db
 

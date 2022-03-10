@@ -93,19 +93,22 @@ export var get_contacts_list = async function() {
   })
 }
 
-export var create_new_record_in_contacts = function(formModalData) {
+export var create_new_record_in_contacts = async function(formModalData) {
   setHeaders(http)
   var api_url = `http://localhost:8050/api/v1/contacts_service/contacts_users/create_contact`;
   return http.post(api_url, formModalData)
   .then((response) => {
-      if (response.status != 200)
+      if (response.status != 200){
         console.log(response.data, response.status)
+        return null
+      }
       return response.data  
   })
   .catch(e => {
     if (!e.response) {
       console.log('сервер не отвечает')
-    } else {
+      return null
     }
   })
+
 }

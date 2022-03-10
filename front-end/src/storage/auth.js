@@ -6,7 +6,7 @@ export const useAuthStore = defineStore({
   state: () => ({
     token: '',
     error: '',
-    user: null
+    user: null,
   }),
   getters: {
     getToken () {

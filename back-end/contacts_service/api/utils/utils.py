@@ -2,7 +2,7 @@ from datetime import datetime
 from http import client
 from ..databese.clients.crud import create_contacts_db_oject
 from ..databese.database import get_async_session
-from ..databese.clients.models import ContactsClients, ContactsAddresses, ContactsClientsAddresses, ContactsEditJournal, ContactsClientOrganisations, ContactsOrganisations
+from ..databese.clients.models import ContactsClients, ContactsAddresses, ContactsClientsAddresses, ContactsEditJournal, ContactsClientOrganisations, ContactsOrganisations, ContactsPhones
 from ..databese.database import async_session
 
 async def init_contacts_db_data(obj_list, org):
@@ -26,7 +26,7 @@ async def init_contacts_db_data(obj_list, org):
             name=data['name'],
             second_name=data['second_name'],
             surname=data['surname'],
-            note=''
+            note=data['note']
         )
         contact = await create_contacts_db_oject(db_session, contact_obj)
         address_obj = ContactsAddresses(
@@ -45,6 +45,14 @@ async def init_contacts_db_data(obj_list, org):
             part_size=data['part_size']
         )
         client_address = await create_contacts_db_oject(db_session, client_address_obj)
+
+        client_phones_obj = ContactsPhones(
+            client_uuid=contact.uuid,
+            home_phone=' '.join(data['home_phones']),
+            mobile_phone=' '.join(data['mobile_phones']),
+            work_phone=' '.join(data['work_phones'])
+        )
+        client_phones = await create_contacts_db_oject(db_session, client_phones_obj)
 
         journal_obj = ContactsEditJournal (
             client_uuid = contact.uuid,

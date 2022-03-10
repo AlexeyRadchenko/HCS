@@ -53,21 +53,21 @@
                         </el-select>
                     </el-form-item>    
                 </el-col>
-                <el-col :span="8">   
-                    <el-form-item label="Квартира">
-                    <el-input v-model="formDataModal.appartment"></el-input>
-                    </el-form-item>
-                </el-col> 
                 <el-col :span="8">    
                     <el-form-item label="Подъезд">
                     <el-input v-model="formDataModal.entrance"></el-input>
                     </el-form-item>
-                </el-col>        
+                </el-col>
+                <el-col :span="8">   
+                    <el-form-item label="Квартира">
+                    <el-input v-model="formDataModal.appartment"></el-input>
+                    </el-form-item>
+                </el-col>         
             </el-row>
             <el-row :gutter="5">
                 <el-col :span="8">    
                     <el-form-item label="Доля имущества">
-                    <el-select v-model="formDataModal.street_house" filterable placeholder="Доля" style="width:100%;">
+                    <el-select v-model="formDataModal.part_own" filterable placeholder="Доля" style="width:100%;">
                         <el-option
                         v-for="item in ownParts"
                         :key="item.value"

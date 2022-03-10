@@ -55,9 +55,9 @@ class ContactsOrganisationsSchema(BaseModel):
 class ContactsPhonesSchema(BaseModel):
     id: Optional[int]
     client_uuid: Optional[UUID]
-    home_phone: str
-    work_phone: str
-    mobile_phone: str
+    home_phone: Optional[str]
+    work_phone: Optional[str]
+    mobile_phone: Optional[str]
 
     class Config:
         orm_mode = True

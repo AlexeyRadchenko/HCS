@@ -61,8 +61,8 @@
                   stripe
                   style="width: 100%">
                   <el-table-column prop="house" label="Дом" width="180" />
-                  <el-table-column prop="entrance" label="Подъезд" width="80" align="center" />
-                  <el-table-column prop="appartment" label="Квартира" width="85" align="center" />
+                  <el-table-column prop="entrance" label="Под." width="55" align="center" />
+                  <el-table-column prop="appartment" label="Кв." width="50" align="center" />
                   <el-table-column prop="FIO" label="ФИО" width="300" header-align="center" align="center">
                       <template #header>
                       <el-input v-model="searchFIO" size="small" placeholder="Type to search" clearable />
@@ -72,8 +72,46 @@
                   <el-table-column prop="home_phone" label="Домашный тел." width="135" />
                   <el-table-column prop="work_phone" label="Рабочий тел." width="135" />
                   <el-table-column prop="mobile_phone" label="Мобильный тел." width="140" />
-                  <el-table-column prop="email" label="Электронная почта" width="180" />
-                  <el-table-column prop="note" label="Примечание" width="180" />
+                  <el-table-column prop="email" label="Эл. почта" width="130" />
+                  <el-table-column label="Прим." width="65">
+                    <template #default="scope">
+                      <el-popover effect="light" trigger="hover" placement="top" width="auto">
+                        <template #default>
+                          <div>Примечание</div>
+                          <div>{{ scope.row.note }}</div>
+                        </template>
+                        <template #reference>
+                          <el-tag>Прим.</el-tag>
+                        </template>
+                      </el-popover>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="Изм./удал.">
+                    <template #default="scope">
+                      <div class="flex flex-wrap items-center">
+                        <el-dropdown trigger="click" >
+                          <el-button type="primary">
+                            Изм./удал.<font-awesome-icon :icon="['fas', 'angle-down']" size="1x" />
+                          </el-button>
+                          <template #dropdown>
+                            <el-dropdown-menu>
+                              <el-dropdown-item>
+                                <el-button size="large" round @click="handleEditTableRow(scope.$index, scope.row)"
+                                  >Редакт.</el-button
+                                >
+                              </el-dropdown-item>
+                              <el-dropdown-item>
+                                <el-button size="large" round type="danger"
+                                  @click="handleDeleteTableRow(scope.$index, scope.row)"
+                                  >Удалить</el-button
+                                >
+                              </el-dropdown-item>  
+                            </el-dropdown-menu>
+                          </template>
+                        </el-dropdown>
+                      </div>  
+                    </template>
+                  </el-table-column>
                 </el-table>
               </el-col>
             </el-row>
@@ -117,18 +155,26 @@
 
 <script>
 import { get_addresses_house_street_by_org_id, get_contacts_list, create_new_record_in_contacts } from '../http/http-common';
-import { handleAddresses, serverDataToTableRows, getModalFormObject } from '../utils/utils';
+import { handleAddresses, serverDataToTableRows, getModalFormObject, ContactDataObjectToTableObject } from '../utils/utils';
+import { useContactStore } from '../storage/contactService';
 import { ElMessageBox } from 'element-plus';
-import ContactsModal from './ContactsModal.vue'
+import ContactsModal from './ContactsModal.vue';
+import { reactive } from '@vue/reactivity';
+import { treeProps } from 'element-plus/es/components/tree-v2/src/virtual-tree';
 
 // <p v-for="(item, index) in StreetsHousesKomfFilteredList" :key="item" class="scrollbar-address-item">{{ item }}</p> 
 export default {
     components: {
       ContactsModal
     },
+    setup() {
+      let contactsStore = useContactStore()
+      let reactiveTableData = reactive (contactsStore.getContactsServiceTableData)
+      return { contactsStore, reactiveTableData  }
+    },
     data() {
       return {
-        tableData: [],
+        //tableData: [],
         filteredByHouseTableData: [],
         searchFIO: '',
         serviceTitle: 'Справочник',
@@ -147,6 +193,7 @@ export default {
         komfAddresses: [],
         JKSAddresses: [],
         formData: {
+          uuid: '',
           name: '',
           second_name: '',
           surname: '',
@@ -163,10 +210,36 @@ export default {
       } 
     },
     methods: {
-      handleEdit(index, row) {
+      handleEditTableRow(index, row) {
+        /*FIO: "Татьяна Константиновна Анферова"
+          appartment: "1"
+          email: ""
+          entrance: "1"
+          home_phone: ""
+          house: "50 лет Победы - 22"
+          mobile_phone: ""
+          note: ""
+          part_have: "Владелец"
+          uuid: "804ac0dc-109e-412b-894b-9457c1146552"
+          work_phone: ""*/
+        this.formData.uuid = row.uuid
+        this.formData.name = row.FIO.split(' ')[0]
+        this.formData.second_name = row.FIO.split(' ')[1]
+        this.formData.surname = row.FIO.split(' ')[2]
+        this.formData.street_house = row.house
+        this.formData.entrance = row.entrance
+        this.formData.appartment = row.appartment
+        this.formData.part_own = row.part_have
+        this.formData.home_phones = row.home_phone
+        this.formData.mobile_phones = row.mobile_phones
+        this.formData.work_phones = row.work_phone
+        this.formData.emails = row.email
+        this.formData.note = row.note
+
+        this.dialogVisible = true
         console.log(index, row)
       },
-      handleDelete(index, row) {
+      handleDeleteTableRow(index, row) {
         console.log(index, row)
       },
       handleChange (val) {
@@ -196,10 +269,22 @@ export default {
             // catch error
         })
       },
-      sendFormModalData () {
+      async sendFormModalData () {
         var formData = getModalFormObject(this.formData)
-        var response = create_new_record_in_contacts (formData)
-        console.log(response)
+        if (!this.formData.uuid) {
+          var response = await create_new_record_in_contacts (formData)
+          if (response) {
+            var data = await ContactDataObjectToTableObject (this.formData)
+            console.log(data)
+            this.contactsStore.$patch((state) => {
+              state.contactsServiceTableData.unshift(data)
+              state.hasChanged = true
+            })
+          }
+        } else {
+
+        }
+       
         this.dialogVisible = false
       }
     },
@@ -215,17 +300,23 @@ export default {
         });
       },
       pagedTableData() {
-        this.filteredByHouseTableData = this.tableData.filter((row) => {
+        this.filteredByHouseTableData = this.contactsStore.getContactsServiceTableData.filter((row) => { 
           if (this.dynamicTags.length) {
-            console.log('first')
             return this.dynamicTags.includes(row.house)
-          }
-          return true
+          }   
+          return this.contactsStore.getContactsServiceTableData
         })
+        
+        if (this.contactsStore.changedState) {
+          this.contactsStore.setStateStatus(false)
+        }
+
         if (this.searchFIO){
           this.filteredByHouseTableData = this.filteredByHouseTableData.filter(data => !this.searchFIO || data.FIO.toLowerCase().includes(this.searchFIO.toLowerCase()))
         }
+
         
+
         return this.filteredByHouseTableData.slice(this.pageSize * this.page - this.pageSize, this.pageSize * this.page)
      }
     },
@@ -233,7 +324,8 @@ export default {
       this.komfAddresses = await get_addresses_house_street_by_org_id(1)
       this.JKSAddresses = await get_addresses_house_street_by_org_id(2)
       var servContacts = await get_contacts_list()
-      this.tableData = await serverDataToTableRows(servContacts)
+      var tabeData = await serverDataToTableRows(servContacts)
+      this.contactsStore.setContactsServiceTableData(tabeData)
       this.streetsHousesKomf = await handleAddresses(this.komfAddresses)
       this.streetsHousesJKS = await handleAddresses(this.JKSAddresses)
       this.dataLoading = false

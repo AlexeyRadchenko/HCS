@@ -1,9 +1,11 @@
 #from argparse import ArgumentParser
 from copy import copy
+from gettext import find
 from isort import file
 from api.utils.utils import init_contacts_db_data
 from asyncio import get_event_loop
 from openpyxl import load_workbook
+from re import findall
 
 def get_street_and_house_number(row_data):
     street, house = row_data.split(',')
@@ -32,6 +34,23 @@ def get_name_secondname_surname(row_data):
         return name, second_name, surname
     return row_data, '', ''
 
+def get_home_mobile_work_phone_from_row(row_data):
+    MOBILE_PHONE_REG = r'((?:\+\d{2}[-\.\s]??|\d{4}[-\.\s]??)?(?:\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4}))'
+    HOME_PHONE_REG = r'^\d[-\.\s]\d{2}-\d{2}\s?'
+    try:
+        row_d = row_data[3].value
+    except IndexError:
+        return 'break' ,'', '', ''
+    if not row_d:
+        return '', '', '', ''
+    home_numbers = findall(HOME_PHONE_REG, row_d)
+    mob_numbers = findall(MOBILE_PHONE_REG, row_d)
+    work_numbers = []
+    note = row_d
+    return home_numbers, mob_numbers, work_numbers, note
+    
+
+
 def load_data_from_xlsx(filename):
     wb = load_workbook(filename=filename)
     sheet = wb.active
@@ -53,6 +72,9 @@ def load_data_from_xlsx(filename):
                 continue
             if appartment:
                 row_data['appartment'], row_data['full_owner'], row_data['part_owner'], row_data['part_size'] = get_appartment_number_and_owner(appartment)
+            row_data['home_phones'], row_data['mobile_phones'], row_data['work_phones'], row_data['note'] = get_home_mobile_work_phone_from_row(row)
+            if row_data['home_phones'] == 'break':
+                break
             clear_var = copy(row_data)
             data_list.append(clear_var)
             clear_var = None

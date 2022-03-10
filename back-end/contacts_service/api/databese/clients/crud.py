@@ -2,7 +2,7 @@ from ast import Constant
 from multiprocessing.connection import Client
 from typing import Any, List
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, desc, distinct
+from sqlalchemy import select, update, desc, cast, Integer
 from sqlalchemy.orm import joinedload
 
 from ..database import row2dict
@@ -63,11 +63,24 @@ async def get_contacts_client_by_uuid(db: AsyncSession, uuid: str):
     )
     return result.scalar()
 
+async def get_client_by_name_secondname_surname (db: AsyncSession, name, second_name, surname):
+    result = await db.execute(
+        select(
+            ContactsClients
+        )
+        .where(ContactsClients.name == name, ContactsClients.second_name == second_name, ContactsClients.surname == surname)
+    )
+    return result.scalar()
+
 async def get_contacts_clients_list(db: AsyncSession, skip: int = 0, limit: int = 100):
     result = await db.execute(
         select(
             ContactsClients
-        )) #.offset(skip).limit(limit))
+        )
+        .join(ContactsClientsAddresses, ContactsClients.addresses)
+        .join(ContactsAddresses, ContactsClientsAddresses.address)
+        .order_by(ContactsAddresses.street, ContactsAddresses.house_number, ContactsAddresses.entrance, cast(ContactsAddresses.appartment, Integer)) 
+        ) #.offset(skip).limit(limit)) #desc(ContactsAddresses.street), desc(ContactsAddresses.house_number), 
     return result.scalars().unique().all()
 
 async def create_contacts_db_oject(db: AsyncSession, obj: Any):
@@ -84,5 +97,13 @@ async def get_addressess_house_street_from_db_by_org_id(db, id: int):
         .where(ContactsAddresses.organisation_id == id)
         .order_by(desc(ContactsAddresses.street), desc(ContactsAddresses.house_number))
     )
-    
     return result.unique().all()
+
+async def get_address_id_by_street_house_appartment (db, street, house, appartment):
+    result = await db.execute(
+        select(
+            ContactsAddresses.id
+        )
+        .where(ContactsAddresses.street == street, ContactsAddresses.house_number == house, ContactsAddresses.appartment == appartment)
+    )
+    return result.scalar()
