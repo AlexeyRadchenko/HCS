@@ -68,7 +68,7 @@ export var ContactDataObjectToTableObject = async function (fData) {
     contactData['FIO'] = fData['name'] + ' ' + fData['second_name'] + ' ' + fData['surname']
     contactData['part_have'] = (fData['part_own'] == '1') ? 'Владелец' : fData['part_own']
     contactData['home_phone'] = fData['home_phones']
-    contactData['work_phone'] = fData['work_phones']
+    contactData['work_phone'] = !fData['work_phones'] ? "" : fData['work_phones']
     contactData['mobile_phone'] = fData['mobile_phones']
     contactData['email'] = fData['emails']
     contactData['note'] = fData['note']

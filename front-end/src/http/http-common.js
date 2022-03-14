@@ -112,3 +112,42 @@ export var create_new_record_in_contacts = async function(formModalData) {
   })
 
 }
+
+export var update_record_in_contacts = async function(formModalData) {
+  setHeaders(http)
+  var api_url = `http://localhost:8050/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
+  return http.put(api_url, formModalData)
+  .then((response) => {
+      if (response.status != 200){
+        console.log(response.data, response.status)
+        return null
+      }
+      return response.data  
+  })
+  .catch(e => {
+    if (!e.response) {
+      console.log('сервер не отвечает')
+      return null
+    }
+  })
+}
+
+export var delete_record_in_contacts = async function(formModalData) {
+  setHeaders(http)
+  var api_url = `http://localhost:8050/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
+  return http.delete(api_url, {data: {system_user: formModalData.get('system_user')}})
+  .then((response) => {
+      console.log(response.data, response.status)
+      if (response.status != 200){
+        console.log(response.data, response.status)
+        return null
+      }
+      return response.data  
+  })
+  .catch(e => {
+    if (!e.response) {
+      console.log('сервер не отвечает')
+      return null
+    }
+  })
+}

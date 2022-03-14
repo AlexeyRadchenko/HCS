@@ -12,7 +12,7 @@
                         </div>
                         <template #dropdown>
                             <el-dropdown-menu>
-                                <el-dropdown-item>Все сервисы</el-dropdown-item>
+                                <el-dropdown-item><router-link to="/services" exact>Все сервисы</router-link></el-dropdown-item>
                                 <el-dropdown-item>Задолженность по и/л</el-dropdown-item>
                                 <el-dropdown-item>Соглашения с должниками</el-dropdown-item>
                             </el-dropdown-menu>
@@ -82,6 +82,15 @@
 }
 .nav-menu-column {
     padding-top: 0.7em;
+}
+.custom-active {
+    color:black;
+    background-color: blue;
+    text-decoration: none;
+}
+.exact-active {
+    color:black;
+    text-decoration: none;
 }
 
 </style>

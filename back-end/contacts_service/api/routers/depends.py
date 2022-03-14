@@ -12,7 +12,11 @@ async def decode_string_from_latin(string: str):
 async def decode_address_data_to_db_params(street_house, entrance, appartment, part_own):
     params_list = street_house.split(' - ')
     street = params_list[0]
-    house, organisation = params_list[1].split('_')
+    try:
+        house, organisation = params_list[1].split('_')
+    except ValueError:
+        house = params_list[1]
+        organisation = ''
     if part_own == '1':
         full_owner = True
         part_owner = False
@@ -73,7 +77,8 @@ async def create_contact_user_decode_depends(
     work_phones: Optional[str] = Form(None),
     mobile_phones: Optional[str] = Form(None),
     emails: Optional[str] = Form(None),
-    note: Optional[str] = Form(None)
+    note: Optional[str] = Form(None),
+    system_user: Optional[str] = Form(None)
 ):  
     print()
     return {
@@ -86,4 +91,5 @@ async def create_contact_user_decode_depends(
         'mobile_phones': await decode_string_from_latin(mobile_phones),
         'emails': await decode_string_from_latin(emails),
         'note': await decode_string_from_latin(note),
+        'system_user': await decode_string_from_latin(system_user),
     }

@@ -123,7 +123,7 @@ class ContactsEditJournal(Base):
     client_uuid = Column(Text(length=36), ForeignKey('clients.uuid'), nullable=False)
     date_create = Column(DateTime, nullable=False, server_default=func.now())
     date_update = Column(DateTime, nullable=True, onupdate=func.now())
-    date_delete = Column(DateTime, nullable=True, onupdate=func.now())
+    date_delete = Column(DateTime, nullable=True)
     who_make = Column(String, nullable=False)
     who_update = Column(String, nullable=True)
     who_delete = Column(String, nullable=True)

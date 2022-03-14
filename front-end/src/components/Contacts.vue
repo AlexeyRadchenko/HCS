@@ -17,7 +17,7 @@
                     <div class="search-houses-wrapper">
                       <el-input v-model="streetHouseSearchValueKomf" placeholder="улица или номер дома" clearable />
                     </div>
-                    <div v-for="(item, index) in StreetsHousesKomfFilteredList" :key="item" style="margin: 10px;">
+                    <div v-for="item in StreetsHousesKomfFilteredList" :key="item" style="margin: 10px;">
                       <el-button color="#626aef" style="color: white" class="scrollbar-address-item" type="primary" @click="handleClickStreetHouse(item)">{{ item }}</el-button>
                     </div>
                   </el-collapse-item>
@@ -25,7 +25,7 @@
                     <div class="search-houses-wrapper">
                       <el-input v-model="streetHouseSearchValueJKS" placeholder="улица или номер дома" clearable />
                     </div>
-                    <div v-for="(item, index) in StreetsHousesJKSFilteredList" :key="item" style="margin: 10px;">
+                    <div v-for="item in StreetsHousesJKSFilteredList" :key="item" style="margin: 10px;">
                       <el-button color="#626aef" style="color: white" class="scrollbar-address-item" type="primary" @click="handleClickStreetHouse(item)">{{ item }}</el-button>
                     </div> 
                   </el-collapse-item>   
@@ -73,7 +73,7 @@
                   <el-table-column prop="work_phone" label="Рабочий тел." width="135" />
                   <el-table-column prop="mobile_phone" label="Мобильный тел." width="140" />
                   <el-table-column prop="email" label="Эл. почта" width="130" />
-                  <el-table-column label="Прим." width="65">
+                  <el-table-column label="Прим." width="65" header-align="center" align="center">
                     <template #default="scope">
                       <el-popover effect="light" trigger="hover" placement="top" width="auto">
                         <template #default>
@@ -86,7 +86,7 @@
                       </el-popover>
                     </template>
                   </el-table-column>
-                  <el-table-column label="Изм./удал.">
+                  <el-table-column label="Изм./удал." header-align="center" align="center">
                     <template #default="scope">
                       <div class="flex flex-wrap items-center">
                         <el-dropdown trigger="click" >
@@ -138,7 +138,6 @@
             v-model="dialogVisible"
             title="Добавление новой записи"
             width="50%"
-            :before-close="handleCloseModalW"
           >
             <ContactsModal :modalKomfAddresses="komfAddresses" :modalJKSAddresses="JKSAddresses" :formDataModal="formData" />
             <template #footer>
@@ -150,27 +149,51 @@
               </span>
             </template>
           </el-dialog>
+          <el-dialog
+            v-model="dialogDelVisible"
+            title="Удаление записи"
+            width="35%"
+          >
+            <el-row><span>Вы действительно хотите удалить эту запись ?</span></el-row>
+            <el-row :gutter="20" class="row-bg">
+                    <el-col :span="6">{{ formData.street_house }}</el-col>
+                    <el-col :span="3">под. {{ formData.entrance}}</el-col>
+                    <el-col :span="3">кв. {{ formData.appartment}}</el-col>
+                    <el-col :span="12">{{ formData.name }} {{ formData.second_name }} {{ formData.surname }}</el-col>
+            </el-row>
+
+            <span></span><span></span>
+            <template #footer>
+              <span class="dialog-footer">
+                <el-button @click="dialogDelVisible = false">Отмена</el-button>
+                <el-button type="danger" @click="sendDelFormModalData"
+                  >Да</el-button
+                >
+              </span>
+            </template>
+          </el-dialog>
   </el-container>
 </template>
 
 <script>
-import { get_addresses_house_street_by_org_id, get_contacts_list, create_new_record_in_contacts } from '../http/http-common';
+import { get_addresses_house_street_by_org_id, get_contacts_list,
+       create_new_record_in_contacts, update_record_in_contacts, delete_record_in_contacts } from '../http/http-common';
 import { handleAddresses, serverDataToTableRows, getModalFormObject, ContactDataObjectToTableObject } from '../utils/utils';
 import { useContactStore } from '../storage/contactService';
-import { ElMessageBox } from 'element-plus';
 import ContactsModal from './ContactsModal.vue';
+import { useAuthStore } from '../storage/auth';
 import { reactive } from '@vue/reactivity';
-import { treeProps } from 'element-plus/es/components/tree-v2/src/virtual-tree';
 
-// <p v-for="(item, index) in StreetsHousesKomfFilteredList" :key="item" class="scrollbar-address-item">{{ item }}</p> 
+
 export default {
     components: {
       ContactsModal
     },
     setup() {
       let contactsStore = useContactStore()
+      const authStore = useAuthStore()
       let reactiveTableData = reactive (contactsStore.getContactsServiceTableData)
-      return { contactsStore, reactiveTableData  }
+      return { contactsStore, authStore, reactiveTableData }
     },
     data() {
       return {
@@ -190,6 +213,7 @@ export default {
         pageSize: 15,
         page: 1,
         dialogVisible: false,
+        dialogDelVisible: false,
         komfAddresses: [],
         JKSAddresses: [],
         formData: {
@@ -206,22 +230,12 @@ export default {
           work_phones: '',
           emails: '',
           note: '',
+          system_user: this.authStore.getUser.login
         },
       } 
     },
     methods: {
-      handleEditTableRow(index, row) {
-        /*FIO: "Татьяна Константиновна Анферова"
-          appartment: "1"
-          email: ""
-          entrance: "1"
-          home_phone: ""
-          house: "50 лет Победы - 22"
-          mobile_phone: ""
-          note: ""
-          part_have: "Владелец"
-          uuid: "804ac0dc-109e-412b-894b-9457c1146552"
-          work_phone: ""*/
+      init_form_data(row) {
         this.formData.uuid = row.uuid
         this.formData.name = row.FIO.split(' ')[0]
         this.formData.second_name = row.FIO.split(' ')[1]
@@ -235,12 +249,14 @@ export default {
         this.formData.work_phones = row.work_phone
         this.formData.emails = row.email
         this.formData.note = row.note
-
+      },
+      handleEditTableRow(index, row) {
+        this.init_form_data(row)
         this.dialogVisible = true
-        console.log(index, row)
       },
       handleDeleteTableRow(index, row) {
-        console.log(index, row)
+        this.init_form_data(row)
+        this.dialogDelVisible = true
       },
       handleChange (val) {
         console.log(val)
@@ -260,32 +276,38 @@ export default {
       setPage (val) {
         this.page = val
       },
-      handleCloseModalW (done) {
-        ElMessageBox.confirm('Are you sure to close this dialog?')
-        .then(function () {
-            done();
-        })
-        .catch(function () {
-            // catch error
-        })
-      },
       async sendFormModalData () {
         var formData = getModalFormObject(this.formData)
         if (!this.formData.uuid) {
           var response = await create_new_record_in_contacts (formData)
           if (response) {
             var data = await ContactDataObjectToTableObject (this.formData)
-            console.log(data)
             this.contactsStore.$patch((state) => {
               state.contactsServiceTableData.unshift(data)
               state.hasChanged = true
             })
           }
         } else {
-
-        }
-       
+          var response = await update_record_in_contacts(formData)
+          if (response) {
+            var data = await ContactDataObjectToTableObject (this.formData)
+            var foundIndex =  this.contactsStore.contactsServiceTableData.findIndex(x => x.uuid == data.uuid);
+            this.contactsStore.contactsServiceTableData[foundIndex] = data
+            this.contactsStore.setStateStatus(true)
+          }
+        }      
         this.dialogVisible = false
+      },
+      async sendDelFormModalData () {
+        var formData = getModalFormObject(this.formData)
+        var response = await delete_record_in_contacts(formData)
+        console.log(response)
+        if (response) {
+          var foundIndex =  this.contactsStore.contactsServiceTableData.findIndex(x => x.uuid == response.key);
+          this.contactsStore.contactsServiceTableData.splice(foundIndex, 1)
+          this.contactsStore.setStateStatus(true)
+        }
+        this.dialogDelVisible = false
       }
     },
     computed: {
@@ -394,6 +416,9 @@ export default {
 .new-contact-btn-wrapper {
   padding-top: 0.8em;
   text-align: right;
+}
+.row-bg {
+  background-color: #e09ead;
 }
 
 </style>

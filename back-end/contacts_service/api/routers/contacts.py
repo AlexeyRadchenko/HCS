@@ -1,6 +1,8 @@
+from distutils.command.upload import upload
 from fastapi import APIRouter, Depends, Form
-from fastapi import Security
+from fastapi import Security, Body
 from typing import List
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from ..security.access_depends import user_scope_authorize
@@ -12,10 +14,11 @@ from ..databese.clients.schemas import (
     )
 from ..databese.clients.crud import (
     get_contacts_clients_list, create_contacts_db_oject, get_contacts_client_by_uuid, update_contacts_client_by_uuid, get_addressess_house_street_from_db_by_org_id,
-    get_address_id_by_street_house_appartment, get_client_by_name_secondname_surname
+    get_address_id_by_street_house_appartment, get_client_by_name_secondname_surname, delete_contacts_client_by_uuid
     )
 from ..databese.clients.models import (
-    ContactsClients, ContactsOrganisations, ContactsClientsAddresses, ContactsClientOrganisations, ContactsPhones, ContactsEmails, ContactsAddresses
+    ContactsClients, ContactsOrganisations, ContactsClientsAddresses, ContactsClientOrganisations, ContactsPhones, ContactsEmails, ContactsAddresses,
+    ContactsEditJournal
     )
 
 
@@ -57,7 +60,7 @@ async def get_addresses_house_street_list_by_organisation_id(
     addresses = await get_addressess_house_street_from_db_by_org_id(db_session, id)
     return addresses
 
-@router.post("/contacts_users/create_contact", response_model=ContactsClientSchema)
+@router.post("/contacts_users/create_contact/", response_model=ContactsClientSchema)
 async def create_contact_user_handler(
     user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_CONTACTS_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session),
@@ -65,7 +68,6 @@ async def create_contact_user_handler(
     ):
 
     existing_client = await get_client_by_name_secondname_surname(db_session, form_data['name'], form_data['second_name'], form_data['surname'])
-    print('------------------------------------', existing_client)
     if existing_client:
         return existing_client    
     client = ContactsClients(
@@ -97,7 +99,14 @@ async def create_contact_user_handler(
                 part_size=address_data['part_size'])
             created_client_address_in_db = await create_contacts_db_oject(db_session, client_address)
             client_organisation = ContactsClientOrganisations(client_uuid=created_client_in_db.uuid, org_id=address_data['org'])
-            created_cleint_organisation_in_db = await create_contacts_db_oject(db_session, client_organisation)        
+            created_cleint_organisation_in_db = await create_contacts_db_oject(db_session, client_organisation)   
+
+    create_journal_record = ContactsEditJournal(
+        client_uuid=created_client_in_db.uuid,
+        who_make=form_data['system_user']
+    )
+
+    created_journal_record = await create_contacts_db_oject(db_session, create_journal_record)
 
     return created_client_in_db
 
@@ -107,9 +116,6 @@ async def get_contacts_users_list(
     db_session: AsyncSession = Depends(get_async_session)
     ):
     contacts_clients = await get_contacts_clients_list(db_session)
-    #result_clients = [contact for contact in contacts_clients]
-    #print(contacts_clients)
-    #print(result_clients)
     return contacts_clients
 
 @router.get("/contacts_users/contact/{uuid}", response_model=ContactsClientFullDataSchema)
@@ -129,21 +135,43 @@ async def update_contacts_user_data(
     form_data: dict = Depends(create_contact_user_decode_depends)
     ):
     update_client = ContactsClients(
-        name=form_data['name'], second_name=form_data['second_name'], surname=form_data['surname'], note=form_data['note']
+        name=form_data['name'],
+        second_name=form_data['second_name'],
+        surname=form_data['surname'],
+        note=form_data['note'] if form_data['note'] and form_data['note'] != 'undefined' else ''
     )
 
+    client_phones = None    
     if form_data['home_phones'] or form_data['work_phones'] or form_data['mobile_phones']:
         client_phones = ContactsPhones(
-            home_phone=form_data['home_phones'],
-            work_phone=form_data['work_phones'],
-            mobile_phone=form_data['mobile_phones']
+            home_phone=form_data['home_phones'] if form_data['home_phones'] and form_data['home_phones'] != 'undefined' else '',
+            work_phone=form_data['work_phones'] if form_data['work_phones'] and form_data['work_phones'] != 'undefined' else '',
+            mobile_phone=form_data['mobile_phones'] if form_data['mobile_phones'] and form_data['mobile_phones'] != 'undefined' else ''
         )
 
+    client_emails_or_messengers = None
     if form_data['emails']:
         client_emails_or_messengers = ContactsEmails(email=form_data['emails'])
 
-    result = await update_contacts_client_by_uuid(db_session, update_client, client_phones, client_emails_or_messengers, uuid)
+    update_journal = ContactsEditJournal(
+        who_update=form_data['system_user']
+    )
+
+    result = await update_contacts_client_by_uuid(db_session, update_client, update_journal, uuid, client_phones, client_emails_or_messengers)
     return result
 
+@router.delete("/contacts_users/contact/{uuid}")
+async def delete_contacts_user_data(
+    uuid: str,
+    request_body: dict = Body(...),
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_CONTACTS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    update_journal = ContactsEditJournal(
+        date_delete=datetime.now(),
+        who_delete=request_body['system_user']
+    )
+    await delete_contacts_client_by_uuid(db_session, uuid, update_journal)
+    return {'key': uuid, 'del_status': True}
     # 372d0fb3-d9ca-4f59-98c5-5e4fb25059ea
-    
+
