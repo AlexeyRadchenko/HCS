@@ -19,7 +19,7 @@ depends_on = None
 def upgrade():
     op.create_table(
         'management_users_scopes',
-        sa.Column('user_id', sa.Integer(), sa.ForeignKey('management_users.id'), primary_key=True, primary_nullable=False),
+        sa.Column('user_id', sa.Integer(), sa.ForeignKey('management_users.id'), primary_key=True, nullable=False),
         sa.Column('scope_id', sa.Integer(), sa.ForeignKey('management_scopes.id'), primary_key=True, nullable=False),
         sa.Column('notes', sa.String, nullable=True)
     )
