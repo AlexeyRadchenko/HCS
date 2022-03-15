@@ -1,34 +1,48 @@
 <template>
 <div class="wrapper">
-    <div class="container">
-  <router-link to="/management_accounts" style="display: inline-block;text-decoration:none; color: rgb(250, 250, 250)">        
-  <div class="items">
-    <div class="icon-wrapper">
-      <font-awesome-icon :icon="['fas', 'address-card']" size="7x" />
-    </div>
-    <div class="project-name">
-      <p>СПРАВОЧНИК</p>
-    </div>
-  </div>
-  </router-link>  
-  <div class="items">
-    <div class="icon-wrapper">
-      <font-awesome-icon :icon="['fas', 'money-check']" size="7x" />
-    </div>
-    <div class="project-name">
-      <p>ЗАДОЛЖЕННОCТЬ ПО И/Л</p>
-    </div>
-  </div>
-  <div class="items">
-    <div class="icon-wrapper">
-      <i class="fa fa-th-large"></i>
-    </div>
-    <div class="project-name">
-      <p>COLLECTIONS</p>
-    </div>
-  </div>  
+    <el-row :gutter="10" justify="center" style="margin-top: 10rem;">
+      <el-col :span="4">
+        <div class="items">
+          <router-link to="/management_accounts">
+          <div class="icon-wrapper">
+            <font-awesome-icon :icon="['fas', 'book']" size="7x" />
+          </div>
+          <div class="project-name">
+            <p>СПРАВОЧНИК</p>
+          </div>
+          </router-link> 
+        </div> 
+      </el-col>
+      <el-col :span="4">
+        <div class="items" style="grid-template-rows: 7fr 1fr;">
+          <router-link to="/management_accounts">
+            <div class="icon-wrapper">
+              <font-awesome-icon :icon="['fas', 'money-check']" size="7x" />
+            </div>
+            <div class="project-name">
+              <p>ЗАДОЛЖЕННОCТЬ ПО И/Л</p>
+            </div>
+            </router-link>
+        </div>
+      </el-col>
+      <el-col :span="4">
+        <div class="items">
+          <router-link to="/management_accounts">
+            <div class="icon-wrapper">
+              <font-awesome-icon :icon="['fas', 'address-card']" size="7x" />
+            </div>
+            <div class="project-name">
+              <p>COLLECTIONS</p>
+            </div>
+          </router-link>  
+      </div>  
+      </el-col>
+    </el-row>       
+  
+  
+  
 </div>
-</div>
+
 </template>
 
 <style lang="scss" scoped>
@@ -82,13 +96,19 @@ background: linear-gradient(to bottom right, #50a3a2 0%, #53e3a6 100%);
 .items {
   border-radius: 5px;
   display: grid;
-  grid-template-rows: 2fr 1fr;
+  grid-template-rows: 3fr 1fr;
   grid-gap: 10px;
   cursor: pointer;
   border: 3px dotted black;
   transition: all 0.6s;
+  
+  /*style="display: inline-block;text-decoration:none; color: rgb(250, 250, 250)"*/
 }
 
+.items a {
+  text-decoration:none;
+  color: rgb(250, 250, 250);
+}
 
 .icon-wrapper, .project-name {
   display: flex;
@@ -104,11 +124,14 @@ background: linear-gradient(to bottom right, #50a3a2 0%, #53e3a6 100%);
 }
 
 .icon-wrapper {
-  align-self: end;  
+  align-self: end;
+  margin-top: 1em;
 }
 
 .project-name {
   align-self: start;
+  margin-top: 1em;
+  text-align: center;
 }
 .project-name p {
   font-size: 24px;
@@ -117,6 +140,7 @@ background: linear-gradient(to bottom right, #50a3a2 0%, #53e3a6 100%);
   color: $sec;  
   transform: translateY(0px);
   transition: all 0.5s;
+  cursor: pointer;
 }
 
 .items:hover {

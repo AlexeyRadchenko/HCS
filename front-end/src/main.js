@@ -6,6 +6,7 @@ import { faAddressCard } from '@fortawesome/free-solid-svg-icons'
 import { faUserCheck } from '@fortawesome/free-solid-svg-icons'
 import { faBars } from '@fortawesome/free-solid-svg-icons'
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons'
+import { faBook } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 
@@ -17,6 +18,7 @@ library.add(faMoneyCheck)
 library.add(faUserCheck)
 library.add(faBars)
 library.add(faAngleDown)
+library.add(faBook)
 
 const app = createApp(App)
 app.component("font-awesome-icon", FontAwesomeIcon)

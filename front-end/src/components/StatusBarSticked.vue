@@ -12,7 +12,7 @@
                         </div>
                         <template #dropdown>
                             <el-dropdown-menu>
-                                <el-dropdown-item><router-link to="/services" exact>Все сервисы</router-link></el-dropdown-item>
+                                <el-dropdown-item><span class="router-link"><router-link to="/services">Все сервисы</router-link></span></el-dropdown-item>
                                 <el-dropdown-item>Задолженность по и/л</el-dropdown-item>
                                 <el-dropdown-item>Соглашения с должниками</el-dropdown-item>
                             </el-dropdown-menu>
@@ -30,7 +30,7 @@
                         </div>
                         <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item>Выход</el-dropdown-item>
+                            <el-dropdown-item @click="exit">Выход</el-dropdown-item>
                         </el-dropdown-menu>
                         </template>
                     </el-dropdown>
@@ -83,15 +83,11 @@
 .nav-menu-column {
     padding-top: 0.7em;
 }
-.custom-active {
-    color:black;
-    background-color: blue;
+.router-link a{
+    color: #606266 var(--el-text-color-regular);
     text-decoration: none;
 }
-.exact-active {
-    color:black;
-    text-decoration: none;
-}
+
 
 </style>
 
@@ -108,6 +104,12 @@ export default defineComponent({
     data () {
         return {
 
+        }
+    },
+    methods: {
+        exit() {
+            this.$router.push('/')
+            this.authStore.flushTokenUser()
         }
     }
 })

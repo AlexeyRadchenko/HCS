@@ -33,6 +33,12 @@ export const useAuthStore = defineStore({
     setError(error) {
       this.error = error
     },
+    flushTokenUser () {
+      secureStorage.setItem('user', '')
+      secureStorage.setItem('token', '')
+      this.token = ''
+      this.user = null
+    },
     async setUser(user) {
       if (user) {
         secureStorage.setItem('user', user)
