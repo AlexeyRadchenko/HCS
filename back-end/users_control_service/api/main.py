@@ -8,9 +8,9 @@ app = FastAPI(
         {"url": "https://komfort-trg.fvds.ru", "description": "Production environment"},
     ], 
     title='users control API',
-    docs_url='/docs', 
-    redoc_url='/redoc',
-    openapi_url='/openapi.json',
+    docs_url='/api/v1/users_control_service/docs', 
+    redoc_url='/api/v1/users_control_service/redoc',
+    openapi_url='/api/v1/users_control_service/openapi.json',
     root_path='/api/v1/users_control_service'
 )
 app.include_router(users.router)
