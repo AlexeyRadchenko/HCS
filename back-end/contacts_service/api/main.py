@@ -3,15 +3,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routers import contacts
 
 
-app = FastAPI(docs_url='/api/v1/docs', redoc_url='/api/v1/redoc')
+app = FastAPI(
+    servers=[ 
+        {"url": "https://komfort-trg.fvds.ru", "description": "Production environment"},
+    ], 
+    title='contacts service API',
+    docs_url='/api/v1/contacts_service/docs', 
+    redoc_url='/api/v1/contacts_service/redoc',
+    openapi_url='/api/v1/contacts_service/openapi.json',
+)
 
 app.include_router(contacts.router, prefix="/api/v1/contacts_service")
 
-origins = [
-    "http://localhost",
-    "http://localhost:8080",
-    "http://localhost:3000",
-]
+origins = ['*']
 
 app.add_middleware(
     CORSMiddleware,
