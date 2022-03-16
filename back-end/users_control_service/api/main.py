@@ -4,6 +4,9 @@ from .routers import users
 from uvicorn import run
 
 app = FastAPI(
+    servers=[ 
+        {"url": "https://komfort-trg.fvds.ru", "description": "Production environment"},
+    ], 
     title='users control API',
     docs_url='/docs', 
     redoc_url='/redoc',
