@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routers import users
 from uvicorn import run
 
-app = FastAPI()
+app = FastAPI(root_path="/api/v1")
 app.include_router(users.router)
 
 origins = ['*']
@@ -16,6 +16,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
+@app.get("/users_control_service")
 async def root():
     return {"message": "Hello Bigger Applications!"}
