@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .routers import users
 from uvicorn import run
+import os
 
 app = FastAPI(
     servers=[ 
@@ -11,6 +12,7 @@ app = FastAPI(
     docs_url='/api/v1/users_control_service/docs', 
     redoc_url='/api/v1/users_control_service/redoc',
     openapi_url='/api/v1/users_control_service/openapi.json',
+    root_path=os.environ.get('VIRTUAL_PATH')
 )
 app.include_router(users.router)
 
