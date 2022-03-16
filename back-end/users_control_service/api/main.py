@@ -11,7 +11,6 @@ app = FastAPI(
     docs_url='/api/v1/users_control_service/docs', 
     redoc_url='/api/v1/users_control_service/redoc',
     openapi_url='/api/v1/users_control_service/openapi.json',
-    root_path='/api/v1/users_control_service'
 )
 app.include_router(users.router)
 
