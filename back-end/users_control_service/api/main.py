@@ -3,11 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routers import users
 from uvicorn import run
 
-app = FastAPI(
-    docs_url='/api/v1/users_control_service/docs',
-    redoc_url='/api/v1/users_control_service/redoc',
-    root_path='/api/v1/users_control_service'
-    )
+app = FastAPI()
 app.include_router(users.router)
 
 origins = ['*']
