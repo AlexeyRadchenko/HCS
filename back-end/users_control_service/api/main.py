@@ -5,7 +5,7 @@ from uvicorn import run
 
 app = FastAPI(
     servers=[ 
-        {"url": "https://komfort-trg.fvds.ru/api/v1/users_control_service/", "description": "Production environment"},
+        {"url": "https://komfort-trg.fvds.ru", "description": "Production environment"},
     ], 
     title='users control API',
     docs_url='/api/v1/users_control_service/docs', 
