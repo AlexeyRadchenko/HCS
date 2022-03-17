@@ -18,6 +18,19 @@ depends_on = None
 
 def upgrade():
     op.create_table(
+        'organisations',
+        sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
+        sa.Column('full_name', sa.String(300), nullable=True),
+        sa.Column('short_name', sa.String(150), nullable=True)
+    )
+
+
+def downgrade():
+    op.drop_table('organisations')
+
+
+"""def upgrade():
+    op.create_table(
         'addresses',
         sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
         sa.Column('street', sa.String(50), nullable=True),
@@ -29,4 +42,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table('addresses')
+    op.drop_table('addresses')"""

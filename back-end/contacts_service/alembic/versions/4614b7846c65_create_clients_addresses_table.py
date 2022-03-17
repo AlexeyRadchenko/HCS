@@ -18,6 +18,21 @@ depends_on = None
 
 def upgrade():
     op.create_table(
+        'addresses',
+        sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
+        sa.Column('street', sa.String(50), nullable=True),
+        sa.Column('house_number', sa.String(50), nullable=True),
+        sa.Column('entrance', sa.String(50), nullable=True),
+        sa.Column('appartment', sa.String(50), nullable=True),
+        sa.Column('organisation_id', sa.Integer(), sa.ForeignKey('organisations.id'), nullable=True)
+    )
+
+
+def downgrade():
+    op.drop_table('addresses')
+"""
+def upgrade():
+    op.create_table(
         'clients_addresses',
         #sa.Column('client_uuid', UUID(as_uuid=True), sa.ForeignKey('clients.uuid'), primary_key=True, nullable=False), # use in postgress db
         sa.Column('client_uuid', sa.Text(length=36), sa.ForeignKey('clients.uuid'), primary_key=True, nullable=False), # use for dev sqlite
@@ -29,4 +44,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table('clients_addresses')
+    op.drop_table('clients_addresses')"""
