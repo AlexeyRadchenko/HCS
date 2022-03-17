@@ -4,9 +4,13 @@ from typing import Any, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import false, select, update, desc, cast, Integer, func
 from sqlalchemy.orm import joinedload
+from sqlalchemy.sql.functions import register_function
 
+from ...utils.utils import substr
 from ..database import row2dict
 from .models import ContactsAddresses, ContactsClients, ContactsClientsAddresses, ContactsEditJournal, ContactsPhones, ContactsOrganisations, ContactsEmails
+
+register_function(substr)
 
 async def update_contacts_client_by_uuid(
     db: AsyncSession, 
@@ -96,7 +100,7 @@ async def get_contacts_clients_list(db: AsyncSession, skip: int = 0, limit: int 
     return result.scalars().unique().all()
 
 async def create_contacts_db_oject(db: AsyncSession, obj: Any):
-    db.add(obj)
+    db.add(obj),
     await db.commit()
     await db.refresh(obj)
     return obj
