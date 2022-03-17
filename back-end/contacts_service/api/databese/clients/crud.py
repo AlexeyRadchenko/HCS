@@ -91,7 +91,7 @@ async def get_contacts_clients_list(db: AsyncSession, skip: int = 0, limit: int 
         .join(ContactsClientsAddresses, ContactsClients.addresses)
         .join(ContactsAddresses, ContactsClientsAddresses.address)
         .where(ContactsClients.client_del == False)
-        .order_by(ContactsAddresses.street, ContactsAddresses.house_number, ContactsAddresses.entrance, cast(ContactsAddresses.appartment, Integer)) 
+        .order_by(ContactsAddresses.street, ContactsAddresses.house_number, ContactsAddresses.entrance, ContactsAddresses.appartment) #cast(ContactsAddresses.appartment, Integer) not work in postgresql
         ) #.offset(skip).limit(limit)) #desc(ContactsAddresses.street), desc(ContactsAddresses.house_number), 
     return result.scalars().unique().all()
 
