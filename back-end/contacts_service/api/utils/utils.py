@@ -4,7 +4,7 @@ from ..databese.clients.crud import create_contacts_db_oject
 from ..databese.database import get_async_session
 from ..databese.clients.models import ContactsClients, ContactsAddresses, ContactsClientsAddresses, ContactsEditJournal, ContactsClientOrganisations, ContactsOrganisations, ContactsPhones
 from ..databese.database import async_session
-from re import search
+
 
 async def init_contacts_db_data(obj_list, org):
     async with async_session() as db_session:
@@ -69,11 +69,3 @@ async def init_contacts_db_data(obj_list, org):
             )
             client_org = await create_contacts_db_oject(db_session, client_org_obj)
     print("data upload to db")
-    
-
-def substr(en_string, exp):
-    if en_string:
-        s_result = search(exp, en_string)
-        return s_result[0]
-    else:
-        return en_string

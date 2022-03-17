@@ -6,7 +6,7 @@ from sqlalchemy import false, select, update, desc, cast, Integer, func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.sql.functions import register_function
 
-from ...utils.utils import substr
+from ..utils import substr
 from ..database import row2dict
 from .models import ContactsAddresses, ContactsClients, ContactsClientsAddresses, ContactsEditJournal, ContactsPhones, ContactsOrganisations, ContactsEmails
 
