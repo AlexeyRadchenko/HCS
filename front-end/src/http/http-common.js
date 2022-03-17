@@ -18,7 +18,7 @@ var setHeaders = function (axios_instance) {
 
 export var login = function(authStore, userFormData, loading, router) {
   var token = null
-  http.post('http://komfort-trg.fvds.ru:3036/api/v1/users_control_service/token', userFormData)
+  http.post('http://127.0.0.1:8030/api/v1/users_control_service/token', userFormData)
     .then(response => {
       if (response.status == 200)
         token = response.data.access_token
