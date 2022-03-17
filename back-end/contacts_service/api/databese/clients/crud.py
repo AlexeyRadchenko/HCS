@@ -2,7 +2,7 @@ from ast import Constant
 from multiprocessing.connection import Client
 from typing import Any, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import false, select, update, desc, cast, Integer
+from sqlalchemy import false, select, update, desc, cast, Integer, func
 from sqlalchemy.orm import joinedload
 
 from ..database import row2dict
@@ -91,7 +91,7 @@ async def get_contacts_clients_list(db: AsyncSession, skip: int = 0, limit: int 
         .join(ContactsClientsAddresses, ContactsClients.addresses)
         .join(ContactsAddresses, ContactsClientsAddresses.address)
         .where(ContactsClients.client_del == False)
-        .order_by(ContactsAddresses.street, ContactsAddresses.house_number, ContactsAddresses.entrance, ContactsAddresses.appartment) #cast(ContactsAddresses.appartment, Integer) not work in postgresql
+        .order_by(ContactsAddresses.street, ContactsAddresses.house_number, ContactsAddresses.entrance, cast(func.substr(ContactsAddresses.appartment, '^[0-9]+'), Integer)) # not work in postgresql
         ) #.offset(skip).limit(limit)) #desc(ContactsAddresses.street), desc(ContactsAddresses.house_number), 
     return result.scalars().unique().all()
 
