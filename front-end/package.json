@@ -19,6 +19,8 @@
     "pinia": "^2.0.9",
     "secure-web-storage": "^1.0.2",
     "vue": "^3.2.27",
+    "vue-3-meta": "^2.4.0",
+    "vue-meta": "^2.4.0",
     "vue-router": "^4.0.12"
   },
   "devDependencies": {

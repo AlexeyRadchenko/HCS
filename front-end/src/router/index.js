@@ -30,7 +30,10 @@ const router = createRouter({
   ]
 })
 
+const DEFAULT_TITLE = 'Komfort-Servces';
+
 router.beforeEach(async(to, from, next) => {
+  document.title = to.meta.title || DEFAULT_TITLE;
   var authStore = useAuthStore()
   if (to.name !== 'LoginPage') {
     var user = await current_active_user()

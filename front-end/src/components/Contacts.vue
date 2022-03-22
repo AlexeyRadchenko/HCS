@@ -37,7 +37,7 @@
         <el-main>
           <el-container>
             <el-row>
-              <el-col :span="24">
+              <el-col :span="24" :xl="24" :sm="24" :md="24" :lg="24">
                 <div class="tags-wrapper">
                   <el-tag
                     v-for="tag in dynamicTags"
@@ -55,7 +55,7 @@
           </el-container>
           <el-container>
             <el-row >
-              <el-col :span="24">
+              <el-col :span="24" :xl="24" :sm="24" :md="24" :lg="24">
                 <el-table
                   :data="pagedTableData"
                   stripe

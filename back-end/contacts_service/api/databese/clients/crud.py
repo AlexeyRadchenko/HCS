@@ -2,15 +2,12 @@ from ast import Constant
 from multiprocessing.connection import Client
 from typing import Any, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import false, select, update, desc, cast, Integer, func
+from sqlalchemy import false, select, update, desc, cast, func, Integer
 from sqlalchemy.orm import joinedload
-from sqlalchemy.sql.functions import register_function
 
-from ..utils import substr
 from ..database import row2dict
 from .models import ContactsAddresses, ContactsClients, ContactsClientsAddresses, ContactsEditJournal, ContactsPhones, ContactsOrganisations, ContactsEmails
 
-register_function(substr)
 
 async def update_contacts_client_by_uuid(
     db: AsyncSession, 
@@ -95,7 +92,7 @@ async def get_contacts_clients_list(db: AsyncSession, skip: int = 0, limit: int 
         .join(ContactsClientsAddresses, ContactsClients.addresses)
         .join(ContactsAddresses, ContactsClientsAddresses.address)
         .where(ContactsClients.client_del == False)
-        .order_by(ContactsAddresses.street, ContactsAddresses.house_number, ContactsAddresses.entrance, cast(func.substr(ContactsAddresses.appartment, '^[0-9]+'), Integer)) # not work in postgresql
+        .order_by(ContactsAddresses.street, ContactsAddresses.house_number, ContactsAddresses.entrance) # not work in postgresql , cast(func.substring(ContactsAddresses.appartment, '^[0-9]+'), Integer)
         ) #.offset(skip).limit(limit)) #desc(ContactsAddresses.street), desc(ContactsAddresses.house_number), 
     return result.scalars().unique().all()
 
