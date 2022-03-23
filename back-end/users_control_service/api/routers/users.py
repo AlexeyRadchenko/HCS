@@ -69,7 +69,7 @@ async def create_management_user_handler(
 async def update_management_user_data_handler(
     user: UserInDB,
     db_session: AsyncSession = Depends(get_async_session),
-    current_user: User = Security(get_current_active_user, scopes=[settings.ADMIN_SCOPE]) Диспетчер ывфsdfff Juo35S4uEa
+    current_user: User = Security(get_current_active_user, scopes=[settings.ADMIN_SCOPE])
 ):  
     hash_password = get_password_hash(user.hashed_password)
     user.hashed_password = hash_password
