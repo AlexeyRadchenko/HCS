@@ -60,20 +60,20 @@
                   :data="pagedTableData"
                   stripe
                   style="width: 100%">
-                  <el-table-column prop="house" label="Дом" width="180" />
-                  <el-table-column prop="entrance" label="Под." width="55" align="center" />
-                  <el-table-column prop="appartment" label="Кв." width="50" align="center" />
-                  <el-table-column prop="FIO" label="ФИО" width="300" header-align="center" align="center">
+                  <el-table-column prop="house" label="Дом" min-width="75em" />
+                  <el-table-column prop="entrance" label="Под." min-width="32em" align="center" />
+                  <el-table-column prop="appartment" label="Кв." min-width="26em" align="center" />
+                  <el-table-column prop="FIO" label="ФИО" min-width="110em" header-align="center" align="center">
                       <template #header>
                       <el-input v-model="searchFIO" size="small" placeholder="Type to search" clearable />
                       </template>
                   </el-table-column>
-                  <el-table-column prop="part_have" label="Доля имущества" width="135" align="center" />
-                  <el-table-column prop="home_phone" label="Домашный тел." width="135" />
-                  <el-table-column prop="work_phone" label="Рабочий тел." width="135" />
-                  <el-table-column prop="mobile_phone" label="Мобильный тел." width="140" />
-                  <el-table-column prop="email" label="Эл. почта" width="130" />
-                  <el-table-column label="Прим." width="65" header-align="center" align="center">
+                  <el-table-column prop="part_have" label="Доля имущества" min-width="70em" align="center" />
+                  <el-table-column prop="home_phone" label="Домашный тел." min-width="64em" align="center" />
+                  <el-table-column prop="work_phone" label="Рабочий тел." min-width="56em" align="center" />
+                  <el-table-column prop="mobile_phone" label="Мобильный тел." min-width="66em" align="center" />
+                  <el-table-column prop="email" label="Эл. почта" min-width="56em" align="center" />
+                  <el-table-column label="Прим." min-width="30em" header-align="center" align="center">
                     <template #default="scope">
                       <el-popover effect="light" trigger="hover" placement="top" width="auto">
                         <template #default>
@@ -245,7 +245,7 @@ export default {
         this.formData.appartment = row.appartment
         this.formData.part_own = row.part_have
         this.formData.home_phones = row.home_phone
-        this.formData.mobile_phones = row.mobile_phones
+        this.formData.mobile_phones = row.mobile_phone
         this.formData.work_phones = row.work_phone
         this.formData.emails = row.email
         this.formData.note = row.note
@@ -370,7 +370,7 @@ export default {
   color: black;
 }
 .contacts-sidebar-style {
-  width: 300px;
+  width: 16%;
   height: 100%;
   border: 1px solid #eee;
 }

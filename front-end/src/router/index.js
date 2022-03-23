@@ -30,7 +30,7 @@ const router = createRouter({
   ]
 })
 
-const DEFAULT_TITLE = 'Komfort-Servces';
+const DEFAULT_TITLE = 'Komfort-Services';
 
 router.beforeEach(async(to, from, next) => {
   document.title = to.meta.title || DEFAULT_TITLE;

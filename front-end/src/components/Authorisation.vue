@@ -9,7 +9,7 @@
       <button id="login-button" v-on:click="loading">Вход</button>
     </form>
 	<div v-if="showError">
-	<el-alert :title="authStore.getError" type="error" show-icon :center="true"></el-alert>
+	<el-alert :title="authStore.getError" type="error" show-icon :center="true" :closable="true"></el-alert>
 	</div>
   </div>
   <ul class="bg-bubbles">
