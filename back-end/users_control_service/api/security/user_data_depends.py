@@ -7,7 +7,7 @@ from .authentification_user import oauth2_scheme
 from ..settings.settings import settings
 from .token_model import TokenData
 from .user_model import User
-from .authentification_user import get_user
+from .authentification_user import get_user, get_account_user
 from ..database.database import get_async_session
 
 
@@ -28,7 +28,6 @@ async def get_current_user(
             headers={"WWW-Authenticate": authenticate_value},
         )
     try:
-        print(token)
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         login: str = payload.get("sub")
         if login is None:
@@ -36,8 +35,10 @@ async def get_current_user(
         token_scopes = payload.get("scopes", [])
         token_data = TokenData(scopes=token_scopes, login=login)
     except (JWTError, ValidationError):
-        raise credentials_exception   
-    user = await get_user(db_session, login=token_data.login)
+        raise credentials_exception
+    user = await get_account_user(db_session, account=token_data.login)
+    if user is None:
+        user = await get_user(db_session, login=token_data.login)
     if user is None:
         raise credentials_exception
     for scope in security_scopes.scopes:

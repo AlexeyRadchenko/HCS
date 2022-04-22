@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, BigInteger
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -35,4 +35,4 @@ class ManagementScopes(Base):
     active_scope = Column(Boolean, default=True)
     management_users = relationship(
         'ManagementUsers', secondary='management_users_scopes', back_populates='management_scopes', uselist=False
-    )  
+    ) 

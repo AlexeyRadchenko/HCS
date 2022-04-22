@@ -32,6 +32,15 @@ def user_many2many2dict(row_list):
         d['scopes'].append(row[1])
     return d
 
+def account_user_many2many2dict(row_list):
+    d = None    
+    for row in row_list:
+        if not d:
+            d = row2dict(row[0])
+            d['account_scopes'] = []
+        d['account_scopes'].append(row[1])
+    return d
+
 def add_buff_to_result(buf_result, result, orm_class_name):
     obj = row2dict(buf_result[orm_class_name])
     del buf_result[orm_class_name]

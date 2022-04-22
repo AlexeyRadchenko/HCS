@@ -67,10 +67,24 @@ async def create_contact_organisation_decode_depends(
 
 async def create_management_user_decode_depends(
     username: str = Form(...),
-    password: str = Form(...),
-
+    password: str = Form(...)
 ):  
     return {
         'username': await decode_string_from_latin(username),
         'password': await decode_string_from_latin(password)
+    }
+
+async def create_account_user_decode_depends(
+    username: str = Form(...),
+    password: str = Form(...),
+    street: str = Form(...),
+    house: str = Form(...),
+    appartment: str = Form(...)
+):  
+    return {
+        'username': await decode_string_from_latin(username),
+        'password': await decode_string_from_latin(password),
+        'street': await decode_string_from_latin(street),
+        'house': await decode_string_from_latin(house),
+        'appartment': await decode_string_from_latin(appartment),
     }

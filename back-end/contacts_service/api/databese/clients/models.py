@@ -68,6 +68,7 @@ class ContactsPhones(Base):
 
     id = Column(Integer, primary_key=True, index=True, nullable=False, autoincrement=True)
     client_uuid = Column(Text(length=36), ForeignKey('clients.uuid'), nullable=True)
+    #client_uuid = Column(UUID(as_uuid=True), ForeignKey('clients.uuid'), nullable=True)
     home_phone = Column(String, nullable=False)
     work_phone = Column(String, nullable=False)
     mobile_phone = Column(String, nullable=False)    
@@ -104,7 +105,7 @@ class ContactsClients(Base):
     note = Column(Text(), nullable=True)
     client_del = Column(Boolean, default=False)
 
-    addresses = relationship('ContactsClientsAddresses', back_populates='client', lazy='joined')
+    addresses = relationship('ContactsClientsAddresses', back_populates='clients', lazy='joined')
 
     """addresses = relationship(
         'ContactsAddresses', secondary='clients_addresses', back_populates='clients', lazy='joined'

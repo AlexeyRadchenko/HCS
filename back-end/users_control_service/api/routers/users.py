@@ -7,11 +7,11 @@ from six import create_unbound_method
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from typing import List
 
-from .depends import create_management_user_decode_depends
+from .depends import create_management_user_decode_depends, create_account_user_decode_depends
 from ..settings.settings import settings
-from ..security.token_model import Token
-from ..security.user_model import User, UserInDB, ManagementUserInDB
-from ..security.authentification_user import authenticate_user, create_access_token, get_password_hash
+from ..security.token_model import Token, AccountToken
+from ..security.user_model import User, UserInDB, ManagementUserInDB, AccountUser
+from ..security.authentification_user import authenticate_management_user, create_access_token, get_password_hash, authenticate_account_user
 from ..security.user_data_depends import get_current_active_user
 from ..database.database import get_async_session, objects_many2many2dict_list
 from ..database.management_users.crud import create_management_user, update_management_user, get_management_users
@@ -22,8 +22,8 @@ from ..database.management_users.schemas import ManagementUserSchema
 router = APIRouter()
 
 @router.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(create_management_user_decode_depends), db_session: AsyncSession = Depends(get_async_session)):
-    user = await authenticate_user(db_session, form_data['username'], form_data['password'])
+async def login_for_management_token(form_data: OAuth2PasswordRequestForm = Depends(create_management_user_decode_depends), db_session: AsyncSession = Depends(get_async_session)):
+    user = await authenticate_management_user(db_session, form_data['username'], form_data['password'])
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorect username or password"
@@ -75,3 +75,23 @@ async def update_management_user_data_handler(
     user.hashed_password = hash_password
     result = await update_management_user(db_session, user)
     return result
+
+@router.post("/account_token", response_model=AccountToken)
+async def login_for_account_token(form_data: OAuth2PasswordRequestForm = Depends(create_account_user_decode_depends), db_session: AsyncSession = Depends(get_async_session)):
+    user = await authenticate_account_user(
+            db_session, form_data['username'], form_data['password'], form_data['street'], form_data['house'], form_data['appartment']
+        )
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorect username or password"
+        )
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.account, "scopes": [scope.scope_name for scope in user.account_scopes]},
+        expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@router.get("/account/me", response_model=AccountUser)
+async def account_users_me(current_user: User = Depends(get_current_active_user)):
+    return current_user  

@@ -27,4 +27,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table('scopes')
+    op.drop_table('management_scopes')

@@ -1,12 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faMoneyCheck } from '@fortawesome/free-solid-svg-icons'
-import { faAddressCard } from '@fortawesome/free-solid-svg-icons'
-import { faUserCheck } from '@fortawesome/free-solid-svg-icons'
-import { faBars } from '@fortawesome/free-solid-svg-icons'
-import { faAngleDown } from '@fortawesome/free-solid-svg-icons'
-import { faBook } from '@fortawesome/free-solid-svg-icons'
+import { faMoneyCheck, faAddressCard, faUserCheck, faBars, faAngleDown, faBook, faUser, faHouseUser, faRoad, faListOl,  faHashtag } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import 'element-plus/theme-chalk/display.css'
 
@@ -20,6 +15,11 @@ library.add(faUserCheck)
 library.add(faBars)
 library.add(faAngleDown)
 library.add(faBook)
+library.add(faUser)
+library.add(faHouseUser)
+library.add(faRoad)
+library.add(faListOl)
+library.add(faHashtag)
 
 const app = createApp(App)
 app.component("font-awesome-icon", FontAwesomeIcon)
