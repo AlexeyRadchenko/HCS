@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { resolveComponent } from 'vue';
 import secureStorage from '../storage/secStorage'
 
 
