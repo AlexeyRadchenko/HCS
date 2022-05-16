@@ -2,10 +2,9 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faMoneyCheck, faAddressCard, faUserCheck, faBars, faAngleDown, faBook, faUser, faHouseUser, faRoad,
-     faListOl, faBuilding } from '@fortawesome/free-solid-svg-icons'
+     faListOl, faBuilding, faWater } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import 'element-plus/theme-chalk/display.css'
-
 
 import App from './App.vue'
 import router from './router'
@@ -21,6 +20,7 @@ library.add(faHouseUser)
 library.add(faRoad)
 library.add(faBuilding)
 library.add(faListOl)
+library.add(faWater)
 
 const app = createApp(App)
 app.component("font-awesome-icon", FontAwesomeIcon)

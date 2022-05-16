@@ -19,11 +19,13 @@ class WaterCounterSchema(BaseModel):
     outer_base_id: int
     setup_date: datetime
     in_work: bool
+    type: Optional[str]
     serial_number: Optional[str]
     data: Decimal
     old_data: Decimal
-    diff: Decimal
-    date_update: datetime
+    diff: Optional[Decimal]
+    date_update: Optional[datetime]
+    last_date_update: Optional[datetime]
     who_last_modify: Optional[str]
 
     class Config:

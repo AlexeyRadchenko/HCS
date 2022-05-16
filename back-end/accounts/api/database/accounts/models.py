@@ -63,11 +63,13 @@ class WaterCounter(Base):
     outer_base_id = Column(BigInteger, nullable=True)
     setup_date = Column(DateTime, nullable=True)
     in_work = Column(Boolean, default=True)
+    type = Column(String, nullable=True)
     serial_number = Column(String, nullable=True)
     data = Column(DECIMAL(precision=6, scale=3), nullable=True)
     old_data = Column(DECIMAL(precision=6, scale=3), nullable=True)
     diff = Column(DECIMAL(precision=6, scale=3), nullable=True)
     date_update = Column(DateTime, nullable=True)
+    last_date_update = Column(DateTime, nullable=True)
     who_last_modify = Column(String, nullable=True)
 
 class AccountsWaterCounters(Base):

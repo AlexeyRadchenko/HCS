@@ -7,6 +7,7 @@ export const useAccountAuthStore = defineStore({
     token: '',
     error: '',
     user: null,
+    accountData: null,
   }),
   getters: {
     getToken () {
@@ -23,6 +24,9 @@ export const useAccountAuthStore = defineStore({
         return this.user
       else
         return secureStorage.getItem('AccUser')
+    },
+    getAccountData () {
+      return this.accountData
     }
   },
   actions: {
@@ -43,6 +47,11 @@ export const useAccountAuthStore = defineStore({
       if (user) {
         secureStorage.setItem('AccUser', user)
         this.user = user
+      }
+    },
+    setAccountData (data) {
+      if (data) {
+        this.accountData = data
       }
     }
   }

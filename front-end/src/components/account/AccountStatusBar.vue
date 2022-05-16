@@ -5,19 +5,12 @@
         <el-header class="user-status-header">
             <el-row>
                 <el-col :span="8" class="nav-menu-column">
-                    <el-dropdown                   
-                    >
-                        <div class="nav-manu-wrapper">  
-                            <font-awesome-icon :icon="['fas', 'bars']" size="2x" />
-                        </div>
-                        <template #dropdown>
-                            <el-dropdown-menu>
-                                <el-dropdown-item><span class="router-link"><router-link to="/services">Все сервисы</router-link></span></el-dropdown-item>
-                                <el-dropdown-item>Задолженность по и/л</el-dropdown-item>
-                                <el-dropdown-item>Соглашения с должниками</el-dropdown-item>
-                            </el-dropdown-menu>
-                        </template>
-                    </el-dropdown>
+                   <div class="nav-manu-wrapper">  
+                        <font-awesome-icon :icon="['fas', 'house-user']" size="2x" />
+                    </div>
+                    <div class = "nav-menu-address">
+                         {{ authStore.getUser.street }} {{ authStore.getUser.house }} - {{ authStore.getUser.appartment }}
+                    </div>
                 </el-col>
                 <el-col :span="8"><div class="grid-content bg-purple"></div></el-col>
                 <el-col :span="8" class="user-column">
@@ -25,7 +18,7 @@
                         <div class="prof-icon-wrapper">
                             <span class="username-style noselect">
                                 <font-awesome-icon :icon="['fas', 'user-check']" size="1x" />
-                                {{ authStore.getUser}}
+                                {{ authStore.getUser.account }}
                             </span>
                         </div>
                         <template #dropdown>
@@ -49,6 +42,7 @@
     /*padding-top: 0.8em;*/
     background-color: burlywood;
     margin: 1em 2em;
+    width: 100%;
 
 }
 .user-status-header {
@@ -79,9 +73,18 @@
 }
 .nav-manu-wrapper {
     color:black;
+    width: 3.2rem;
+    float:left;
 }
+.nav-menu-address {
+    color:black;
+    width: 35.2rem;
+    margin-top: 0.6rem;
+    font-weight: bold;
+}
+
 .nav-menu-column {
-    padding-top: 0.7em;
+    padding-top: 0.5em;
 }
 .router-link a{
     color: #606266 var(--el-text-color-regular);

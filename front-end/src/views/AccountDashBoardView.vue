@@ -1,9 +1,56 @@
 <script setup>
 import StatusBar from '@/components/account/AccountStatusBar.vue'
+import DashBoard from '@/components/account/AccountDashBoard.vue'
 </script>
 
 <template>
-  <main>
-    <StatusBar/>
+  <main class="limitter">
+    <div class = "container-login100 acc-bg">
+      <StatusBar/>
+      <DashBoard/>
+    </div>
   </main>
 </template>
+
+<style scoped>
+.acc-bg {
+  background-image: url('../assets/clients_authorisation/images/bg-01.jpg');
+}
+.limiter {
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+.container-login100 {
+  width: 100%;  
+  /*min-height: 100vh;*/
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  /*align-items: center;*/
+  /*padding: 15px;*/
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  position: relative;
+  z-index: 1;  
+}
+
+.container-login100::before {
+  content: "";
+  display: block;
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  /*background-color: rgba(255,255,255,0.9);*/
+  background-color: rgba(255,255,255,0.9);
+}
+</style>
