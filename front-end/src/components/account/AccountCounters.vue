@@ -1,6 +1,6 @@
 <template>
     <div>
-        <WaterCounter :waterCounters="waterCounters" v-if="waterCounters.length"/>
+        <WaterCounter :waterCounters="waterCounters" :account="accAuthStore.getUser.account" v-if="waterCounters.length"/>
         <GasCounter :gasCounters="gasCounters" v-if="gasCounters.length" />
     </div>    
 </template>

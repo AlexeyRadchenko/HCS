@@ -56,8 +56,11 @@ router.beforeEach(async(to, from, next) => {
     var accUser = await current_active_acc_user()
     await accAuthStore.setUser(accUser)
   } 
-  if (to.name !== 'ClientsLogin' && to.path.includes('/accounts/') && !accUser ) next({ name: 'ClientsLogin' })
-  if (to.name !== 'LoginPage' && !to.path.includes('/accounts/') && !user) next({ name: 'LoginPage' })
+  if (to.name !== 'ClientsLogin' && to.path.includes('/accounts/') && !accUser ) {
+    next({ name: 'ClientsLogin' })
+  } else if (to.name !== 'LoginPage' && !to.path.includes('/accounts/') && !user) {
+    next({ name: 'LoginPage' })
+  }
   else next()
 })
 

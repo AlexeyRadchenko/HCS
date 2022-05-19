@@ -4,7 +4,6 @@
             v-model="activeName"
             type="border-card"
             class="account-tabs"
-            @tab-click="handleClick"
             :stretch="true"
         >
             <el-tab-pane label="Информация" name="info">User</el-tab-pane>
@@ -38,9 +37,7 @@ export default defineComponent ({
         }
     },
     methods: {
-        handleClick (tab, event) {
-            console.log(tab, event)
-        }   
+       
     },
     computed: {
     },

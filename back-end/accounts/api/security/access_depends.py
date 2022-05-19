@@ -13,7 +13,6 @@ oauth2_scheme = OAuth2PasswordBearer(
 async def user_scope_authorize (
     security_scopes: SecurityScopes, token: str = Depends(oauth2_scheme) 
 ):
-    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', token)
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:
@@ -32,7 +31,6 @@ async def user_scope_authorize (
         token_data = TokenData(scopes=token_scopes, account=account)
     except (JWTError, ValidationError):
         raise credentials_exception
-    print('--------------------------------------', token_data, payload, token_scopes)
     for scope in security_scopes.scopes:
         if scope not in token_data.scopes:
             raise HTTPException(

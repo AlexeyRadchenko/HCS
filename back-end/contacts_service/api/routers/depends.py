@@ -80,7 +80,6 @@ async def create_contact_user_decode_depends(
     note: Optional[str] = Form(None),
     system_user: Optional[str] = Form(None)
 ):  
-    print()
     return {
         'name': await decode_string_from_latin(name),
         'second_name': await decode_string_from_latin(second_name),

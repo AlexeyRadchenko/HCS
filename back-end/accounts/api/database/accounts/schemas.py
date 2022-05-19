@@ -76,4 +76,11 @@ class AccountSchema(BaseModel):
     account_summary: Optional[AccountSummarySchema]
 
     class Config:
+        orm_mode = True
+
+class AccountWaterCounterSchema(BaseModel):
+    account: str
+    water_counters: Optional[List[WaterCounterSchema]]
+
+    class Config:
         orm_mode = True    
