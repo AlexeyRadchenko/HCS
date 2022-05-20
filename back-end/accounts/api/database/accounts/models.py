@@ -51,10 +51,32 @@ class Account(Base):
     surname = Column(String, nullable=True)
     address_id = Column(BigInteger, ForeignKey('address.id'), nullable=False)
     address = relationship('Address', back_populates='account', lazy='joined')
+    electric_counters = relationship('ElectricCounter', secondary='accounts_electric_counters', lazy='joined')
     water_counters = relationship('WaterCounter', secondary='accounts_water_counters', lazy='joined')
     gas_counters = relationship('GasCounter', secondary='accounts_gas_counters', lazy='joined')
     account_params = relationship('AccountParams', back_populates='account', lazy='joined', uselist=False) 
     account_summary = relationship('AccountSummary', back_populates='account', lazy='joined', uselist=False)
+
+class ElectricCounter(Base):
+    __tablename__ = "electric_counter"
+    id = Column(BigInteger, primary_key=True, index=True, nullable=False, autoincrement=True)
+    outer_base_id = Column(BigInteger, nullable=True)
+    setup_date = Column(DateTime, nullable=True)
+    in_work = Column(Boolean, default=True)
+    type = Column(String, nullable=True)
+    serial_number = Column(String, nullable=True)
+    simple_data = Column(Integer, nullable=True)
+    day_data = Column(Integer, nullable=True)
+    night_data = Column(Integer, nullable=True)
+    old_simple_data = Column(Integer, nullable=True)
+    old_day_data = Column(Integer, nullable=True)
+    old_night_data = Column(Integer, nullable=True)
+    simple_diff = Column(Integer, nullable=True)
+    day_diff = Column(Integer, nullable=True)
+    night_diff = Column(Integer, nullable=True)
+    date_update = Column(DateTime, nullable=True)
+    last_date_update = Column(DateTime, nullable=True)
+    who_last_modify = Column(String, nullable=True)
 
 class WaterCounter(Base):
     __tablename__ = "water_counter"
@@ -71,6 +93,12 @@ class WaterCounter(Base):
     date_update = Column(DateTime, nullable=True)
     last_date_update = Column(DateTime, nullable=True)
     who_last_modify = Column(String, nullable=True)
+
+class AccountsElectricCounters(Base):
+    __tablename__ = "accounts_electric_counters"
+
+    account_id = Column(BigInteger, ForeignKey('account.id'), primary_key=True)
+    counter_id = Column(BigInteger, ForeignKey('electric_counter.id'), primary_key=True)    
 
 class AccountsWaterCounters(Base):
     __tablename__ = "accounts_water_counters"
@@ -90,6 +118,7 @@ class GasCounter(Base):
     old_data = Column(DECIMAL(precision=6, scale=3), nullable=True)
     diff = Column(DECIMAL(precision=6, scale=3), nullable=True)
     date_update = Column(DateTime, nullable=True)
+    last_date_update = Column(DateTime, nullable=True)
     who_last_modify = Column(String, nullable=True)
 
 class AccountsGasCounters(Base):

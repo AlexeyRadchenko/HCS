@@ -77,7 +77,7 @@ export var get_account_data_by_acc = async function (account) {
   })
 }
 
-export var put_counter_data_by_counter_id = async function(counterFormData, account) {
+export var put_water_counter_data_by_counter_id = async function(counterFormData, account) {
   setHeaders(http)
   return await http.put('http://localhost:8070/api/v1/accounts_service/account/' + account + '/update_water_counter_data', counterFormData)
   .then(response => {
@@ -95,3 +95,38 @@ export var put_counter_data_by_counter_id = async function(counterFormData, acco
   })
 }
 
+export var put_gas_counter_data_by_counter_id = async function(counterFormData, account) {
+  setHeaders(http)
+  return await http.put('http://localhost:8070/api/v1/accounts_service/account/' + account + '/update_gas_counter_data', counterFormData)
+  .then(response => {
+    if (response.status == 200){
+      return response.data
+    }  
+  })
+  .catch(e => {
+    if (!e.response) {
+      console.log('сервер не отвечает')
+      return null
+    } else {
+      return null
+    }
+  })
+}
+
+export var put_electric_counter_data_by_counter_id = async function(counterFormData, account) {
+  setHeaders(http)
+  return await http.put('http://localhost:8070/api/v1/accounts_service/account/' + account + '/update_electric_counter_data', counterFormData)
+  .then(response => {
+    if (response.status == 200){
+      return response.data
+    }  
+  })
+  .catch(e => {
+    if (!e.response) {
+      console.log('сервер не отвечает')
+      return null
+    } else {
+      return null
+    }
+  })
+}

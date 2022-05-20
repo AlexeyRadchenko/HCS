@@ -14,10 +14,33 @@ class AddressSchema(BaseModel):
     class Config:
         orm_mode = True
 
+class ElectricCounterSchema(BaseModel):
+    id: int
+    outer_base_id: int
+    setup_date: Optional[datetime]
+    in_work:bool
+    type: str
+    serial_number: Optional[str]
+    simple_data: Optional[int]
+    day_data: Optional[int]
+    night_data: Optional[int]
+    old_simple_data: Optional[int]
+    old_day_data: Optional[int]
+    old_night_data: Optional[int]
+    simple_diff: Optional[int]
+    day_diff: Optional[int]
+    night_diff: Optional[int]
+    date_update: Optional[datetime]
+    last_date_update: Optional[datetime]
+    who_last_modify: str
+
+    class Config:
+        orm_mode = True
+
 class WaterCounterSchema(BaseModel):
     id: int
     outer_base_id: int
-    setup_date: datetime
+    setup_date: Optional[datetime]
     in_work: bool
     type: Optional[str]
     serial_number: Optional[str]
@@ -26,7 +49,7 @@ class WaterCounterSchema(BaseModel):
     diff: Optional[Decimal]
     date_update: Optional[datetime]
     last_date_update: Optional[datetime]
-    who_last_modify: Optional[str]
+    who_last_modify: str
 
     class Config:
         orm_mode = True
@@ -70,6 +93,7 @@ class AccountSchema(BaseModel):
     surname: Optional[str]
     address_id: int
     address: AddressSchema
+    electric_counters: Optional[List[ElectricCounterSchema]]
     water_counters: Optional[List[WaterCounterSchema]]
     gas_counters: Optional[List[GasCounterSchema]]
     account_params: Optional[AccountParamsSchema] 
