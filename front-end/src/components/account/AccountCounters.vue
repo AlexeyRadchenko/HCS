@@ -11,11 +11,11 @@ import { defineComponent } from 'vue'
 import { useAccountAuthStore } from '../../storage/accountAuthService'
 import WaterCounter from './counters/waterCounter.vue'
 import GasCounter from './counters/GasCounter.vue'
-import ElecticCounter from './counters/ElectricCounter.vue'
+import ElectricCounter from './counters/ElectricCounter.vue'
 
 export default defineComponent({
     components: {
-        ElecticCounter,
+        ElectricCounter,
         WaterCounter,
         GasCounter
     },

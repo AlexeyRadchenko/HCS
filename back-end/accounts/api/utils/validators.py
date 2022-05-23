@@ -5,7 +5,14 @@ def valid_counter_data(data):
     try:
         d_data = Decimal(data)
         return True, d_data 
-    except InvalidOperation:
+    except (InvalidOperation):
+        return False, data
+
+def valid_counter_electric_data(data):
+    try:
+        d_data = int(data)
+        return True, d_data 
+    except (ValueError, TypeError):
         return False, data
 
 def valid_data_date(old):

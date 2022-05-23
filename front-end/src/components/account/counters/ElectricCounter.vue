@@ -2,7 +2,7 @@
     <div>
         <el-row>
             <el-col :span="24">
-                <el-divider content-position="left"><h2>Электросчетчики</h2></el-divider>
+                <el-divider content-position="left"><h2>Электросчётчики</h2></el-divider>
             </el-col>
         </el-row>
         <el-row :gutter="12" v-for="(row, index) in electricRows" :key="index" class="counter-row">
@@ -42,7 +42,6 @@
                 <el-row v-if="item.type === 'double'">
                     <el-col :span="14"><h4>Текущие показания ночь:</h4></el-col><el-col :span="10" class="card-data">{{ item.night_data }} кВт/ч</el-col>
                 </el-row>
-                <el-divider border-style="dashed" class="electric-divider-color" />
                 <el-row v-if="item.type === 'single'">
                     <el-col :span="14"><h4>Текущий расход:</h4></el-col><el-col :span="10" class="card-data">{{ item.simple_diff }} кВт/ч</el-col>
                 </el-row>
@@ -52,6 +51,7 @@
                 <el-row v-if="item.type === 'double'">
                     <el-col :span="14"><h4>Текущий расход ночь:</h4></el-col><el-col :span="10" class="card-data">{{ item.night_diff }} кВт/ч</el-col>
                 </el-row>
+                <el-divider border-style="dashed" class="electric-divider-color" />
                 <el-row v-if="item.type === 'single'">
                     <el-col :span="14">
                         <el-input
@@ -59,7 +59,8 @@
                         placeholder="0"
                         size="large"
                         v-mask="electricInputMasks"
-                        @keyup.enter="sendDataElectricCounter(electricInputs[innerindex], item.old_data, item.date_update, innerindex)"
+                        @keyup.enter="sendDataElectricCounter(
+                            electricInputs[innerindex], item.date_update, innerindex, item.old_simple_data, item.old_day_data, item.old_night_data, item.type)"
                         />
                     </el-col>
                     <el-col :span="2">
@@ -80,7 +81,8 @@
                     <el-col :span="8" class="card-data">
                         <el-button
                         size="large"
-                        @click="sendDataElectricCounter(electricInputs[innerindex], item.old_data, item.date_update, innerindex)"
+                        @click="sendDataElectricCounter(
+                            electricInputs[innerindex], item.date_update, innerindex, item.old_simple_data, item.old_day_data, item.old_night_data, item.type)"
                         :loading="electricInputs[innerindex].loading">Записать</el-button>
                     </el-col>
                 </el-row>
@@ -91,7 +93,8 @@
                         placeholder="0"
                         size="large"
                         v-mask="electricInputMasks"
-                        @keyup.enter="sendDataElectricCounter(electricInputs[innerindex], item.old_data, item.date_update, innerindex)"
+                        @keyup.enter="sendDataElectricCounter(
+                            electricInputs[innerindex], item.date_update, innerindex, item.old_simple_data, item.old_day_data, item.old_night_data, item.type)"
                         />
                     </el-col>
                     <el-col :span="2">
@@ -117,7 +120,8 @@
                         placeholder="0"
                         size="large"
                         v-mask="electricInputMasks"
-                        @keyup.enter="sendDataElectricCounter(electricInputs[innerindex], item.old_data, item.date_update, innerindex)"
+                        @keyup.enter="sendDataElectricCounter(
+                            electricInputs[innerindex], item.date_update, innerindex,  item.old_simple_data,  item.old_day_data, item.old_night_data, item.type)"
                         />
                     </el-col>
                     <el-col :span="2">
@@ -137,10 +141,12 @@
                     </el-col>
                 </el-row>
                 <el-row v-if="item.type === 'double'">
-                    <el-col :span="8" class="card-data">
+                    <el-col :span="12" :offset="6" class="card-data">
                         <el-button
+                        style="width:100%"
                         size="large"
-                        @click="sendDataElectricCounter(electricInputs[innerindex], item.old_data, item.date_update, innerindex)"
+                        @click="sendDataElectricCounter(
+                            electricInputs[innerindex], item.date_update, innerindex, item.old_simple_data, item.old_day_data, item.old_night_data, item.type)"
                         :loading="electricInputs[innerindex].loading">Записать</el-button>
                     </el-col>
                 </el-row>
@@ -211,18 +217,27 @@ export default defineComponent({
                 counterData.message = response.message
             }
         },
-        updateViewCounter (index, response, dataNow, oldData, oldDate) {
-            console.log(response)
+        updateViewCounter (index, response, dataNow, oldDate, simple_oldCounterData, day_oldCounterData, night_oldCounterData) {
             if (response.exch) {
-                this.electricCounters[index].data = dataNow
+                this.electricCounters[index].simple_data = dataNow.simple_val
+                this.electricCounters[index].day_data = dataNow.day_val
+                this.electricCounters[index].night_data = dataNow.night_val
                 this.electricCounters[index].date_update = 'now'
-                this.electricCounters[index].old_data = oldData
+                this.electricCounters[index].old_simple_data = simple_oldCounterData
+                this.electricCounters[index].old_day_data = day_oldCounterData
+                this.electricCounters[index].old_night_data = night_oldCounterData
                 this.electricCounters[index].last_date_update = oldDate
-                this.electricCounters[index].diff = response.difference
+                this.electricCounters[index].simple_diff = response.simple_difference
+                this.electricCounters[index].day_diff = response.day_difference
+                this.electricCounters[index].night_diff = response.night_difference
             }else{
-                this.electricCounters[index].data = dataNow
+                this.electricCounters[index].simple_data = dataNow.simple_val
+                this.electricCounters[index].day_data = dataNow.day_val
+                this.electricCounters[index].night_data = dataNow.night_val
                 this.electricCounters[index].date_update = 'now'
-                this.electricCounters[index].diff = response.difference
+                this.electricCounters[index].simple_diff = response.simple_difference
+                this.electricCounters[index].day_diff = response.day_difference
+                this.electricCounters[index].night_diff = response.night_difference
             }
         },
         alertsClose (alertState) {
@@ -234,21 +249,38 @@ export default defineComponent({
                 alertState.error = false
             } 
         },
-        async sendDataElectricCounter (counterData, oldCounterData, oldCounterDate, index) {
-            if (!counterData.val) {
-                return
-            }
+        async sendDataElectricCounter (counterData, oldCounterDate, index, simple_oldCounterData, day_oldCounterData, night_oldCounterData, type) {
             counterData.loading = true
             var counterDataForm = new FormData()
-            counterDataForm.append('counter_id', counterData.id)
-            counterDataForm.append('counter_data', counterData.val)
-            counterDataForm.append('old_counter_data', oldCounterData)
-            counterDataForm.append('old_date_update', oldCounterDate)
-            var response = await put_electric_counter_data_by_counter_id(counterDataForm, this.account)
-            counterData.loading = false
-            this.resposneViewer(response, counterData)
-            if (response.status === 'OK') {
-                this.updateViewCounter(index, response, counterData.val, oldCounterData, oldCounterDate)
+            if (counterData.simple_val) {
+                counterDataForm.append('counter_id', counterData.id)
+                counterDataForm.append('counter_simple_data', counterData.simple_val)
+                counterDataForm.append('old_counter_simple_data', simple_oldCounterData)
+                counterDataForm.append('old_date_update', oldCounterDate)
+                counterDataForm.append('type', type)
+            } else if (counterData.day_val && counterData.night_val) {
+                counterDataForm.append('counter_id', counterData.id)
+                counterDataForm.append('counter_day_data', counterData.day_val)
+                counterDataForm.append('counter_night_data', counterData.night_val)
+                counterDataForm.append('old_counter_day_data', day_oldCounterData)
+                counterDataForm.append('old_counter_night_data', night_oldCounterData)
+                counterDataForm.append('old_date_update', oldCounterDate)
+                counterDataForm.append('type', type) 
+            } else if ((counterData.day_val && !counterData.night_val) || (!counterData.day_val && counterData.night_val)){
+                counterData.error = true
+                counterData.message = 'Заполните оба поля дневные и ночные показания!'
+                counterData.loading = false
+            } else {
+                counterData.loading = false
+                return
+            }
+            if (counterData.loading) {
+                var response = await put_electric_counter_data_by_counter_id(counterDataForm, this.account)
+                counterData.loading = false
+                this.resposneViewer(response, counterData)
+                if (response.status === 'OK') {
+                    this.updateViewCounter(index, response, counterData, oldCounterDate, simple_oldCounterData, day_oldCounterData, night_oldCounterData)
+                }
             }
             
         },
@@ -277,6 +309,9 @@ export default defineComponent({
                 error: false,
                 message: '',
                 loading: false,
+                simple_diff: '',
+                day_diff: '',
+                night_diff: ''
             })
         })
     },

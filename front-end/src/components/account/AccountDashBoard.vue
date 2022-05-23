@@ -8,7 +8,7 @@
         >
             <el-tab-pane label="Информация" name="info">User</el-tab-pane>
             <el-tab-pane label="Счетчики" name="counters"><AccountCounters v-loading="loading" :dataLoading="loading" /></el-tab-pane>
-            <el-tab-pane label="Квитанции" name="payments">Role</el-tab-pane>
+            <el-tab-pane label="Квитанции" name="payments"><AccountPayments v-loading="loading" :dataLoading="loading" /></el-tab-pane>
             <el-tab-pane label="Task" name="fourth">Task</el-tab-pane>
         </el-tabs>
     </el-container>
@@ -18,12 +18,14 @@
 <script>
 import { defineComponent } from 'vue'
 import AccountCounters from './AccountCounters.vue'
+import AccountPayments from './AccountPayments.vue'
 import { useAccountAuthStore } from '../../storage/accountAuthService'
 import { get_account_data_by_acc } from '../../http/account-http-common'
 
 export default defineComponent ({
     components: {
-        AccountCounters
+        AccountCounters,
+        AccountPayments
     },
     setup() {
         const accAuthStore = useAccountAuthStore()
