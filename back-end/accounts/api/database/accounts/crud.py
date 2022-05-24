@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload
 from datetime import datetime
 
 from ..database import row2dict
-from .models import Account, ElectricCounter, WaterCounter, GasCounter
+from .models import Account, ElectricCounter, WaterCounter, GasCounter, Organisation
 
 
 async def get_account_data_by_account(db: AsyncSession, account: str):
@@ -115,4 +115,13 @@ async def update_electric_counter_data_by_counter_id(
         .where(ElectricCounter.id == int(counter_id))
         .values(**values)
     )
-    await db.commit()    
+    await db.commit()
+
+async def get_organisation_data_by_id(db: AsyncSession, org_id: str):
+    result = await db.execute(
+        select(
+            Organisation
+        )
+        .where(Organisation.id == int(org_id))
+    )
+    return result.scalar()

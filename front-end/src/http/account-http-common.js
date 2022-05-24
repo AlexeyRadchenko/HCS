@@ -130,3 +130,21 @@ export var put_electric_counter_data_by_counter_id = async function(counterFormD
     }
   })
 }
+
+export var get_organisation_data_by_org_id = async function(org_id) {
+  setHeaders(http)
+  return await http.get('http://localhost:8070/api/v1/accounts_service/account/get_organisatin_by_id/' + org_id)
+  .then(response => {
+    if (response.status == 200){
+      return response.data
+    }  
+  })
+  .catch(e => {
+    if (!e.response) {
+      console.log('сервер не отвечает')
+      return null
+    } else {
+      return null
+    }
+  })
+}

@@ -20,7 +20,7 @@ import { defineComponent } from 'vue'
 import AccountCounters from './AccountCounters.vue'
 import AccountPayments from './AccountPayments.vue'
 import { useAccountAuthStore } from '../../storage/accountAuthService'
-import { get_account_data_by_acc } from '../../http/account-http-common'
+import { get_account_data_by_acc, get_organisation_data_by_org_id } from '../../http/account-http-common'
 
 export default defineComponent ({
     components: {
@@ -35,7 +35,7 @@ export default defineComponent ({
         return {
             activeName: 'info',
             accountData: null,
-            loading: true
+            loading: true,
         }
     },
     methods: {
@@ -45,6 +45,8 @@ export default defineComponent ({
     },
     async created () {
        var data  = await get_account_data_by_acc (this.accAuthStore.getUser.account)
+       var organisation_data = await get_organisation_data_by_org_id(data.address.org_id)
+       this.accAuthStore.setAccountOrganisationData(organisation_data)
        this.accAuthStore.setAccountData(data)
        this.loading = false
     },

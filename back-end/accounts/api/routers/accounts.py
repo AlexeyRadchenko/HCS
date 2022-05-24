@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, Security
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
-from ..database.accounts.schemas import AccountSchema, AccountWaterCounterSchema
+from ..database.accounts.schemas import AccountSchema, OrganisationSchema
 from ..database.database import get_async_session
 from ..database.accounts.crud import (
     get_account_data_by_account, update_water_counter_data_by_counter_id, update_gas_counter_data_by_counter_id,
-     update_electric_counter_data_by_counter_id
+     update_electric_counter_data_by_counter_id, get_organisation_data_by_id
      )
 from ..security.access_depends import user_scope_authorize
 from ..utils.validators import valid_counter_data, valid_data_date, valid_counter_electric_data
@@ -22,6 +22,15 @@ async def create_contact_address_handler(
     db_session: AsyncSession = Depends(get_async_session)
     ):
     account_data_in_db = await get_account_data_by_account(db_session, account)
+    return account_data_in_db
+
+@router.get("/account/get_organisatin_by_id/{org_id}", response_model=OrganisationSchema)
+async def get_organisation_data_handler(
+    org_id: str,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.ACCOUNT_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    account_data_in_db = await get_organisation_data_by_id(db_session, org_id)
     return account_data_in_db
 
 @router.put("/account/{account}/update_water_counter_data")

@@ -8,6 +8,7 @@ export const useAccountAuthStore = defineStore({
     error: '',
     user: null,
     accountData: null,
+    accountOrganisationData: null
   }),
   getters: {
     getToken () {
@@ -27,6 +28,9 @@ export const useAccountAuthStore = defineStore({
     },
     getAccountData () {
       return this.accountData
+    },
+    getAccountOrganisationData () {
+      return this.accountOrganisationData
     }
   },
   actions: {
@@ -52,6 +56,11 @@ export const useAccountAuthStore = defineStore({
     setAccountData (data) {
       if (data) {
         this.accountData = data
+      }
+    },
+    setAccountOrganisationData (data) {
+      if (data) {
+        this.accountOrganisationData = data
       }
     }
   }

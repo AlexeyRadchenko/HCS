@@ -107,4 +107,20 @@ class AccountWaterCounterSchema(BaseModel):
     water_counters: Optional[List[WaterCounterSchema]]
 
     class Config:
-        orm_mode = True    
+        orm_mode = True
+
+class OrganisationSchema(BaseModel):
+    id: int
+    short_name: str
+    full_name: str
+    address: str
+    phones: str
+    dispatcher_phones: Optional[str]
+    site: Optional[str]
+    r_s: Optional[str]
+    banks: Optional[str]
+    bik: Optional[str]
+    korr_acc: Optional[str]
+
+    class Config:
+        orm_mode = True
