@@ -21,6 +21,9 @@ class Organisation(Base):
     r_s = Column(String, nullable=True)
     bank = Column(String, nullable=True)
     bik = Column(String, nullable=True)
+    inn = Column(String, nullable=True)
+    kpp = Column(String, nullable=True)
+    qr_short_name = Column(String, nullable=True)
     korr_acc = Column(String, nullable=True)
 
     """clients = relationship(

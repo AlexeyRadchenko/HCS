@@ -48,14 +48,7 @@ export default defineComponent ({
     },
     data () {
         return {
-            barcodeParams: {
-                width: "200px",
-                height: "150px",
-                type: "Codabar",
-                value: "123456789",
-                mode: "SVG",
-                displaytext: { text: 'BarcodeGenerator'}
-            },
+            
         }
     },
     props: {
@@ -66,7 +59,7 @@ export default defineComponent ({
         organisation: Object,  
     },
     components: {
-        Vue3Barcode, //https://www.npmjs.com/package/vue3-barcode
+        'vue3-barcode': Vue3Barcode, //https://www.npmjs.com/package/vue3-barcode
     },
     methods: {
        

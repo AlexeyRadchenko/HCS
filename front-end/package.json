@@ -10,6 +10,7 @@
     "test:e2e:ci": "start-server-and-test preview http://127.0.0.1:5050/ 'cypress run'"
   },
   "dependencies": {
+    "@chenfengyuan/vue-qrcode": "^2.0.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-regular-svg-icons": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
@@ -21,6 +22,8 @@
     "jsbarcode": "^3.11.5",
     "moment": "^2.29.3",
     "pinia": "^2.0.9",
+    "qrcode": "^1.5.0",
+    "qrcode-vue3": "^1.4.17",
     "secure-web-storage": "^1.0.2",
     "vue-3-meta": "^2.4.0",
     "vue-class-component": "^8.0.0-rc.1",

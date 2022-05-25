@@ -118,9 +118,12 @@ class OrganisationSchema(BaseModel):
     dispatcher_phones: Optional[str]
     site: Optional[str]
     r_s: Optional[str]
-    banks: Optional[str]
-    bik: Optional[str]
-    korr_acc: Optional[str]
+    bank: str
+    bik: str
+    inn: str
+    kpp: str
+    qr_short_name: str
+    korr_acc: str
 
     class Config:
         orm_mode = True

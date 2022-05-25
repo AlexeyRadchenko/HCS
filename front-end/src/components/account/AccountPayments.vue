@@ -28,7 +28,7 @@
             </el-col>
         </el-row>"
         <el-row justify="center" ><el-col :span="12" class="pay-doc-header"><h2>Платежный документ (счет) на оплату услуг за {{ monthName }} {{ year }}</h2></el-col></el-row>
-        <el-row>
+        <el-row :gutter="20">
             <el-col :span="12">
                 <el-row class="pay-doc-header"><el-col><h4>Единый лицевой счет: {{ accountParams.etc }}</h4></el-col></el-row>
                 <el-row class="pay-doc-header"><el-col><h4>Раздел 1. Сведения о плательщике и исполнителе услуг</h4></el-col></el-row>
@@ -39,9 +39,16 @@
                 </el-row>
             </el-col>
             <el-col :span="12">
-                
+                <el-row class="pay-doc-header"><el-col><h4>Идентификатор платежного документа</h4></el-col></el-row>
+                <el-row class="pay-doc-header"><el-col><h4>Раздел 2. Информация для внесения платы получателю платежа</h4></el-col></el-row>
+                <el-row>
+                    <el-col :span="24">
+                        <partPayInfo :organisation="org" :account="account" :accSummary="accountSummary" :payer="FIO" :payerAddress="address" />
+                    </el-col>
+                </el-row>    
             </el-col>
         </el-row>
+        {{ account }}
         {{ this.accAuthStore.getAccountData }}
     </div>    
 </template>
@@ -50,12 +57,14 @@
 import { defineComponent } from 'vue'
 import { useAccountAuthStore } from '../../storage/accountAuthService'
 import PartInfo from './paymentParts/PartInfo.vue'
+import partPayInfo from './paymentParts/partPayInfo.vue'
 import moment from 'moment/dist/moment'
 import ru from 'moment/dist/locale/ru'
 
 export default defineComponent({
     components: {
         PartInfo,
+        partPayInfo
     },
     setup() {
         const accAuthStore = useAccountAuthStore()
@@ -154,6 +163,22 @@ export default defineComponent({
         org () {
             if (!this.dataLoading) {
                 return this.accAuthStore.getAccountOrganisationData
+            }
+            return {}
+        },
+        account () {
+            if (!this.dataLoading) {
+                return this.accAuthStore.getAccountData.account
+            }
+            return ''
+        },
+        FIO () {
+            if (!this.dataLoading) {
+                return {
+                    'name': this.accAuthStore.getAccountData.name,
+                    'middle_name': this.accAuthStore.getAccountData.second_name,
+                    'last_name': this.accAuthStore.getAccountData.surname,
+                }
             }
             return {}
         }
