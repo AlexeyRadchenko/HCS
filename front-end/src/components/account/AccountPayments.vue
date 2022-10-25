@@ -27,7 +27,7 @@
                 </el-select>
             </el-col>
         </el-row>"
-        <el-row justify="center" ><el-col :span="12" class="pay-doc-header"><h2>Платежный документ (счет) на оплату услуг за {{ monthName }} {{ year }}</h2></el-col></el-row>
+        <el-row justify="center" ><el-col :span="12" class="pay-doc-header" style="margin-bottom: 1rem;"><h2>Платежный документ (счет) на оплату услуг за {{ monthName }} {{ year }}</h2></el-col></el-row>
         <el-row :gutter="20">
             <el-col :span="12">
                 <el-row class="pay-doc-header"><el-col><h4>Единый лицевой счет: {{ accountParams.etc }}</h4></el-col></el-row>
@@ -48,13 +48,31 @@
                 </el-row>    
             </el-col>
         </el-row>
+        <el-row :gutter="20" style="margin-top: 1rem;">
+            <el-col :span="16">
+                <el-row class="pay-doc-header"><el-col><h4>Раздел 3. Расчет размера платы за содержание и ремонт жилого помещения и коммунальные услуги</h4></el-col></el-row>
+                <el-row>
+                    <el-col :span="24">
+                       
+                    </el-col>
+                </el-row>
+            </el-col>
+            <el-col :span="8">
+                <el-row class="pay-doc-header"><el-col><h4>Раздел 4. Справочная информация</h4></el-col></el-row>
+                <el-row>
+                    <el-col :span="24">
+              
+                    </el-col>
+                </el-row>    
+            </el-col>
+        </el-row>    
         {{ account }}
         {{ this.accAuthStore.getAccountData }}
     </div>    
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, onMounted } from 'vue'
 import { useAccountAuthStore } from '../../storage/accountAuthService'
 import PartInfo from './paymentParts/PartInfo.vue'
 import partPayInfo from './paymentParts/partPayInfo.vue'
@@ -69,7 +87,6 @@ export default defineComponent({
     setup() {
         const accAuthStore = useAccountAuthStore()
         moment.updateLocale('ru', ru)
-
         return { accAuthStore, moment }
     },
     data () {
@@ -182,7 +199,11 @@ export default defineComponent({
             }
             return {}
         }
-    },   
+    },
+    async mounted() {
+        var month = 'get_last_payment_month_by_account()'
+        var calculateInfo = 'get_calculate_info_by_account_and_date()'
+    }
 })
 </script>
 

@@ -11,4 +11,3 @@ async def init_superuser(login, password):
     await db_session.close()
     login = su.login
     print(f"Superuser {login} is created")
-    
