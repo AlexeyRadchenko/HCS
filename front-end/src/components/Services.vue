@@ -15,7 +15,7 @@
       </el-col>
       <el-col :span="4">
         <div class="items" style="grid-template-rows: 7fr 1fr;">
-          <router-link to="/management_accounts">
+          <router-link to="/management_debt_il">
             <div class="icon-wrapper">
               <font-awesome-icon :icon="['fas', 'money-check']" size="7x" />
             </div>

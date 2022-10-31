@@ -36,7 +36,7 @@ async def get_user(db_session, login: str):
 async def get_account_user(db_session, account: str):
     user = await get_account_user_by_account(db_session, account)
     if not user:
-        return False
+        return None
     return AccountUser.from_orm(user)    
 
 

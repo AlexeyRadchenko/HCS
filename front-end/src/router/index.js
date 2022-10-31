@@ -39,6 +39,11 @@ const router = createRouter({
       name: 'AccountDashBoard',
       component: () => import('../views/AccountDashBoardView.vue')
     },
+    {
+      path: '/management_debt_il',
+      name: 'DebtILList',
+      component: () => import('../views/DebtIL.vue')
+    },
   ]
 })
 

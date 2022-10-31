@@ -9,7 +9,7 @@ CRYPT_CONTEXT_SCHEME: bcrypt
 PWD_CONTEXT_DEPRECATED: auto
 
 # oauth2_scheme
-TOKEN_URL: account_token
+TOKEN_URL: token
 
 # Database settings
 # for Alembic use alembic.ini in root
@@ -18,5 +18,4 @@ DATABASE_URL: postgresql+asyncpg://pgmain_dbuser:thOxk3whURJOaM2yMOchDAGc1QICQ88
 #Security scope settings
 SELF_USER_SCOPE: me
 ADMIN_SCOPE: admin
-MANAGEMENT_ACCOUNT_SCOPE: management_accounts
-ACCOUNT_SCOPE: appartment_host
+MANAGEMENT_DEBT_IL_SCOPE: management_debt_il
