@@ -19,7 +19,7 @@ class Passport_il(Base):
     date_take = Column(DateTime, nullable=True)
     squad_code = Column(String, nullable=True)
     birth_date = Column(DateTime, nullable=True)
-    birth_city = Column(String, nullable=True)
+    birth_place = Column(String, nullable=True)
     scan = Column(String, nullable=True)
     account_il = relationship("Accounts_il", back_populates="passport_il")
 

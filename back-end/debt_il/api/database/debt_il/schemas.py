@@ -12,7 +12,7 @@ class PassportILSchema(BaseModel):
     when_take: Optional[datetime]
     squad_code: Optional[str]
     birth_date: Optional[datetime]
-    birth_city: Optional[str]
+    birth_place: Optional[str]
     scan: Optional[str]
 
     class Config:
