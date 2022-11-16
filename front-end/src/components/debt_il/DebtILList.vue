@@ -17,8 +17,10 @@
         <el-col :span="3" class="filters-row-column">
           <el-input v-model="searchIL" placeholder="Номер и/л"></el-input>
         </el-col>
-        <el-col :span="12" class="filters-row-column">
-          <el-button type="primary" @click="dialogVisible = true">Добавить запись</el-button>
+        <el-col :span="8">
+        </el-col>  
+        <el-col :span="6" class="filters-row-column">
+          <el-button type="primary" @click="this.$refs.createRecordDialog.dialogVisible = true">Добавить запись</el-button>
         </el-col>  
       </el-row>    
     </el-header>
@@ -35,7 +37,7 @@
                   <div class="debt-sub-table">
                     <el-row>
                       <el-col :span="6">
-                      <p><h2><span>Адрес:</span> {{ props.row.street }} {{ props.row.house }} - {{ props.row.appartment }}</h2></p>
+                      <h2><span>Адрес:</span> {{ props.row.street }} {{ props.row.house }} - {{ props.row.appartment }} </h2>
                       </el-col>
                       <el-col :span="8">
                         <el-button>Сведения ЕГРН</el-button>
@@ -81,7 +83,11 @@
               <el-table-column prop="bailiff_forward_date" label="Период задолженности" width="120" />
               <el-table-column label="Дата окончания произодства" width="120" />
               <el-table-column label="Причина окончания произодства" width="120" />
-              <el-table-column label="Был отменен" width="100" align="center">
+              <el-table-column label="Был отменен" width="100" align="center" :filters="[
+                { text: 'Да', value: 'Да' },
+                { text: 'Нет', value: 'Нет' },
+              ]"
+              :filter-method="filterOrderCancel">
                 <template #default="scope">
                   <span v-if="scope.row.order_cancel">Да</span>
                   <span v-else>Нет</span>
@@ -103,15 +109,24 @@
       </el-row>  
     </el-main>  
   </el-container>
+  <CreateRecordDialog ref="createRecordDialog" />
+  <UpdateRecordDialog ref="updateRecordDialog" />
+  <DeleteRecordDialog ref="deleteRecordDialog" />
 </div>  
 </template>
 
 <script>
 import moment from 'moment/dist/moment'
 import ru from 'moment/dist/locale/ru'
+import CreateRecordDialog from './CreateRecordDialog.vue'
+import UpdateRecordDialog from './UpdateRecordDialog.vue'
+import DeleteRecordDialog from './DeleteRecordDialog.vue'
 
 export default {
   components: {
+    CreateRecordDialog,
+    UpdateRecordDialog,
+    DeleteRecordDialog, 
   },
   setup() {
     moment.updateLocale('ru', ru)
@@ -255,7 +270,7 @@ export default {
             il_date: "2022-11-02T10:56:04.116Z",
             ur_in_work: true,
             gov_tax: 1000.45,
-            order_cancel: true,
+            order_cancel: false,
             bailiff_forward_date: "2022-11-02T10:56:04.116Z",
             start_exec_pross_date: "2022-11-02T10:56:04.116Z",
             sum_all_get: 50000.00,
@@ -319,6 +334,10 @@ export default {
       if (sortded[0] === adr1)
         return 0
       return 1
+    }, 
+    filterOrderCancel (value, row) {
+      let orderTypeMap = {'Да': true, 'Нет': false}
+      return row.order_cancel === orderTypeMap[value]
     }
   },
   computed: {
@@ -346,10 +365,6 @@ export default {
         }
 
         if (sAddress || sFIO || sIL) {
-          //console.log(data.street + ' ' + data.house + ' - ' + data.appartment)
-          //sAddress = false
-          //sFIO = false
-          //sIL = false
           return data 
         }
       }) 
