@@ -273,6 +273,7 @@ export default {
             order_cancel: false,
             bailiff_forward_date: "2022-11-02T10:56:04.116Z",
             start_exec_pross_date: "2022-11-02T10:56:04.116Z",
+            end_exec_pross_date: "2022-10-02T10:56:04.116Z",
             sum_all_get: 50000.00,
             sum_not_yet_get: 255000.70,
             payments: 0,

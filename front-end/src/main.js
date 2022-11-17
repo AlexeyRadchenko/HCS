@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import ElementPlus from 'element-plus'
+import ru from 'element-plus/dist/locale/ru.mjs'
 import { createPinia } from 'pinia'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faMoneyCheck, faAddressCard, faUserCheck, faBars, faAngleDown, faBook, faUser, faHouseUser, faRoad,
@@ -21,7 +22,7 @@ library.add(faAddressCard, faMoneyCheck, faUserCheck,
 
 const app = createApp(App)
 app.component("font-awesome-icon", FontAwesomeIcon)
-app.use(ElementPlus)
+app.use(ElementPlus, {locale: ru,})
 app.use(createPinia())
 app.use(router)
 app.use(VueTheMask)

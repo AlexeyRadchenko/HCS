@@ -127,6 +127,7 @@ class All_il(Base):
     order_cancel = Column(Boolean, default=False)
     bailiff_forward_date = Column(DateTime, nullable=True)
     start_exec_pross_date = Column(DateTime, nullable=True)
+    end_exec_pross_date = Column(DateTime, nullable=True)
     sum_all_get = Column(DECIMAL(24,2), nullable=True)
     sum_not_yet_get = Column(DECIMAL(24,2), nullable=True)
     payments = Column(DECIMAL(24,2), nullable=True)

@@ -25,6 +25,7 @@
     "qrcode": "^1.5.1",
     "qrcode-vue3": "^1.4.17",
     "secure-web-storage": "^1.0.2",
+    "uuid": "^9.0.0",
     "vue-3-meta": "^2.4.0",
     "vue-class-component": "^8.0.0-rc.1",
     "vue-meta": "^2.4.0",
