@@ -110,13 +110,13 @@
               message: 'domain can not be null',
               trigger: 'blur',
             }"
-          > <el-row :gutter="20">
+          > <el-row :gutter="20" style="width: 870px;">
               <el-col :span="6"><el-input v-model="account.surname" placeholder="Фамилия" /></el-col>
               <el-col :span="6"><el-input v-model="account.name" placeholder="Имя" /></el-col>
               <el-col :span="6"><el-input v-model="account.second_name" placeholder="Отчество" /></el-col>
               <el-col :span="6"><el-input v-model="account.account_number" placeholder="Лицевой счет" /></el-col>
             </el-row>
-            <el-row :gutter="20">
+            <el-row :gutter="20" style="margin-top:1em;width: 870px;">
               <el-col :span="6">
                 <el-date-picker
                   v-model="account.passport_il.birth_date"
@@ -129,11 +129,42 @@
               </el-col>
               <el-col :span="6"><el-input v-model="account.passport_il.birth_place" placeholder="Место рождения" /></el-col>
               <el-col :span="6"><el-input v-model="account.passport_il.seria" placeholder="Серия паспорта" /></el-col>
-              <el-col :span="6"><el-input v-model="account.passport_il.number" placeholder="Серия паспорта" /></el-col>
+              <el-col :span="6"><el-input v-model="account.passport_il.number" placeholder="Номер паспорта" /></el-col>
             </el-row>
-            <el-button class="mt-2" @click.prevent="removeFIO(account)"
-              >Delete</el-button
-            >
+            <el-row :gutter="20" style="margin-top:1em;width: 870px;">
+              <el-col :span="6">
+                <el-date-picker
+                  v-model="account.passport_il.when_take"
+                  format="DD.MM.YYYY"
+                  type="date"
+                  label="Когда выдан"
+                  placeholder="Когда выдан"
+                  style="width:100%;"
+                />
+              </el-col>
+              <el-col :span="18"><el-input v-model="account.passport_il.who_take" placeholder="Кем выдан" /></el-col>
+            </el-row>
+            <el-row style="margin-top:1em;width: 870px;">
+              <el-col :span="24">
+                <el-upload
+                  action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                  class="upload-block"
+                  :limit="1"
+                >
+                  <el-button type="primary">Загрузить скан. паспорта</el-button>
+                  <template #tip>
+                    <div class="el-upload__tip">
+                      pdf файл размером не более 20 мб.
+                    </div>
+                  </template>
+                </el-upload>
+              </el-col>
+            </el-row>
+            <el-row style="margin-top:1em;width: 870px;">
+              <el-col :span="6">
+                <el-button class="mt-2" @click.prevent="removeFIO(account)">Delete</el-button>
+              </el-col>
+            </el-row>    
           </el-form-item>
         </el-col>  
       </el-row>
@@ -331,7 +362,7 @@ export default {
           scan: "string"
         }  
       })
-    }
+    },
   },
   mounted() {
     this.ruleForm.accounts_il[0].uuid = uuidv4()
@@ -345,5 +376,14 @@ form input:focus {
 }
 .el-form-item__label {
   word-break: break-word;
+}
+</style>
+
+<style scoped>
+.upload-block {
+  display: inline;
+}
+.el-upload__tip {
+  display: inline;
 }
 </style>
