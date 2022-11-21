@@ -26,11 +26,13 @@ class Passport_il(Base):
 
 class Accounts_il(Base):
     __tablename__ = "accounts_il"
+
     uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4) # for postresql
     account_number = Column(String, nullable=True)
     name = Column(String, nullable=True)
     second_name = Column(String, nullable=True)
     surname = Column(String, nullable=True)
+    del_mark = Column(Boolean, default=False)
     passport = Column(Integer, ForeignKey('passport_il.id'), nullable=True)
     passport_il = relationship('Passport_il', back_populates='account_il', lazy='joined')
     lists_il = relationship(
@@ -133,7 +135,8 @@ class All_il(Base):
     payments = Column(DECIMAL(24,2), nullable=True)
     debt_sum_il = Column(DECIMAL(24,2), nullable=True)
     notes = Column(Text(), nullable=True)
-    organisation_id = Column(Integer, ForeignKey('organisations_il.id'), nullable=False) 
+    organisation_id = Column(Integer, ForeignKey('organisations_il.id'), nullable=False)
+    del_mark = Column(Boolean, default=False)
 
     egrn_il = relationship('Egrn_il', back_populates='list_il', lazy='joined')
     debt_sum_calc_il = relationship('Debt_calc_il', back_populates='list_il', lazy='joined')

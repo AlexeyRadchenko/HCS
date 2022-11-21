@@ -1,11 +1,11 @@
 <template>
-    <el-dialog v-model="dialogVisible" title="Удаление записи" width="30%" draggable>
-        <span>Удаление записи c id:{{ rowIdForDel  }}</span>
+    <el-dialog v-model="dialogVisible" title="Документы ЕГРН" width="80%" draggable>
+        <span>Удаление записи c id:{{ egrnDocs  }}</span>
         <template #footer>
         <span class="dialog-footer">
             <el-button @click="dialogVisible = false">Отмена</el-button>
             <el-button type="primary" @click="dialogVisible = false">
-            Удалить
+            OK
             </el-button>
         </span>
         </template>
@@ -21,7 +21,7 @@ export default {
   data() {
     return {
         dialogVisible: false,
-        rowIdForDel: null,
+        egrnDocs: [],
     }
   },
 

@@ -71,7 +71,7 @@
         </el-col>
         <el-col :span="4">
             <el-date-picker
-              v-model="ruleForm.start_exec_pross_date"
+              v-model="ruleForm.period"
               format="DD.MM.YYYY"
               type="daterange"
               start-placeholder="Начальная дата"
@@ -104,14 +104,8 @@
             v-for="(account, index) in ruleForm.accounts_il"
             :key="account.uuid"
             :label="'Должник ' + index"
-            :prop="'accounts_il.' + index + '.surname'"
-            :rules="{
-              required: true,
-              message: 'domain can not be null',
-              trigger: 'blur',
-            }"
           > <el-row :gutter="20" style="width: 870px;">
-              <el-col :span="6"><el-input v-model="account.surname" placeholder="Фамилия" /></el-col>
+              <el-col :span="6"><el-input v-model="account.surname" placeholder="Фамилия" required /></el-col>
               <el-col :span="6"><el-input v-model="account.name" placeholder="Имя" /></el-col>
               <el-col :span="6"><el-input v-model="account.second_name" placeholder="Отчество" /></el-col>
               <el-col :span="6"><el-input v-model="account.account_number" placeholder="Лицевой счет" /></el-col>
@@ -150,6 +144,7 @@
                   action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
                   class="upload-block"
                   :limit="1"
+                  :data="{'record-index': index}"
                 >
                   <el-button type="primary">Загрузить скан. паспорта</el-button>
                   <template #tip>
@@ -160,17 +155,18 @@
                 </el-upload>
               </el-col>
             </el-row>
-            <el-row style="margin-top:1em;width: 870px;">
-              <el-col :span="6">
-                <el-button class="mt-2" @click.prevent="removeFIO(account)">Delete</el-button>
+            <el-row style="margin-top:1em;width: 98%">
+              <el-col :span="4" :offset="20">
+                <el-button class="mt-2" type="danger" @click.prevent="removeFIO(account)">Удалить запись Должник {{ index }}</el-button>
               </el-col>
             </el-row>    
           </el-form-item>
         </el-col>  
       </el-row>
       <el-row>
-        <el-button @click="addAccount">Добавить Физ. лицо</el-button>
-        <el-button @click="resetForm(formRef)">Reset</el-button>
+        <el-col :span="4" :offset="20">
+          <el-button type="success" @click="addAccount">Добавить Физ. лицо</el-button>
+        </el-col>  
       </el-row>  
     </el-form>        
         <template #footer>
@@ -209,6 +205,8 @@ export default {
         sum_all_get: '',
         sum_not_yet_get: '',
         start_exec_pross_date: '',
+        end_exec_pross_date: '',
+        period:[],
         accounts_il: [
           {
             uuid: '',

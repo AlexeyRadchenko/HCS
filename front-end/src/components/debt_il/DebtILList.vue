@@ -40,7 +40,7 @@
                       <h2><span>Адрес:</span> {{ props.row.street }} {{ props.row.house }} - {{ props.row.appartment }} </h2>
                       </el-col>
                       <el-col :span="8">
-                        <el-button>Сведения ЕГРН</el-button>
+                        <el-button @click="this.$refs.egrnDocsDialog.dialogVisible = true">Сведения ЕГРН</el-button>
                         <el-button>Судбный приказ</el-button>
                         <el-button>История платежей</el-button>
                         <el-button>Отменненный судбный приказ</el-button>
@@ -80,7 +80,7 @@
                       <el-checkbox v-model="scope.row.ur_in_work" :label="scope.row.ur_in_work ? 'В работе' : 'Передать'" size="large" border />
                 </template>
               </el-table-column>  
-              <el-table-column prop="bailiff_forward_date" label="Период задолженности" width="120" />
+              <el-table-column prop="period" label="Период задолженности" width="120" />
               <el-table-column label="Дата окончания произодства" width="120" />
               <el-table-column label="Причина окончания произодства" width="120" />
               <el-table-column label="Был отменен" width="100" align="center" :filters="[
@@ -98,8 +98,10 @@
                 <template #default="scope">
                   <el-button
                     type="primary"
-                    @click.prevent="deleteRow(scope.$index)">Изменить</el-button>
+                    @click.prevent="changeRow(scope.$index)"
+                   >Изменить</el-button>
                   <el-button
+                  @click.prevent="deleteRow(scope.$index)"
                   type="danger"
                   >Удалить</el-button>
                 </template>
@@ -112,6 +114,7 @@
   <CreateRecordDialog ref="createRecordDialog" />
   <UpdateRecordDialog ref="updateRecordDialog" />
   <DeleteRecordDialog ref="deleteRecordDialog" />
+  <EGRNDocsDialog ref="egrnDocsDialog" />
 </div>  
 </template>
 
@@ -121,12 +124,14 @@ import ru from 'moment/dist/locale/ru'
 import CreateRecordDialog from './CreateRecordDialog.vue'
 import UpdateRecordDialog from './UpdateRecordDialog.vue'
 import DeleteRecordDialog from './DeleteRecordDialog.vue'
+import EGRNDocsDialog from './EGRNDocsDialog.vue'
 
 export default {
   components: {
     CreateRecordDialog,
     UpdateRecordDialog,
-    DeleteRecordDialog, 
+    DeleteRecordDialog,
+    EGRNDocsDialog,
   },
   setup() {
     moment.updateLocale('ru', ru)
@@ -199,6 +204,8 @@ export default {
             order_cancel: true,
             bailiff_forward_date: "2022-11-02T10:56:04.116Z",
             start_exec_pross_date: "2022-11-02T10:56:04.116Z",
+            end_exec_pross_date: "2022-11-02T10:56:04.116Z",
+            period:[],
             sum_all_get: 50000.00,
             sum_not_yet_get: 255000.70,
             payments: 0,
@@ -274,6 +281,7 @@ export default {
             bailiff_forward_date: "2022-11-02T10:56:04.116Z",
             start_exec_pross_date: "2022-11-02T10:56:04.116Z",
             end_exec_pross_date: "2022-10-02T10:56:04.116Z",
+            period:[],
             sum_all_get: 50000.00,
             sum_not_yet_get: 255000.70,
             payments: 0,
@@ -339,6 +347,14 @@ export default {
     filterOrderCancel (value, row) {
       let orderTypeMap = {'Да': true, 'Нет': false}
       return row.order_cancel === orderTypeMap[value]
+    },
+    changeRow(rowIndex) {
+      this.$refs.updateRecordDialog.dialogVisible = true
+      this.$refs.updateRecordDialog.ruleForm = this.filterTableData[rowIndex]
+    },
+    deleteRow(rowIndex) {
+      this.$refs.deleteRecordDialog.dialogVisible = true
+      this.$refs.deleteRecordDialog.rowIdForDel = this.filterTableData[rowIndex].id
     }
   },
   computed: {
