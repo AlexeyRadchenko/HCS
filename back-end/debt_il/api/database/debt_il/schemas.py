@@ -6,7 +6,7 @@ from uuid import UUID
 
 class PassportILSchema(BaseModel):
     id: Optional[int]
-    seria: Optional[str]
+    serial: Optional[str]
     number: Optional[str]
     who_take: Optional[str]
     when_take: Optional[datetime]
@@ -20,10 +20,11 @@ class PassportILSchema(BaseModel):
 
 class AccountILSchema(BaseModel):
     uuid: UUID
-    account_number: str
-    name: str
-    second_name: str
-    surname: str
+    account_number: Optional[str]
+    name: Optional[str]
+    second_name: Optional[str]
+    surname: Optional[str]
+    part_of_appartment: Optional[str]
     passport_il: Optional[PassportILSchema]
 
     class Config:
@@ -34,6 +35,8 @@ class PaymentsILSchema(BaseModel):
     date: datetime
     type: str
     sum: Decimal
+    account_il: Optional[AccountILSchema]
+    notes: Optional[str]
 
     class Config:
         orm_mode = True

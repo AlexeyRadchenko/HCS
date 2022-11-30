@@ -150,3 +150,37 @@ export var delete_record_in_contacts = async function(formModalData) {
     }
   })
 }
+
+export var debt_il_get_all_il_list = async function () {
+  setHeaders(http)
+  return await http.get('http://localhost:8090/api/v1/debt_il_service/il/all/data')
+  .then(response => {
+    if (response.status == 200)
+      return response.data
+  })
+  .catch(e => {
+    if (!e.response) {
+      console.log('сервер не отвечает')
+      return null
+    } else {
+      return null
+    }
+  })
+}
+
+export var debt_il_get_all_accounts_il_list = async function () {
+  setHeaders(http)
+  return await http.get('http://localhost:8090/api/v1/debt_il_service/il/accounts/all/data')
+  .then(response => {
+    if (response.status == 200)
+      return response.data
+  })
+  .catch(e => {
+    if (!e.response) {
+      console.log('сервер не отвечает')
+      return null
+    } else {
+      return null
+    }
+  })
+}

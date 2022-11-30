@@ -33,11 +33,13 @@ class Accounts_il(Base):
     second_name = Column(String, nullable=True)
     surname = Column(String, nullable=True)
     del_mark = Column(Boolean, default=False)
+    part_of_appartment = Column(String, nullable=True)
     passport = Column(Integer, ForeignKey('passport_il.id'), nullable=True)
     passport_il = relationship('Passport_il', back_populates='account_il', lazy='joined')
     lists_il = relationship(
         'All_il', secondary='il_accounts', back_populates='accounts_il', lazy='dynamic'
     )
+    payments_il = relationship('Payments_il', back_populates='account_il', lazy='dynamic')
 
 
 class Egrn_il(Base):
@@ -101,8 +103,11 @@ class Payments_il(Base):
     date =  Column(DateTime, nullable=True)
     type = Column(String, nullable=True)
     sum = Column(DECIMAL(24,2), nullable=True)
+    who_paid_uuid = Column(UUID(as_uuid=True), ForeignKey('accounts_il.uuid'), primary_key=True, nullable=False)
+    notes = Column(Text(), nullable=True)
     il_id = Column(BigInteger, ForeignKey('all_il.id'), nullable=False)
     list_il = relationship("All_il", back_populates="payments_il")
+    account_il = relationship("Accounts_il", back_populates="payments_il")
 
 
 class Organisations_il(Base):
@@ -145,7 +150,7 @@ class All_il(Base):
     judge_order_exec_date_il = relationship('Judge_orders_exec_il', back_populates='list_il', lazy='joined')
     payments_il = relationship('Payments_il', back_populates='list_il', lazy='joined')
     accounts_il = relationship(
-        'Accounts_il', secondary='il_accounts', back_populates='lists_il', lazy='dynamic'
+        'Accounts_il', secondary='il_accounts', back_populates='lists_il', lazy='joined'
     )
 
 

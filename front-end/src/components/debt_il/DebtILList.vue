@@ -17,9 +17,12 @@
         <el-col :span="3" class="filters-row-column">
           <el-input v-model="searchIL" placeholder="Номер и/л"></el-input>
         </el-col>
-        <el-col :span="8">
-        </el-col>  
         <el-col :span="6" class="filters-row-column">
+        
+        </el-col>
+        <el-col :span="8" class="main-button-row-column">
+          <el-button type="primary">Сформировать отчет</el-button>
+          <el-button type="primary" @click="this.$refs.paymentsUploadDialog.dialogVisible = true">Загрузить сведения об оплате</el-button>
           <el-button type="primary" @click="this.$refs.createRecordDialog.dialogVisible = true">Добавить запись</el-button>
         </el-col>  
       </el-row>    
@@ -27,7 +30,8 @@
     <el-main>
       <el-row>
         <el-col :span="24">
-            <el-table :data="filterTableData"  row-key="id" style="width: 100%" max-height="55em">
+            <el-skeleton :rows="10" animated v-if="!showTable" />
+            <el-table :data="filterTableData"  row-key="id" style="width: 100%" max-height="55em" v-if="showTable">
               <el-table-column label="Адрес" width="180" :formatter="addressTableFormatter" sortable :sort-method="addressSort" align="center" />
               <el-table-column label="Собственность" width="145" align="center" :formatter="OneOrPartsOwnFormatter" />
               <el-table-column align="center" :formatter="typeOwnFormatter" label="Част./Соц. найм" width="150" />
@@ -63,7 +67,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="Физ. Лица" align="center" width="180">
+              <el-table-column label="Физ. Лица" align="center" width="250">
                 <template #default="scope">
                   <ul style="list-style-type: none;">
                     <li v-for="item in scope.row.accounts_il" :key="item.uuid">{{ item.surname }} {{ item.name }} {{ item.second_name }}</li>
@@ -115,16 +119,19 @@
   <UpdateRecordDialog ref="updateRecordDialog" />
   <DeleteRecordDialog ref="deleteRecordDialog" />
   <EGRNDocsDialog ref="egrnDocsDialog" />
+  <PaymentsUploadDialog ref="paymentsUploadDialog" />
 </div>  
 </template>
 
 <script>
 import moment from 'moment/dist/moment'
 import ru from 'moment/dist/locale/ru'
+import { debt_il_get_all_il_list } from '../../http/http-common'
 import CreateRecordDialog from './CreateRecordDialog.vue'
 import UpdateRecordDialog from './UpdateRecordDialog.vue'
 import DeleteRecordDialog from './DeleteRecordDialog.vue'
 import EGRNDocsDialog from './EGRNDocsDialog.vue'
+import PaymentsUploadDialog from './PaymentsUploadDialog.vue'
 
 export default {
   components: {
@@ -132,6 +139,7 @@ export default {
     UpdateRecordDialog,
     DeleteRecordDialog,
     EGRNDocsDialog,
+    PaymentsUploadDialog,
   },
   setup() {
     moment.updateLocale('ru', ru)
@@ -143,7 +151,7 @@ export default {
         searchAddress: '',
         searchFIO: '',
         searchIL: '',
-        tableData: [
+        /*tableData: [
           {
             id: 0,
             street: "60 лет Октября",
@@ -220,6 +228,7 @@ export default {
             debt_sum: 305156.54,
             notes: "string"
           },
+          
           {
             id: 1,
             street: "50 лет победы",
@@ -296,8 +305,9 @@ export default {
             debt_sum: 305156.54,
             notes: "string"
           }
-       ],
-
+       ],*/
+        tableData:[],
+        showTable:false,   
     }
   },
   methods: {
@@ -318,7 +328,7 @@ export default {
       return row.surname + ' ' + row.name + ' ' + row.second_name
     },
     passportFormatter (row, column) {
-      return row.passport_il.seria + ' ' + row.passport_il.number
+      return row.passport_il.serial + ' ' + row.passport_il.number
     },
     passportWhoAndWhereFormatter (row, column) {
       let where = moment(row.passport_il.when_take).format('L')
@@ -349,6 +359,22 @@ export default {
       return row.order_cancel === orderTypeMap[value]
     },
     changeRow(rowIndex) {
+      this.filterTableData[rowIndex].accounts_il.forEach(element => {
+        if (!element.passport_il) {
+          element.passport_il = {
+            id: element.id,
+            serial: "",
+            number: "",
+            who_take: "",
+            when_take: "",
+            squad_code: "",
+            birth_date: "",
+            birth_place: "",
+            scan: ""
+          }
+        }
+      })
+    
       this.$refs.updateRecordDialog.dialogVisible = true
       this.$refs.updateRecordDialog.ruleForm = this.filterTableData[rowIndex]
     },
@@ -388,14 +414,39 @@ export default {
     
   
       if (this.searchAddress || this.searchFIO || this.searchIL) {
-        console.log('--------------------', filteredData)
+        //console.log('--------------------', filteredData)
         return filteredData
       }  
       else {
         return this.tableData
       }  
+    },
+  },
+  async mounted() {
+    let data = await debt_il_get_all_il_list()
+    if (data) {
+      data.forEach(element => {
+        element.accounts_il.forEach(el => {
+          if (!el.passport_il) {
+            el.passport_il = {
+              id: element.id,
+              serial: "",
+              number: "",
+              who_take: "",
+              when_take: "",
+              squad_code: "",
+              birth_date: "",
+              birth_place: "",
+              scan: ""
+            }
+          }
+        })
+      })
+      this.tableData = data
+      this.showTable = true
     }
-  }
+}
+  
 }
 </script>
 
@@ -418,6 +469,11 @@ export default {
 
 .filters-row-column {
   margin-top: 2em;
+}
+
+.main-button-row-column {
+  margin-top: 2em;
+  justify-content: right;
 }
 
 </style>

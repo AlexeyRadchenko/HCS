@@ -1,7 +1,5 @@
 from datetime import datetime
-from http import client
 from ..databese.clients.crud import create_contacts_db_oject
-from ..databese.database import get_async_session
 from ..databese.clients.models import ContactsClients, ContactsAddresses, ContactsClientsAddresses, ContactsEditJournal, ContactsClientOrganisations, ContactsOrganisations, ContactsPhones
 from ..databese.database import async_session
 

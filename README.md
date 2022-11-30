@@ -14,3 +14,7 @@ api server upgrade cert
 ```
 sudo certbot certonly --force-renew --no-verify-ssl -d example.com
 ```
+
+alembic revision --message="Initial" --autogenerate
+
+alembic upgrade head

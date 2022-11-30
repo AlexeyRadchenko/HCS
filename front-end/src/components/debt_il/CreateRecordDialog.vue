@@ -122,7 +122,7 @@
                 />
               </el-col>
               <el-col :span="6"><el-input v-model="account.passport_il.birth_place" placeholder="Место рождения" /></el-col>
-              <el-col :span="6"><el-input v-model="account.passport_il.seria" placeholder="Серия паспорта" /></el-col>
+              <el-col :span="6"><el-input v-model="account.passport_il.serial" placeholder="Серия паспорта" /></el-col>
               <el-col :span="6"><el-input v-model="account.passport_il.number" placeholder="Номер паспорта" /></el-col>
             </el-row>
             <el-row :gutter="20" style="margin-top:1em;width: 870px;">
@@ -156,7 +156,10 @@
               </el-col>
             </el-row>
             <el-row style="margin-top:1em;width: 98%">
-              <el-col :span="4" :offset="20">
+              <el-col :span="4"  :offset="16">
+                <el-button type="info" @click="selectFIOFromDB(index)" style="width:98%;">Выбрать из базы</el-button>
+              </el-col>
+              <el-col :span="4">
                 <el-button class="mt-2" type="danger" @click.prevent="removeFIO(account)">Удалить запись Должник {{ index }}</el-button>
               </el-col>
             </el-row>    
@@ -168,7 +171,33 @@
           <el-button type="success" @click="addAccount">Добавить Физ. лицо</el-button>
         </el-col>  
       </el-row>  
-    </el-form>        
+    </el-form>
+    <template>
+      <el-dialog
+        v-model="searchFIOVisible"
+        width="40%"
+        title="Inner Dialog"
+        append-to-body
+      >
+        <el-input v-model="fioSearchinput" placeholder="Поиск по фамилии или имени или отчеству" clearable /> 
+        <el-table
+          :data="filterFIOData"
+          highlight-current-row
+          style="width: 100%"
+          @current-change="handleFIOChange"
+          height="450"
+        >
+          <el-table-column type="index" width="50" />
+          <el-table-column property="surname" label="Фамилия" width="240" />
+          <el-table-column property="name" label="Имя" width="200" />
+          <el-table-column property="second_name" label="Отчество" />
+        </el-table>
+        <div style="margin-top: 20px">
+          <el-button @click="setСhoise">Выбрать</el-button>
+          <el-button @click="searchFIOVisible = false">Отмена</el-button>
+        </div>
+      </el-dialog>
+    </template>       
         <template #footer>
         <span class="dialog-footer">
             <el-button @click="dialogVisible = false">Отмена</el-button>
@@ -182,6 +211,7 @@
 
 <script>
 import { v4 as uuidv4 } from 'uuid'
+import { debt_il_get_all_accounts_il_list } from '../../http/http-common'
 //в onMound сгенерировать первый uuid в fuleForm.accounts_li.uuid
 export default {
   expose: ['dialogVisible'],
@@ -316,6 +346,11 @@ export default {
         label: 'Соц. найм'  
         }
       ],
+      searchFIOVisible: false,
+      accIndex: 0,
+      currentFIO: null,
+      fioData:[],
+      fioSearchinput: '',
     }
   },
   methods:{
@@ -350,7 +385,7 @@ export default {
         surname: '',
         passport_il: {
           id: id,
-          seria: "74 05",
+          serial: "74 05",
           number: "111111",
           who_take: "ОВД администрации города Трехгорного Челябинской области",
           when_take: "2022-11-02T10:56:04.116Z",
@@ -361,6 +396,52 @@ export default {
         }  
       })
     },
+    async selectFIOFromDB (index) {
+      this.searchFIOVisible = true
+      this.accIndex = index
+      if (this.fioData.length === 0) {
+        this.fioData = await debt_il_get_all_accounts_il_list()
+      }
+    },
+    handleFIOChange (val) {
+      this.currentFIO = val
+    },
+    setСhoise () {
+      if (!this.currentFIO.passport_il) {
+        this.currentFIO.passport_il = {
+          id: this.accIndex,
+          seria: "",
+          number: "",
+          who_take: "",
+          when_take: "",
+          squad_code: "",
+          birth_date: "",
+          birth_place: "",
+          scan: ""
+        }
+      }
+      this.ruleForm.accounts_il[this.accIndex] = this.currentFIO
+      console.log(this.currentFIO)
+      this.accIndex = 0
+      this.currentFIO = null,
+      this.searchFIOVisible = false
+    }
+  },
+  computed: {
+    filterFIOData () {
+      let filteredData = this.fioData.filter((data) => {
+        if (this.fioSearchinput) {  
+          if ((data.surname + ' ' + data.name + ' - ' + data.second_name).toLowerCase().includes(this.fioSearchinput.toLowerCase()))
+            return data
+        }   
+      })
+
+      if (filteredData.length) {
+        return filteredData
+      }else{
+        return this.fioData
+      }
+    }      
   },
   mounted() {
     this.ruleForm.accounts_il[0].uuid = uuidv4()
