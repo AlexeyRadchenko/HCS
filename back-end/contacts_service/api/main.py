@@ -15,7 +15,8 @@ app = FastAPI(
 
 app.include_router(contacts.router, prefix="/api/v1/contacts_service")
 
-origins = ['https://komfort-trg.fvds.ru', 'https://komfort-services.fvds.ru']
+#origins = ['https://komfort-trg.fvds.ru', 'https://komfort-services.fvds.ru']
+origins = ['*']
 
 app.add_middleware(
     CORSMiddleware,

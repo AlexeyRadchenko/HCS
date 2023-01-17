@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import 'element-plus/theme-chalk/display.css'
 import 'element-plus/dist/index.css'
 import VueTheMask from 'vue-the-mask'
+import 'element-plus/theme-chalk/dark/css-vars.css'
 
 import App from './App.vue'
 import router from './router'

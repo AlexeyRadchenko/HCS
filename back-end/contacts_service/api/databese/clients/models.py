@@ -105,7 +105,7 @@ class ContactsClients(Base):
     note = Column(Text(), nullable=True)
     client_del = Column(Boolean, default=False)
 
-    addresses = relationship('ContactsClientsAddresses', back_populates='clients', lazy='joined')
+    addresses = relationship('ContactsClientsAddresses', back_populates='client', lazy='joined')
 
     """addresses = relationship(
         'ContactsAddresses', secondary='clients_addresses', back_populates='clients', lazy='joined'

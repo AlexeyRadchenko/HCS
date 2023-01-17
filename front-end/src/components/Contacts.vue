@@ -1,5 +1,5 @@
 <template>
-  <el-container class="contacts-wrapper-conteiner">
+  <el-container class="contacts-wrapper-conteiner" >
     <el-header>
       <el-row>
         <el-col :span="4"><div class="service-title"><h1>{{ serviceTitle }}</h1></div></el-col>  
@@ -12,8 +12,8 @@
           <el-container>
             <el-main>
               <el-scrollbar class="scrollbar-address">
-                <el-collapse v-model="activeNames" @change="handleChange">
-                  <el-collapse-item title="Комфортный дом" name="1">
+                <el-collapse v-model="activeNames" @change="handleChange" class="scroll-side-bar-item">
+                  <el-collapse-item title="Комфортный дом" name="1" >
                     <div class="search-houses-wrapper">
                       <el-input v-model="streetHouseSearchValueKomf" placeholder="улица или номер дома" clearable />
                     </div>
@@ -26,7 +26,7 @@
                       <el-input v-model="streetHouseSearchValueJKS" placeholder="улица или номер дома" clearable />
                     </div>
                     <div v-for="item in StreetsHousesJKSFilteredList" :key="item" style="margin: 10px;">
-                      <el-button color="#626aef" style="color: white" class="scrollbar-address-item" type="primary" @click="handleClickStreetHouse(item)">{{ item }}</el-button>
+                      <el-button color="#626aef" class="scrollbar-address-item" type="primary" @click="handleClickStreetHouse(item)">{{ item }}</el-button>
                     </div> 
                   </el-collapse-item>   
                 </el-collapse>
@@ -65,7 +65,7 @@
                   <el-table-column prop="appartment" label="Кв." min-width="26em" align="center" />
                   <el-table-column prop="FIO" label="ФИО" min-width="110em" header-align="center" align="center">
                       <template #header>
-                      <el-input v-model="searchFIO" size="small" placeholder="Type to search" clearable />
+                      <el-input v-model="searchFIO" size="small" placeholder="Поиск по ФИО" clearable />
                       </template>
                   </el-table-column>
                   <el-table-column prop="part_have" label="Доля имущества" min-width="70em" align="center" />
@@ -361,21 +361,26 @@ export default {
   border: 1px solid #eee;
   border-radius: 10px;
   /*padding-top: 0.8em;*/
-  /*background-color: burlywood;*/
+  background-color: #1c100b;
   margin: 1em 2em;
   height:100%;
 }
+
 .service-title {
   padding-top: 0.8em;
-  color: black;
+  color: #bbb7b6;
 }
 .contacts-sidebar-style {
   width: 16%;
   height: 100%;
-  border: 1px solid #eee;
+  /*border: 1px solid #eee;*/
+  border: none;
+  margin-top: 1.9em;
+
 }
 .scrollbar-address{
   height: 47.3rem;
+
 }
 .scrollbar-address-item {
   display: flex;
@@ -388,11 +393,14 @@ export default {
   /*background: var(--el-color-primary-light-9);
   //color: var(--el-color-primary);*/
 }
+.scroll-side-bar-item {
+  background-color: #1c100b;
+}
 .search-houses-wrapper {
   margin: 10px;
 }
 .table-container {
-  width:100%
+  width:100%;
 }
 
 .el-row {
@@ -420,5 +428,7 @@ export default {
 .row-bg {
   background-color: #e09ead;
 }
+
+
 
 </style>
