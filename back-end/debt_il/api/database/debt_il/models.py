@@ -49,6 +49,8 @@ class Egrn_il(Base):
     date = Column(DateTime, nullable=True)
     number = Column(String, nullable=True)
     file = Column(String, nullable=True)
+    note = Column(String, nullable=True)
+    del_mark = Column(Boolean, default=False)
     il_id = Column(BigInteger, ForeignKey('all_il.id'), nullable=False)
     list_il = relationship("All_il", back_populates="egrn_il")
 

@@ -28,15 +28,19 @@ async def get_accounts_debt_il_handler(
     accounts_data_in_db = await get_all_fio_from_db(db_session)
     return accounts_data_in_db
 
-@router.post("/il/upload/payments_il")
+@router.post("/il/upload/{storage_path}")
 async def upload(
+    storage_path: str,
     file: UploadFile = File(...),
     user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
-
+    if storage_path == 'payments_il':
+        path_file = settings.DEBT_IL_UPLOAD_PATH + '/' + file.filename
+    elif storage_path == 'egrn_il':
+        path_file = settings.FILE_STORAGE_PATH + '/egrn/' +  file.filename    
     try:
-        with open(settings.DEBT_IL_UPLOAD_PATH + '/' + file.filename, 'wb') as f:
+        with open(path_file, 'wb') as f:
             contents = 1
             while contents:
                 contents = file.file.read(1024 * 1024)

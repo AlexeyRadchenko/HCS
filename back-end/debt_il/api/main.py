@@ -4,9 +4,9 @@ from .routers import debt_il
 
 
 app = FastAPI(
-    servers=[ 
-        {"url": "https://komfort-trg.fvds.ru", "description": "Production environment"},
-    ], 
+    #servers=[ 
+    #    {"url": "https://komfort-trg.fvds.ru", "description": "Production environment"},
+    #], 
     title='Debt IL service API',
     docs_url='/api/v1/debt_il_service/docs', 
     redoc_url='/api/v1/debt_il_service/redoc',

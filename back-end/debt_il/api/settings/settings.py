@@ -20,6 +20,7 @@ class Settings(BaseModel):
     ADMIN_SCOPE: str
     MANAGEMENT_DEBT_IL_SCOPE: str
     DEBT_IL_UPLOAD_PATH: str
+    FILE_STORAGE_PATH: str
 
 with open(f"{PATH}/{API_CONFIG_FILE}", "r") as stream:
     try:
