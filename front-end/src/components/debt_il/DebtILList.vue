@@ -44,7 +44,7 @@
                       <h2><span>Адрес:</span> {{ props.row.street }} {{ props.row.house }} - {{ props.row.appartment }} </h2>
                       </el-col>
                       <el-col :span="8">
-                        <el-button @click="egrnDocDialogCall(props.row.id)">Сведения ЕГРН</el-button>
+                        <el-button @click="egrnDocDialogCall(props.row.id, props.row.il_number)">Сведения ЕГРН</el-button>
                         <el-button>Судбный приказ</el-button>
                         <el-button>История платежей</el-button>
                         <el-button>Отменненный судбный приказ</el-button>
@@ -378,9 +378,10 @@ export default {
       this.$refs.updateRecordDialog.dialogVisible = true
       this.$refs.updateRecordDialog.ruleForm = this.filterTableData[rowIndex]
     },
-    egrnDocDialogCall (rowId) {
+    egrnDocDialogCall (rowId, il_number) {
       this.$refs.egrnDocsDialog.dialogVisible = true
       this.$refs.egrnDocsDialog.rowId = rowId
+      this.$refs.egrnDocsDialog.il_number = il_number
       return true
     },
     deleteRow(rowIndex) {

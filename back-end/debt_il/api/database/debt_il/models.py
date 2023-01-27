@@ -48,6 +48,7 @@ class Egrn_il(Base):
     id = Column(BigInteger, primary_key=True, index=True, nullable=False, autoincrement=True)
     date = Column(DateTime, nullable=True)
     number = Column(String, nullable=True)
+    name = Column(String, nullable=True)
     file = Column(String, nullable=True)
     note = Column(String, nullable=True)
     del_mark = Column(Boolean, default=False)

@@ -42,10 +42,17 @@ class PaymentsILSchema(BaseModel):
         orm_mode = True
 
 class EgrnILSchema(BaseModel):
-    id: int
-    date: datetime
-    number: str
-    file: str
+    id: Optional[int]
+    date: Optional[datetime]
+    number: Optional[str]
+    name: Optional[str]
+    file: Optional[str]
+    note: Optional[str]
+    del_mark: Optional[bool]
+    il_id: Optional[int]
+
+    class Config:
+        orm_mode = True
 
 
 class AllILDataSchema(BaseModel):
@@ -54,7 +61,6 @@ class AllILDataSchema(BaseModel):
     house: str
     appartment: str
     accounts_il: Optional[List[AccountILSchema]]
-    egrn_il: Optional[List[EgrnILSchema]]
     property_self: bool
     one_or_parts: bool
     il_number: Optional[str]
@@ -73,3 +79,8 @@ class AllILDataSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+class EGRNDocFileSchema(BaseModel):
+    file_name: Optional[str]
+    file_path: str
+

@@ -18,7 +18,7 @@ import { lib } from 'crypto-js'
 library.add(faAddressCard, faMoneyCheck, faUserCheck,
       faBars, faAngleDown, faBook, faUser, faHouseUser, 
       faRoad, faBuilding, faListOl, faWater, faQuestionCircle, faFireAlt,
-      faBolt, faFilePdf, faFileWord, faFileExcel
+      faBolt, faFilePdf, faFileWord, faFileExcel, faFile
       )
 
 const app = createApp(App)
