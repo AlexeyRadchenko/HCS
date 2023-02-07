@@ -55,3 +55,11 @@ async def init_debt_il_db_data(obj_list, org):
 
                 await create_debt_il_object(db_session, il_account_obj)
 
+async def get_payer_uuid_or_fio(fio_uuid_list: list, fio: str):
+    for uuid_obj in fio_uuid_list:
+        db_fio = uuid_obj.surname + ' ' + uuid_obj.name[0].capitalize() + '. ' + uuid_obj.second_name[0].capitalize() + '.'
+        print(db_fio)
+        if db_fio == fio:
+            return uuid_obj.uuid, fio
+    return None, fio
+    

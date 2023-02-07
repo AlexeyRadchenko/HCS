@@ -69,3 +69,15 @@ async def del_egrn_doc_by_id(db: AsyncSession, egrn_doc_id: int):
     )
     await db.commit()
     return True
+
+async def get_il_list_by_il_number(db: AsyncSession, il_number: str):
+    result = await db.execute(
+        select(
+            All_il
+        )
+        .options(
+            joinedload(All_il.accounts_il)
+        )
+        .where(and_(All_il.del_mark == False, All_il.il_number == il_number))
+    )
+    return result.scalars().unique().all()

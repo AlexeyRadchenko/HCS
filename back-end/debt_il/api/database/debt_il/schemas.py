@@ -84,3 +84,14 @@ class EGRNDocFileSchema(BaseModel):
     file_name: Optional[str]
     file_path: str
 
+class PaymentUploadData(BaseModel):
+    date: Optional[str]
+    type:Optional[str]
+    sum: Optional[str]
+    il:Optional[str]
+    account_name:Optional[str]
+    company:Optional[str]
+
+class PaymentUploadDataListSchema(BaseModel):
+    data: List[PaymentUploadData]
+

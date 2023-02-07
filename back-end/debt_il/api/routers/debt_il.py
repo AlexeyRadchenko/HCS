@@ -1,18 +1,19 @@
 from fastapi import APIRouter, Depends, Security, UploadFile, File, Form
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from typing import List, Optional
 from datetime import datetime
 
-from ..database.debt_il.schemas import AllILDataSchema, AccountILSchema, EgrnILSchema, EGRNDocFileSchema
+from ..database.debt_il.schemas import AllILDataSchema, AccountILSchema, EgrnILSchema, EGRNDocFileSchema, PaymentUploadDataListSchema
 from ..database.debt_il.crud import (
-    get_all_il_data_list, get_all_fio_from_db, get_debt_il_egrn_docs_by_il_id, create_debt_il_egrn_doc_object, del_egrn_doc_by_id
+    get_all_il_data_list, get_all_fio_from_db, get_debt_il_egrn_docs_by_il_id, create_debt_il_egrn_doc_object, del_egrn_doc_by_id,
+    get_il_list_by_il_number
     )
-from ..database.debt_il.models import Egrn_il
+from ..database.debt_il.models import Egrn_il, Payments_il
 from ..security.access_depends import user_scope_authorize
 from ..database.database import get_async_session
 from ..settings.settings import settings
-
+from ..utils.utils import get_payer_uuid_or_fio
 
 router = APIRouter()
 
@@ -103,4 +104,26 @@ async def get_egrn_doc_by_file_path(
     user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
     ):
     return FileResponse(path=file.file_path)
+
+@router.post("/il/payment_il_doc/data/upload")
+async def upload_payment_doc_data(
+    data: PaymentUploadDataListSchema,   
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+):  
+    broken_data = []
+    data_dict = data.dict()
+    for data_row in data_dict['data']:
+        print('@@@@@@@@@@@@@@@@',data_row)
+        il_list = await get_il_list_by_il_number(db_session, data_row['il'])
+        print('------------------------', il_list[0].id, il_list[0].accounts_il[0].uuid)
+        if not il_list:
+            broken_data.append(data_row.dict())
+            continue
+        uuid, fio = await get_payer_uuid_or_fio(il_list[0].accounts_il, data_row['account_name'])
+        print('RRRRRRRRRRRRRRRRRRRRR', uuid, fio)
+
+    
+    return JSONResponse(content=broken_data)
+
 
