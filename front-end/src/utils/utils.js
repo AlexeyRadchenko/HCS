@@ -130,3 +130,24 @@ export let clearFilePaymentData = (row, accumData) => {
         pushILDataToArr(row, accumData, acc_name, il)
     }
 }
+
+async function checkProperties(obj) {
+    for (var key in obj) {
+        if (obj[key] !== null && obj[key] != "")
+            return false;
+    }
+    return true;
+}
+
+export let validate_payment_data = async (dataList) => {
+    let status = true
+    dataList.forEach (element => {
+        for (var key in element) {
+            if (element[key] === null || element[key] === '') {
+                status = false
+                return
+            }        
+        }
+    })
+    return status
+}

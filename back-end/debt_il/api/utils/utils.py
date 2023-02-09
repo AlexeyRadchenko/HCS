@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from ..database.debt_il.crud import create_debt_il_object
 from ..database.debt_il.models import Organisations_il, Accounts_il, All_il, IL_accounts
 from ..database.database import async_session
@@ -58,8 +59,13 @@ async def init_debt_il_db_data(obj_list, org):
 async def get_payer_uuid_or_fio(fio_uuid_list: list, fio: str):
     for uuid_obj in fio_uuid_list:
         db_fio = uuid_obj.surname + ' ' + uuid_obj.name[0].capitalize() + '. ' + uuid_obj.second_name[0].capitalize() + '.'
-        print(db_fio)
+        #print(db_fio)
         if db_fio == fio:
             return uuid_obj.uuid, fio
     return None, fio
     
+async def get_date_from_str(date_str: str):
+    return datetime.strptime(date_str, '%d.%m.%Y').date()
+
+async def get_decimal_from_str(decimal_str: str):
+    return Decimal(decimal_str)

@@ -1,12 +1,12 @@
 from typing import Any, List, Optional
 from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import false, select, update, desc, cast, func, Integer, and_
+from sqlalchemy import false, select, update, desc, cast, func, Integer, and_, insert
 from sqlalchemy.orm import joinedload
 from datetime import datetime
 
 from ..database import row2dict
-from .models import All_il, Accounts_il, Egrn_il
+from .models import All_il, Accounts_il, Egrn_il, Payments_il
 
 async def create_debt_il_object(db: AsyncSession, debt_il_object: Any):
     db.add(debt_il_object)
@@ -79,5 +79,34 @@ async def get_il_list_by_il_number(db: AsyncSession, il_number: str):
             joinedload(All_il.accounts_il)
         )
         .where(and_(All_il.del_mark == False, All_il.il_number == il_number))
+    )
+    return result.scalars().unique().all()
+
+async def create_payment_record_in_db(
+    db: AsyncSession, date: datetime, type: str, sum: Decimal, il_id: int, uuid: Optional[str]=None, fio: Optional[str]=None):
+    await db.execute(
+        insert(Payments_il)
+        .values(
+            date=date,
+            type=type,
+            sum=sum,
+            who_paid_uuid=uuid,
+            notes=fio,
+            il_id=il_id
+        )
+    )
+    await db.commit()
+
+async def get_payments_history_by_il_id(db: AsyncSession, il_id: int):
+    result = await db.execute(
+        select(
+            Payments_il
+        )
+        .options(
+            joinedload(Payments_il.account_il)
+        )
+        .where(
+            Payments_il.il_id == il_id 
+        )
     )
     return result.scalars().unique().all()

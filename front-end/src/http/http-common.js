@@ -246,9 +246,24 @@ export var debt_il_payment_data_upload = async function (data_list) {
   return await http.post(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/payment_il_doc/data/upload', { data: data_list })
   .then(response => {
     if (response.status == 200)
-      {
-        fileDownload(response.data, file_name);
-      }
+      return response.data
+  })
+  .catch(e => {
+    if (!e.response) {
+      console.log('сервер не отвечает')
+      return null
+    } else {
+      return null
+    }
+  })
+}
+
+export var debt_il_get_payments_il_by_id_il = async function (il_id) {
+  setHeaders(http)
+  return await http.get(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/payments_il_doc/data/' + il_id)
+  .then(response => {
+    if (response.status == 200)
+      return response.data
   })
   .catch(e => {
     if (!e.response) {

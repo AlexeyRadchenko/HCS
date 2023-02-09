@@ -24,7 +24,7 @@
         <el-row>
             <el-col :span="24">
                 <el-alert
-                    title="Не найдены И/Л со следующими номерами. Проверьте, скорректируйте данные и сохраните их снова."
+                    :title="msgErr"
                     type="error"
                     effect="dark"
                     id="il-payment_err"
@@ -37,7 +37,7 @@
                     <el-table-column prop="il" label="Номер И/Л" width="120" />
                     <el-table-column prop="account_name" label="Плательщик" width="140" />
                     <el-table-column prop="company" label="Организация" width="240" />
-                    <el-table-column fixed="right" label="Редактирование" width="120">
+                    <el-table-column fixed="right" label="Удалить" width="120">
                     <template #default="scope">
                         <el-button
                         link
@@ -45,15 +45,23 @@
                         size="small"
                         @click.prevent="deleteRow(scope.$index)"
                         >
-                        Remove
+                        Удалить
                         </el-button>
                     </template>
                     </el-table-column>
                 </el-table>
                 <el-form :inline="true" :model="formInline">
                     <el-row :gutter="10">
-                        <el-col :span="3">
-                            <el-input v-model="formInline.date" placeholder="Дата" />
+                        <el-col :span="4">
+                            <el-date-picker
+                                v-model="formInline.date"
+                                type="date"
+                                placeholder="Дата"
+                                format="DD.MM.YYYY"
+                                value-format="DD.MM.YYYY"
+                                style="width: 100%;"
+                                :clearable="false"
+                            />
                         </el-col>
                         <el-col :span="4">
                             <el-select v-model="formInline.type" placeholder="Тип платежа">
@@ -74,7 +82,7 @@
                         <el-col :span="6">    
                             <el-input v-model="formInline.account_name" placeholder="Плательщик" />
                         </el-col>
-                        <el-col :span="5">    
+                        <el-col :span="4">    
                             <el-input v-model="formInline.company" placeholder="Организация" />
                         </el-col>    
                     </el-row>
@@ -99,7 +107,7 @@
 <script>
 import secureStorage from '../../storage/secStorage'
 import readXlsxFile from 'read-excel-file'
-import { clearFilePaymentData } from '../../utils/utils'
+import { clearFilePaymentData, validate_payment_data } from '../../utils/utils'
 import { debt_il_payment_data_upload } from '../../http/http-common'
 
 export default {
@@ -140,6 +148,7 @@ export default {
             company: '',
         },
         showErr: false,
+        msgErr:''
 
     }
   },
@@ -185,9 +194,24 @@ export default {
        
     },
     async SendPaymentDataForUpload() {
-        let response = await debt_il_payment_data_upload(this.fileReadedData)
-        console.log(response)
-        this.dialogVisible = false
+        let valid = await validate_payment_data (this.fileReadedData)
+        this.msgErr = 'Все ячейки формы должны быть заполнены'
+        //console.log(valid, this.fileReadedData)
+        if (!valid) {
+            this.showErr = true
+        } else {
+            this.showErr = false
+            let response = await debt_il_payment_data_upload(this.fileReadedData)
+            if (response.length !=0) {
+                this.fileReadedData = response
+                this.msgErr = 'Для записей не найден исполнительный лист, проверьте его наличие в базе и верный ли указан номер!'
+                this.showErr = true
+            } else {
+                this.fileReadedData = []
+                this.dialogVisible = false
+            }
+            
+        }
     }
   }
 }

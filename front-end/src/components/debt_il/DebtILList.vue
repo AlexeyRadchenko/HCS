@@ -46,8 +46,8 @@
                       <el-col :span="8">
                         <el-button @click="egrnDocDialogCall(props.row.id, props.row.il_number)">Сведения ЕГРН</el-button>
                         <el-button>Судбный приказ</el-button>
-                        <el-button>История платежей</el-button>
                         <el-button>Отменненный судбный приказ</el-button>
+                        <el-button @click="paymentHistoryDialogCall(props.row.id, props.row.il_number)">История платежей</el-button>
                       </el-col>
                       <el-col :span="10">
                        
@@ -120,6 +120,7 @@
   <DeleteRecordDialog ref="deleteRecordDialog" />
   <EGRNDocsDialog ref="egrnDocsDialog" />
   <PaymentsUploadDialog ref="paymentsUploadDialog" />
+  <PaymentsHistoryDialog ref="paymentsHistoryDialog" />
 </div>  
 </template>
 
@@ -132,6 +133,7 @@ import UpdateRecordDialog from './UpdateRecordDialog.vue'
 import DeleteRecordDialog from './DeleteRecordDialog.vue'
 import EGRNDocsDialog from './EGRNDocsDialog.vue'
 import PaymentsUploadDialog from './PaymentsUploadDialog.vue'
+import PaymentsHistoryDialog from './PaymentsHistoryDialog.vue'
 
 export default {
   components: {
@@ -140,6 +142,7 @@ export default {
     DeleteRecordDialog,
     EGRNDocsDialog,
     PaymentsUploadDialog,
+    PaymentsHistoryDialog,
   },
   setup() {
     moment.updateLocale('ru', ru)
@@ -387,6 +390,11 @@ export default {
     deleteRow(rowIndex) {
       this.$refs.deleteRecordDialog.dialogVisible = true
       this.$refs.deleteRecordDialog.rowIdForDel = this.filterTableData[rowIndex].id
+    },
+    paymentHistoryDialogCall(rowId, il_number) {
+      this.$refs.paymentsHistoryDialog.dialogVisible = true
+      this.$refs.paymentsHistoryDialog.il_base_id = rowId
+      this.$refs.paymentsHistoryDialog.il_doc_number = il_number
     }
   },
   computed: {

@@ -39,7 +39,7 @@ class Accounts_il(Base):
     lists_il = relationship(
         'All_il', secondary='il_accounts', back_populates='accounts_il', lazy='dynamic'
     )
-    payments_il = relationship('Payments_il', back_populates='account_il', lazy='dynamic')
+    payments_il = relationship('Payments_il', back_populates='account_il', lazy='joined')
 
 
 class Egrn_il(Base):
@@ -103,10 +103,10 @@ class Payments_il(Base):
     __tablename__ = "payments_il"
 
     id = Column(BigInteger, primary_key=True, index=True, nullable=False, autoincrement=True)
-    date =  Column(DateTime, nullable=True)
+    date =  Column(DateTime, nullable=False)
     type = Column(String, nullable=True)
-    sum = Column(DECIMAL(24,2), nullable=True)
-    who_paid_uuid = Column(UUID(as_uuid=True), ForeignKey('accounts_il.uuid'), primary_key=True, nullable=False)
+    sum = Column(DECIMAL(24,2), nullable=False)
+    who_paid_uuid = Column(UUID(as_uuid=True), ForeignKey('accounts_il.uuid'), nullable=True)
     notes = Column(Text(), nullable=True)
     il_id = Column(BigInteger, ForeignKey('all_il.id'), nullable=False)
     list_il = relationship("All_il", back_populates="payments_il")
@@ -138,8 +138,8 @@ class All_il(Base):
     bailiff_forward_date = Column(DateTime, nullable=True)
     start_exec_pross_date = Column(DateTime, nullable=True)
     end_exec_pross_date = Column(DateTime, nullable=True)
-    sum_all_get = Column(DECIMAL(24,2), nullable=True)
-    sum_not_yet_get = Column(DECIMAL(24,2), nullable=True)
+    # sum_all_get = Column(DECIMAL(24,2), nullable=True)
+    # sum_not_yet_get = Column(DECIMAL(24,2), nullable=True)
     payments = Column(DECIMAL(24,2), nullable=True)
     debt_sum_il = Column(DECIMAL(24,2), nullable=True)
     notes = Column(Text(), nullable=True)
@@ -155,6 +155,19 @@ class All_il(Base):
     accounts_il = relationship(
         'Accounts_il', secondary='il_accounts', back_populates='lists_il', lazy='joined'
     )
+
+    @hybrid_property
+    def sum_all_get(self):
+        return sum(payments.sum for payments in self.payments_il)
+
+    @sum_all_get.expression
+    def sum_all_get(cls):
+        return select(func.sum(Payments_il.sum)).\
+        where(Payments_il.il_id==cls.id)  #.label('total_sum_get')
+
+    @hybrid_property
+    def sum_not_yet_get(self):
+        return self.debt_sum_il - self.sum_all_get
 
 
 class IL_accounts(Base):
