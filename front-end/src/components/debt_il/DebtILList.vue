@@ -18,7 +18,14 @@
           <el-input v-model="searchIL" placeholder="Номер и/л"></el-input>
         </el-col>
         <el-col :span="6" class="filters-row-column">
-        
+          <el-date-picker
+            v-model="reportMonthYear"
+            type="month"
+            placeholder="выберите месяц"
+            format="MMMM-YYYY"
+            style="margin-left: 3em;"
+          />
+          <el-button type="primary" style="margin-left: 1em;" @click.prevent="FilterDataByEdgeDate">Обновить</el-button>
         </el-col>
         <el-col :span="8" class="main-button-row-column">
           <el-button type="primary">Сформировать отчет</el-button>
@@ -57,6 +64,7 @@
                     <el-table :data="props.row.accounts_il">
                       <el-table-column label="Лицевой счет" prop="account_number" width="115" align="center" />
                       <el-table-column label="ФИО" :formatter="fioFormatter" align="center" width="450" />
+                      <el-table-column label="ИНН" prop="inn" align="center" width="450" />
                       <el-table-column label="Дата рождения" :formatter="dateCellFormatter" prop="passport_il.birth_date" align="center"  width="115" />
                       <el-table-column label="Место рождения" prop="passport_il.birth_place" align="center" width="120" />
                       <el-table-column label="Серия и номер паспорта" :formatter="passportFormatter" align="center" width="120" />
@@ -127,7 +135,7 @@
 <script>
 import moment from 'moment/dist/moment'
 import ru from 'moment/dist/locale/ru'
-import { debt_il_get_all_il_list } from '../../http/http-common'
+import { debt_il_get_all_il_list, debt_il_get_all_il_list_by_edge_date } from '../../http/http-common'
 import CreateRecordDialog from './CreateRecordDialog.vue'
 import UpdateRecordDialog from './UpdateRecordDialog.vue'
 import DeleteRecordDialog from './DeleteRecordDialog.vue'
@@ -310,7 +318,8 @@ export default {
           }
        ],*/
         tableData:[],
-        showTable:false,   
+        showTable:false,
+        reportMonthYear: '',   
     }
   },
   methods: {
@@ -395,6 +404,31 @@ export default {
       this.$refs.paymentsHistoryDialog.dialogVisible = true
       this.$refs.paymentsHistoryDialog.il_base_id = rowId
       this.$refs.paymentsHistoryDialog.il_doc_number = il_number
+    },
+    async FilterDataByEdgeDate () {
+      this.showTable = false
+      let data = await debt_il_get_all_il_list_by_edge_date(this.reportMonthYear)
+      if (data) {
+        data.forEach(element => {
+          element.accounts_il.forEach(el => {
+            if (!el.passport_il) {
+              el.passport_il = {
+                id: element.id,
+                serial: "",
+                number: "",
+                who_take: "",
+                when_take: "",
+                squad_code: "",
+                birth_date: "",
+                birth_place: "",
+                scan: ""
+              }
+            }
+          })
+        })
+        this.tableData = data
+        this.showTable = true
+      }
     }
   },
   computed: {
@@ -437,6 +471,8 @@ export default {
     },
   },
   async mounted() {
+    let currentMonthYear = moment().endOf('month').format('YYYY-MM-DD')
+    this.reportMonthYear = currentMonthYear
     let data = await debt_il_get_all_il_list()
     if (data) {
       data.forEach(element => {
@@ -474,7 +510,7 @@ export default {
 }
 .service-title {
   padding-top: 0.8em;
-  color: black;
+  /*color: black;*/
 }
 
 .debt-sub-table {

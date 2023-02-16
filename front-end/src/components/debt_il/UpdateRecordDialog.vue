@@ -136,7 +136,8 @@
                   style="width:100%;"
                 />
               </el-col>
-              <el-col :span="18"><el-input v-model="account.passport_il.who_take" placeholder="Кем выдан" /></el-col>
+              <el-col :span="6"><el-input v-model="account.inn" placeholder="ИНН" /></el-col>
+              <el-col :span="12"><el-input v-model="account.passport_il.who_take" placeholder="Кем выдан" /></el-col>
             </el-row>
             <el-row style="margin-top:1em;width: 870px;">
               <el-col :span="24">
@@ -398,6 +399,7 @@ export default {
         name: '',
         second_name: '',
         surname: '',
+        inn: '',
         passport_il: {
           id: id,
           serial: "",

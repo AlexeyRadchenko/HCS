@@ -1,8 +1,8 @@
 from typing import Any, List, Optional
 from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import false, select, update, desc, cast, func, Integer, and_, insert
-from sqlalchemy.orm import joinedload
+from sqlalchemy import false, select, update, desc, cast, func, Integer, and_, insert, or_
+from sqlalchemy.orm import joinedload, selectinload, join, contains_eager
 from datetime import datetime
 
 from ..database import row2dict
@@ -18,9 +18,21 @@ async def get_all_il_data_list(db: AsyncSession):
     result = await db.execute(
         select(
             All_il
-        ).where(All_il.del_mark == False)
+        )
+        .options(joinedload(All_il.payments_il))
+        .where(All_il.del_mark == False)
     )
     return result.scalars().unique().all()
+
+async def get_all_il_data_list_by_edge_date(db: AsyncSession, edge_date:datetime):
+    result = await db.execute(
+        select(
+            All_il
+        )
+        .options(joinedload(All_il.payments_il.and_(Payments_il.date <= edge_date)))
+        .where(All_il.del_mark == False)   
+    )
+    return result.scalars().unique().all()   
 
 async def get_all_fio_from_db(db: AsyncSession):
     result = await db.execute(

@@ -24,6 +24,7 @@ class AccountILSchema(BaseModel):
     name: Optional[str]
     second_name: Optional[str]
     surname: Optional[str]
+    inn: Optional[str]
     part_of_appartment: Optional[str]
     passport_il: Optional[PassportILSchema]
 

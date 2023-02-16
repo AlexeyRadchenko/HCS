@@ -4,14 +4,15 @@
       ref="ruleFormRef"
       :model="ruleForm"
       :rules="rules"
-      label-width="135px"
+      label-width="auto"
       :size="formSize"
       status-icon
+      :validate-on-rule-change="false"
     >
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-form-item label="Адрес" required>
-            <el-select v-model="ruleForm.street" prop="street" placeholder="Улица" style="width:100%;" >
+          <el-form-item label="Адрес" prop="street" required>
+            <el-select v-model="ruleForm.street" placeholder="Улица" style="width:100%;" >
               <el-option
                 v-for="item in options_street"
                 :key="item.value"
@@ -22,10 +23,14 @@
           </el-form-item>  
         </el-col>
         <el-col :span="4">
-            <el-input v-model="ruleForm.home" placeholder="Дом"/>
+          <el-form-item prop="home" required >
+            <el-input v-model="ruleForm.home" placeholder="Дом" />
+          </el-form-item>  
         </el-col>
         <el-col :span="4">
+          <el-form-item prop="appartment" required >
             <el-input v-model="ruleForm.appartment" placeholder="Квартира" />
+          </el-form-item>  
         </el-col>
       </el-row>
       <el-row :gutter="20">
@@ -42,6 +47,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="4">
+          <el-form-item  prop="property_self" required>
             <el-select v-model="ruleForm.property_self" style="width:100%;" >
                 <el-option
                   v-for="item in options_property_self"
@@ -50,6 +56,7 @@
                   :value="item.value"
                 />
             </el-select>
+          </el-form-item>  
         </el-col>
       </el-row>
       <el-divider />
@@ -102,7 +109,7 @@
         <el-col>
           <el-form-item
             v-for="(account, index) in ruleForm.accounts_il"
-            :key="account.uuid"
+            :key="index"
             :label="'Должник ' + index"
           > <el-row :gutter="20" style="width: 870px;">
               <el-col :span="6"><el-input v-model="account.surname" placeholder="Фамилия" required /></el-col>
@@ -136,7 +143,8 @@
                   style="width:100%;"
                 />
               </el-col>
-              <el-col :span="18"><el-input v-model="account.passport_il.who_take" placeholder="Кем выдан" /></el-col>
+              <el-col :span="6"><el-input v-model="account.inn" placeholder="ИНН" /></el-col>
+              <el-col :span="12"><el-input v-model="account.passport_il.who_take" placeholder="Кем выдан" /></el-col>
             </el-row>
             <el-row style="margin-top:1em;width: 870px;">
               <el-col :span="24">
@@ -160,7 +168,7 @@
                 <el-button type="info" @click="selectFIOFromDB(index)" style="width:98%;">Выбрать из базы</el-button>
               </el-col>
               <el-col :span="4">
-                <el-button class="mt-2" type="danger" @click.prevent="removeFIO(account)">Удалить запись Должник {{ index }}</el-button>
+                <el-button class="mt-2" type="danger" @click="removeFIO(account)">Удалить запись Должник {{ index }}</el-button>
               </el-col>
             </el-row>    
           </el-form-item>
@@ -201,7 +209,7 @@
         <template #footer>
         <span class="dialog-footer">
             <el-button @click="dialogVisible = false">Отмена</el-button>
-            <el-button type="primary" @click="dialogVisible = false">
+            <el-button type="primary" @click.prevent="submitForm(ruleFormRef)">
             Сохранить
             </el-button>
         </span>
@@ -210,20 +218,13 @@
 </template>
 
 <script>
-import { v4 as uuidv4 } from 'uuid'
 import { debt_il_get_all_accounts_il_list } from '../../http/http-common'
-//в onMound сгенерировать первый uuid в fuleForm.accounts_li.uuid
-export default {
+import { toRaw, ref, reactive, defineComponent, toRefs, toRef } from 'vue'
+
+export default defineComponent ({
   expose: ['dialogVisible'],
   setup() {
-    
-  },
-  data() {
-    return {
-      dialogVisible: false,
-      formSize: 'default',
-      ruleFormRef: {},
-      ruleForm: {
+    const ruleForm = reactive({
         street: '',
         home:'',
         appartment: '',
@@ -234,6 +235,7 @@ export default {
         gov_tax: '',
         sum_all_get: '',
         sum_not_yet_get: '',
+        debt_sum_il: '',
         start_exec_pross_date: '',
         end_exec_pross_date: '',
         period:[],
@@ -244,6 +246,7 @@ export default {
             name: '',
             second_name: '',
             surname: '',
+            inn: '',
             passport_il: {
               id: 1,
               seria: '',
@@ -257,61 +260,101 @@ export default {
             } 
           }
         ],
-      },
-      rules: {
+      })
+
+    const rules = reactive({
         street: [
-          { required: true, message: 'Пожалуйста выберите улицу', trigger: 'blur' },
-          { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
-        ],
-        region: [
-          {
-            required: true,
-            message: 'Please select Activity zone',
-            trigger: 'change',
-          },
-        ],
-        count: [
-          {
-            required: true,
-            message: 'Please select Activity count',
-            trigger: 'change',
-          },
-        ],
-        date1: [
-          {
-            type: 'date',
-            required: true,
-            message: 'Please pick a date',
-            trigger: 'change',
-          },
-        ],
-        date2: [
-          {
-            type: 'date',
-            required: true,
-            message: 'Please pick a time',
-            trigger: 'change',
-          },
-        ],
-        type: [
-          {
-            type: 'array',
-            required: true,
-            message: 'Please select at least one activity type',
-            trigger: 'change',
-          },
-        ],
-        resource: [
-          {
-            required: true,
-            message: 'Please select activity resource',
-            trigger: 'change',
-          },
-        ],
-        desc: [
-          { required: true, message: 'Please input activity form', trigger: 'blur' },
-        ],
-      },
+            { required: true, message: 'Пожалуйста выберите улицу', trigger: 'blur' },
+            //{ min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
+          ],
+        home: [
+            {
+              required: true,
+              message: 'Пожалуйста укажите номер дома',
+              trigger: 'change',
+            },
+          ],
+        appartment: [
+            {
+              required: true,
+              message: 'Пожалуйста укажите номер квартиры',
+              trigger: 'change',
+            },
+          ],
+        one_or_parts: [
+            {
+              required: true,
+              message: 'Пожалуйста выберите долю владения имуществом',
+              trigger: 'change',
+            },
+          ],
+        property_self: [
+            {
+              required: true,
+              message: 'Пожалуйста выберите тип имущества',
+              trigger: 'change',
+            },
+          ],
+        il_number: [
+            {
+              required: true,
+              message: 'Пожалуйста укажите номер исполнительного листа',
+              trigger: 'change',
+            },
+          ],
+        il_date: [
+            {
+              type: 'date',
+              required: true,
+              message: 'Пожалуйста укажите дату исполнительного листа',
+              trigger: 'change',
+            },
+          ],
+        gov_tax: [
+            {
+              required: true,
+              message: 'Пожалуйста укажите гос. пошлину',
+              trigger: 'change',
+            },
+          ],
+        debt_sum_il: [
+            {
+              required: true,
+              message: 'Пожалуйста укажите сумму задолженности',
+              trigger: 'change',
+            },
+          ],
+    })
+    
+    const ruleFormRef = toRef(ruleForm)
+
+    return {
+      ruleFormRef,ruleForm, rules
+    }  
+  },
+  data() {
+    return {
+      dialogVisible: false,
+      formSize: 'default',
+      
+      
+          /*accounts_il:
+          [
+            {
+              type: 'array',
+              required: true,
+              fields: {
+                name: [
+                  {
+                    required: true,
+                    message: 'Пожалуйста укажите имя',
+                    trigger: 'change',
+                  },
+                ],  
+              }
+            },
+          ], 
+      },*/ 
       options_street:[
         {
         value: 'Строителей',
@@ -354,15 +397,22 @@ export default {
     }
   },
   methods:{
-    async submitForm (formEl) {
-      if (!formEl) return
+    async submitForm (formEl){
+      console.log(formEl)
+      let formObj = toRaw(this.ruleForm)
+      let formKeys = Object.keys(formObj)
+      formKeys.forEach(key => {
+        if (!formObj[key]) {
+
+        }
+      })
       await formEl.validate((valid, fields) => {
         if (valid) {
-          console.log('submit!')
+          console.log('submit!', this.ruleForm)
         } else {
           console.log('error submit!', fields)
         }
-      })
+  })    
     },
     resetForm (formEl) {
       if (!formEl) return
@@ -375,16 +425,13 @@ export default {
       }
     },
     addAccount () {
-      let id = this.ruleForm.accounts_il.length + 1
-      let uuid = uuidv4()
       this.ruleForm.accounts_il.push({
-        uuid: uuid,
         account_number: '',
         name: '',
         second_name: '',
         surname: '',
+        inn: '',
         passport_il: {
-          id: id,
           serial: "74 05",
           number: "111111",
           who_take: "ОВД администрации города Трехгорного Челябинской области",
@@ -442,11 +489,8 @@ export default {
         return this.fioData
       }
     }      
-  },
-  mounted() {
-    this.ruleForm.accounts_il[0].uuid = uuidv4()
   }
-}
+})
 </script>
 
 <style>

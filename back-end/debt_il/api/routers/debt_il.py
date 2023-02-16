@@ -9,7 +9,7 @@ from ..database.debt_il.schemas import ( AllILDataSchema, AccountILSchema, EgrnI
  )
 from ..database.debt_il.crud import (
     get_all_il_data_list, get_all_fio_from_db, get_debt_il_egrn_docs_by_il_id, create_debt_il_egrn_doc_object, del_egrn_doc_by_id,
-    get_il_list_by_il_number, create_payment_record_in_db, get_payments_history_by_il_id
+    get_il_list_by_il_number, create_payment_record_in_db, get_payments_history_by_il_id, get_all_il_data_list_by_edge_date
     )
 from ..database.debt_il.models import Egrn_il, Payments_il
 from ..security.access_depends import user_scope_authorize
@@ -27,6 +27,27 @@ async def create_contact_address_handler(
     ):
     il_data_in_db = await get_all_il_data_list(db_session)
     return il_data_in_db
+
+@router.get("/il/{month_year}/data", response_model=List[AllILDataSchema])
+async def create_contact_address_handler(
+    month_year: str,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    edge_date = datetime.strptime(month_year, '%Y-%m-%d')
+    il_data_in_db = await get_all_il_data_list_by_edge_date(db_session, edge_date)
+    return il_data_in_db 
+
+@router.post("/il/all/create")
+async def create_il_list_with_accounts(
+    egrnDocDate: Optional[str] = Form(None),
+    egrnDocNumber:Optional[str] = Form(None),
+    egrnDocNote: Optional[str] = Form(None),
+    il_number:Optional[str] = Form(None),
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    pass
 
 @router.get("/il/accounts/all/data", response_model=List[AccountILSchema])
 async def get_accounts_debt_il_handler(

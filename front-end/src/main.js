@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import ElementPlus from 'element-plus'
-import ru from 'element-plus/dist/locale/ru.mjs'
+import ru from 'element-plus/dist/locale/ru.min.mjs'
+import 'dayjs/locale/ru'
 import { createPinia } from 'pinia'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faMoneyCheck, faAddressCard, faUserCheck, faBars, faAngleDown, faBook, faUser, faHouseUser, faRoad,

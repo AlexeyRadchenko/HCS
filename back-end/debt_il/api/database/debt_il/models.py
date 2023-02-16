@@ -32,6 +32,7 @@ class Accounts_il(Base):
     name = Column(String, nullable=True)
     second_name = Column(String, nullable=True)
     surname = Column(String, nullable=True)
+    inn = Column(String, nullable=True)
     del_mark = Column(Boolean, default=False)
     part_of_appartment = Column(String, nullable=True)
     passport = Column(Integer, ForeignKey('passport_il.id'), nullable=True)
@@ -160,10 +161,11 @@ class All_il(Base):
     def sum_all_get(self):
         return sum(payments.sum for payments in self.payments_il)
 
-    @sum_all_get.expression
-    def sum_all_get(cls):
-        return select(func.sum(Payments_il.sum)).\
-        where(Payments_il.il_id==cls.id)  #.label('total_sum_get')
+    #@sum_all_get.expression
+    #def sum_all_get(cls):
+        #return select(func.sum(Payments_il.sum)).\
+        #where(Payments_il.il_id==cls.id)  #.label('total_sum_get')
+        
 
     @hybrid_property
     def sum_not_yet_get(self):
