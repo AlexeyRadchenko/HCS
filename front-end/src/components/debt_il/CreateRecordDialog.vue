@@ -61,12 +61,13 @@
       </el-row>
       <el-divider />
       <el-row :gutter="20">
-        <el-col :span="6">
-          <el-form-item label="Номер исполнительного производства" required>
+        <el-col :span="8">
+          <el-form-item label="Номер исполнительного производства" prop="il_number" label-width="auto" required>
             <el-input v-model="ruleForm.il_number" placeholder="номер" style="width:100%; margin-top:2em;"/>
           </el-form-item>  
         </el-col>
         <el-col :span="4">
+          <el-form-item  prop="il_date" required>
             <el-date-picker
               v-model="ruleForm.il_date"
               format="DD.MM.YYYY"
@@ -75,8 +76,10 @@
               placeholder="дата и/л"
               style="margin-top:2em;"
             />
+          </el-form-item>  
         </el-col>
-        <el-col :span="4">
+        <el-col :span="6">
+          <el-form-item  prop="period" required>
             <el-date-picker
               v-model="ruleForm.period"
               format="DD.MM.YYYY"
@@ -88,91 +91,126 @@
               placeholder="период задолженности"
               style="margin-top:2em;  height:3em;"
             />
+          </el-form-item>  
         </el-col>
       </el-row>
       <el-row :gutter="20">
-        <el-col :span="4" :offset="2">
-          <el-input v-model="ruleForm.sum_all_get" placeholder="взысканная сумма" style="width:100%; margin-top:2em; margin-left:0.5em;" />
+        <el-col :span="8">
+          <el-form-item prop="sum_all_get" style="margin-left:18.7em;">
+            <el-input v-model="ruleForm.sum_all_get" placeholder="взысканная сумма" style="width:100%; margin-top:2em; margin-left:0.5em;" />
+          </el-form-item>  
         </el-col>
         <el-col :span="4">
-          <el-input v-model="ruleForm.sum_not_yet_get" placeholder="остаток задолженности" style="width:100%; margin-top:2em;" />
+          <el-form-item prop="sum_not_yet_get" >
+            <el-input v-model="ruleForm.sum_not_yet_get" placeholder="остаток задолженности" style="width:100%; margin-top:2em;" />
+          </el-form-item>  
         </el-col>
         <el-col :span="3">
-          <el-input v-model="ruleForm.gov_tax" placeholder="сумма гос. пошлины" style="width:100%; margin-top:2em;" />
+          <el-form-item prop="gov_tax" >
+            <el-input v-model="ruleForm.gov_tax" placeholder="сумма гос. пошлины" style="width:100%; margin-top:2em;" />
+          </el-form-item>  
         </el-col>
         <el-col :span="3">
-          <el-input v-model="ruleForm.gov_tax" placeholder="сумма долга" style="width:100%; margin-top:2em;" />
+          <el-form-item prop="debt_sum_il" >
+            <el-input v-model="ruleForm.debt_sum_il" placeholder="сумма долга" style="width:100%; margin-top:2em;" />
+          </el-form-item>  
         </el-col>         
       </el-row>  
       <el-divider />
-      <el-row>
-        <el-col>
-          <el-form-item
-            v-for="(account, index) in ruleForm.accounts_il"
-            :key="index"
-            :label="'Должник ' + index"
-          > <el-row :gutter="20" style="width: 870px;">
-              <el-col :span="6"><el-input v-model="account.surname" placeholder="Фамилия" required /></el-col>
-              <el-col :span="6"><el-input v-model="account.name" placeholder="Имя" /></el-col>
-              <el-col :span="6"><el-input v-model="account.second_name" placeholder="Отчество" /></el-col>
-              <el-col :span="6"><el-input v-model="account.account_number" placeholder="Лицевой счет" /></el-col>
-            </el-row>
-            <el-row :gutter="20" style="margin-top:1em;width: 870px;">
-              <el-col :span="6">
+      <el-row
+        v-for="(account, index) in ruleForm.accounts_il"
+        :key="index"
+      >
+        <el-col :span="24">
+          <el-row :gutter="20">
+            <el-col :span="10">
+              <el-form-item
+                :label="'Должник ' + index"
+                :prop="'accounts_il.' + index +'.surname'"
+                :rules="[{ type: 'string', required: true, message: 'Пожалуйста укажите фамилию', trigger: 'blur',  }]"
+                >
+                <el-input v-model="account.surname" placeholder="Фамилия" required />
+              </el-form-item>
+            </el-col>     
+            <el-col :span="6">
+              <el-form-item
+                :prop="'accounts_il.' + index +'.name'"
+                :rules="[{ type: 'string', required: true, message: 'Пожалуйста укажите имя', trigger: 'blur',  }]"
+              >
+              <el-input v-model="account.name" placeholder="Имя" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="4">
+              <el-input v-model="account.second_name" placeholder="Отчество" /> 
+            </el-col>
+            <el-col :span="4">
+              <el-input v-model="account.account_number" placeholder="Лицевой счет" /> 
+            </el-col>
+          </el-row>
+          <el-row :gutter="20" style="margin-top:1em;">
+            <el-col :span="10">
                 <el-date-picker
-                  v-model="account.passport_il.birth_date"
+                  :v-model="account.passport_il.birth_date"
                   format="DD.MM.YYYY"
                   type="date"
                   label="Дата рождения"
                   placeholder="Дата рождения"
-                  style="width:100%;"
                 />
-              </el-col>
-              <el-col :span="6"><el-input v-model="account.passport_il.birth_place" placeholder="Место рождения" /></el-col>
-              <el-col :span="6"><el-input v-model="account.passport_il.serial" placeholder="Серия паспорта" /></el-col>
-              <el-col :span="6"><el-input v-model="account.passport_il.number" placeholder="Номер паспорта" /></el-col>
-            </el-row>
-            <el-row :gutter="20" style="margin-top:1em;width: 870px;">
-              <el-col :span="6">
+            </el-col>
+            <el-col :span="6">
+                <el-input v-model="account.passport_il.birth_place" placeholder="Место рождения" />
+            </el-col>
+            <el-col :span="4">
+                <el-input v-model="account.passport_il.serial" placeholder="Серия паспорта" />
+            </el-col>    
+            <el-col :span="4">
+                <el-input v-model="account.passport_il.number" placeholder="Номер паспорта" /> 
+            </el-col>
+          </el-row>
+          <el-row :gutter="20" style="margin-top:1em;">
+            <el-col :span="10">
                 <el-date-picker
                   v-model="account.passport_il.when_take"
                   format="DD.MM.YYYY"
                   type="date"
                   label="Когда выдан"
                   placeholder="Когда выдан"
-                  style="width:100%;"
+                  class="acc-datapicker"
                 />
-              </el-col>
-              <el-col :span="6"><el-input v-model="account.inn" placeholder="ИНН" /></el-col>
-              <el-col :span="12"><el-input v-model="account.passport_il.who_take" placeholder="Кем выдан" /></el-col>
-            </el-row>
-            <el-row style="margin-top:1em;width: 870px;">
-              <el-col :span="24">
-                <el-upload
-                  action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-                  class="upload-block"
-                  :limit="1"
-                  :data="{'record-index': index}"
-                >
-                  <el-button type="primary">Загрузить скан. паспорта</el-button>
-                  <template #tip>
-                    <div class="el-upload__tip">
-                      pdf файл размером не более 20 мб.
-                    </div>
-                  </template>
-                </el-upload>
-              </el-col>
-            </el-row>
-            <el-row style="margin-top:1em;width: 98%">
-              <el-col :span="4"  :offset="16">
-                <el-button type="info" @click="selectFIOFromDB(index)" style="width:98%;">Выбрать из базы</el-button>
-              </el-col>
-              <el-col :span="4">
-                <el-button class="mt-2" type="danger" @click="removeFIO(account)">Удалить запись Должник {{ index }}</el-button>
-              </el-col>
-            </el-row>    
-          </el-form-item>
-        </el-col>  
+            </el-col>
+            <el-col :span="6">
+                <el-input v-model="account.inn" placeholder="ИНН" />
+            </el-col>
+            <el-col :span="8">
+                <el-input v-model="account.passport_il.who_take" placeholder="Кем выдан" />  
+            </el-col>
+          </el-row>
+          <el-row style="margin-top:1em;">
+            <el-col :span="24">
+              <el-upload
+                action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                class="upload-block"
+                :limit="1"
+                :data="{'record-index': index}"
+              >
+                <el-button type="primary">Загрузить скан. паспорта</el-button>
+                <template #tip>
+                  <div class="el-upload__tip">
+                    pdf файл размером не более 20 мб.
+                  </div>
+                </template>
+              </el-upload>
+            </el-col>
+          </el-row>
+          <el-row style="margin-top:1em;width: 98%">
+            <el-col :span="4"  :offset="16">
+              <el-button type="info" @click="selectFIOFromDB(index)" style="width:98%;">Выбрать из базы</el-button>
+            </el-col>
+            <el-col :span="4">
+              <el-button class="mt-2" type="danger" @click="removeFIO(accounts_il)">Удалить запись Должник {{ index }}</el-button>
+            </el-col>
+          </el-row>     
+        </el-col>
       </el-row>
       <el-row>
         <el-col :span="4" :offset="20">
@@ -310,20 +348,37 @@ export default defineComponent ({
               trigger: 'change',
             },
           ],
+        period: [
+            {
+              type: 'array',
+              required: true,
+              message: 'Пожалуйста укажите период исполнительного производства',
+              trigger: 'change',
+            },
+        ],
         gov_tax: [
             {
               required: true,
               message: 'Пожалуйста укажите гос. пошлину',
               trigger: 'change',
             },
-          ],
+        ],
         debt_sum_il: [
             {
               required: true,
               message: 'Пожалуйста укажите сумму задолженности',
               trigger: 'change',
             },
-          ],
+        ],
+        accounts_il: [
+          {
+            type: 'array',
+            required: true,
+            defaultField: { 
+              
+            },
+          },
+        ],   
     })
     
     const ruleFormRef = toRef(ruleForm)
@@ -336,25 +391,6 @@ export default defineComponent ({
     return {
       dialogVisible: false,
       formSize: 'default',
-      
-      
-          /*accounts_il:
-          [
-            {
-              type: 'array',
-              required: true,
-              fields: {
-                name: [
-                  {
-                    required: true,
-                    message: 'Пожалуйста укажите имя',
-                    trigger: 'change',
-                  },
-                ],  
-              }
-            },
-          ], 
-      },*/ 
       options_street:[
         {
         value: 'Строителей',
@@ -411,6 +447,7 @@ export default defineComponent ({
           console.log('submit!', this.ruleForm)
         } else {
           console.log('error submit!', fields)
+          console.log('-<<<<', this.ruleForm)
         }
   })    
     },
@@ -472,7 +509,7 @@ export default defineComponent ({
       this.accIndex = 0
       this.currentFIO = null,
       this.searchFIOVisible = false
-    }
+    },
   },
   computed: {
     filterFIOData () {
@@ -494,9 +531,6 @@ export default defineComponent ({
 </script>
 
 <style>
-form input:focus {
-  width:100%;
-}
 .el-form-item__label {
   word-break: break-word;
 }
@@ -508,5 +542,8 @@ form input:focus {
 }
 .el-upload__tip {
   display: inline;
+}
+.acc-datapicker >>> .acc-datepicker_calendar {
+  width: 100%;
 }
 </style>
