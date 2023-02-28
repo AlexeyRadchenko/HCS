@@ -185,6 +185,28 @@ export var debt_il_get_all_il_list_by_edge_date = async function (monthYear) {
   })
 }
 
+export var debt_il_create_list_with_accounts_data = async function (data) {
+  setHeaders(http)
+  http.defaults.headers.common['Content-Type'] = `multipart/form-data`
+return await http.post(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/all/create/', data
+  )
+  .then(response => {
+    if (response.status == 200)
+      {
+        return response.data
+      }
+  })
+  .catch(e => {
+    if (!e.response) {
+      console.log('сервер не отвечает')
+      return null
+    } else {
+      return null
+    }
+  })
+}
+
+
 export var debt_il_get_all_accounts_il_list = async function () {
   setHeaders(http)
   return await http.get(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/accounts/all/data')

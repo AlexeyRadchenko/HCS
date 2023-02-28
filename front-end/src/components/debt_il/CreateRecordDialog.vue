@@ -79,7 +79,7 @@
           </el-form-item>  
         </el-col>
         <el-col :span="6">
-          <el-form-item  prop="period" required>
+          <el-form-item  prop="period">
             <el-date-picker
               v-model="ruleForm.period"
               format="DD.MM.YYYY"
@@ -141,34 +141,48 @@
               </el-form-item>
             </el-col>
             <el-col :span="4">
-              <el-input v-model="account.second_name" placeholder="Отчество" /> 
+              <el-form-item>
+                <el-input v-model="account.second_name" placeholder="Отчество" /> 
+              </el-form-item>  
             </el-col>
             <el-col :span="4">
-              <el-input v-model="account.account_number" placeholder="Лицевой счет" /> 
+              <el-form-item>
+                <el-input v-model="account.account_number" placeholder="Лицевой счет" />
+              </el-form-item>   
             </el-col>
           </el-row>
           <el-row :gutter="20" style="margin-top:1em;">
-            <el-col :span="10">
-                <el-date-picker
-                  :v-model="account.passport_il.birth_date"
-                  format="DD.MM.YYYY"
-                  type="date"
-                  label="Дата рождения"
-                  placeholder="Дата рождения"
-                />
-            </el-col>
+              <el-col :span="4" :offset="4">
+                <el-form-item style="margin-left:1.35em;">
+                  <el-date-picker
+                    v-model="account.passport_il.birth_date"
+                    format="DD.MM.YYYY"
+                    type="date"
+                    label="Дата рождения"
+                    placeholder="Дата рождения"
+          
+                  />
+                </el-form-item>   
+              </el-col> 
             <el-col :span="6">
+              <el-form-item>
                 <el-input v-model="account.passport_il.birth_place" placeholder="Место рождения" />
+              </el-form-item>  
             </el-col>
             <el-col :span="4">
+              <el-form-item>
                 <el-input v-model="account.passport_il.serial" placeholder="Серия паспорта" />
+              </el-form-item>  
             </el-col>    
             <el-col :span="4">
-                <el-input v-model="account.passport_il.number" placeholder="Номер паспорта" /> 
+              <el-form-item>
+                <el-input v-model="account.passport_il.number" placeholder="Номер паспорта" />
+              </el-form-item>  
             </el-col>
           </el-row>
           <el-row :gutter="20" style="margin-top:1em;">
-            <el-col :span="10">
+            <el-col :span="4" :offset="4">
+              <el-form-item style="margin-left:1.35em;">
                 <el-date-picker
                   v-model="account.passport_il.when_take"
                   format="DD.MM.YYYY"
@@ -177,21 +191,27 @@
                   placeholder="Когда выдан"
                   class="acc-datapicker"
                 />
+              </el-form-item>  
             </el-col>
             <el-col :span="6">
+              <el-form-item>
                 <el-input v-model="account.inn" placeholder="ИНН" />
+              </el-form-item>  
             </el-col>
             <el-col :span="8">
-                <el-input v-model="account.passport_il.who_take" placeholder="Кем выдан" />  
+              <el-form-item>
+                <el-input v-model="account.passport_il.who_take" placeholder="Кем выдан" /> 
+              </el-form-item>  
             </el-col>
           </el-row>
           <el-row style="margin-top:1em;">
-            <el-col :span="24">
+            <el-col :span="4" :offset="4" style="padding-left:1.6em;">
               <el-upload
-                action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                action="#"
+                v-model:file-list="account.passport_il.uploadFiles"
                 class="upload-block"
                 :limit="1"
-                :data="{'record-index': index}"
+                :auto-upload="false"
               >
                 <el-button type="primary">Загрузить скан. паспорта</el-button>
                 <template #tip>
@@ -202,17 +222,17 @@
               </el-upload>
             </el-col>
           </el-row>
-          <el-row style="margin-top:1em;width: 98%">
+          <el-row style="margin-top:1em;">
             <el-col :span="4"  :offset="16">
               <el-button type="info" @click="selectFIOFromDB(index)" style="width:98%;">Выбрать из базы</el-button>
             </el-col>
             <el-col :span="4">
-              <el-button class="mt-2" type="danger" @click="removeFIO(accounts_il)">Удалить запись Должник {{ index }}</el-button>
+              <el-button  class="mt-2" type="danger" @click="removeFIO(account)" :disabled="index === 0 ? true : false">Удалить запись Должник {{ index }}</el-button>
             </el-col>
           </el-row>     
         </el-col>
       </el-row>
-      <el-row>
+      <el-row style="margin-top:1em;">
         <el-col :span="4" :offset="20">
           <el-button type="success" @click="addAccount">Добавить Физ. лицо</el-button>
         </el-col>  
@@ -256,8 +276,9 @@
 </template>
 
 <script>
-import { debt_il_get_all_accounts_il_list } from '../../http/http-common'
-import { toRaw, ref, reactive, defineComponent, toRefs, toRef } from 'vue'
+import { debt_il_get_all_accounts_il_list, debt_il_create_list_with_accounts_data } from '../../http/http-common'
+import { reactive, defineComponent, toRef, toRaw } from 'vue'
+import { dataType } from 'element-plus/es/components/table-v2/src/common'
 
 export default defineComponent ({
   expose: ['dialogVisible'],
@@ -294,7 +315,8 @@ export default defineComponent ({
               squad_code: '',
               birth_date: '',
               birth_place: '',
-              scan: ''
+              scan: '',
+              uploadFiles: [],
             } 
           }
         ],
@@ -351,7 +373,7 @@ export default defineComponent ({
         period: [
             {
               type: 'array',
-              required: true,
+              required: false,
               message: 'Пожалуйста укажите период исполнительного производства',
               trigger: 'change',
             },
@@ -435,19 +457,31 @@ export default defineComponent ({
   methods:{
     async submitForm (formEl){
       console.log(formEl)
-      let formObj = toRaw(this.ruleForm)
-      let formKeys = Object.keys(formObj)
-      formKeys.forEach(key => {
-        if (!formObj[key]) {
-
-        }
-      })
       await formEl.validate((valid, fields) => {
         if (valid) {
-          console.log('submit!', this.ruleForm)
+          //console.log('submit!', this.ruleForm)
+          let data = toRaw(this.ruleForm)
+          let formData = new FormData()     
+          Object.keys(data).forEach(key =>{
+            if (key === 'accounts_il') {
+              data[key].forEach((account, index) => {
+                if (account.passport_il.uploadFiles.length !=0) {
+                  //mutliple append in key @files@ create list file objects
+                  formData.append('files', account.passport_il.uploadFiles[0].raw,  account.passport_il.uploadFiles[0].name)
+                  account.passport_il.uploadFiles = account.passport_il.uploadFiles[0].name
+                }
+                formData.append('accounts_il', JSON.stringify(account))
+              })
+            }
+            formData.append(key, data[key])
+          })
+          console.log('-------->', data)
+          console.log('-------->', formData.values)
+          let result = debt_il_create_list_with_accounts_data(formData)
+          console.log(result)
         } else {
           console.log('error submit!', fields)
-          console.log('-<<<<', this.ruleForm)
+          //console.log('-<<<<', this.ruleForm)
         }
   })    
     },
@@ -476,7 +510,8 @@ export default defineComponent ({
           squad_code: "740-000",
           birth_date: "2022-11-02T10:56:04.116Z",
           birth_place: "г Златоуст-36 Челябинской области",
-          scan: "string"
+          scan: "string",
+          uploadFiles: [],
         }  
       })
     },

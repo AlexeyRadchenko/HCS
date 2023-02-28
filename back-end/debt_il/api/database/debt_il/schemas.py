@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import List, Optional, Any
 from pydantic import BaseModel
 from uuid import UUID
+from fastapi import UploadFile, File
 
 class PassportILSchema(BaseModel):
     id: Optional[int]
@@ -95,4 +96,37 @@ class PaymentUploadData(BaseModel):
 
 class PaymentUploadDataListSchema(BaseModel):
     data: List[PaymentUploadData]
+   
 
+class AccaountDataForCreatePassportData(BaseModel):
+    seria: Optional[str]
+    number: Optional[str]
+    who_take: Optional[str]
+    when_take: Optional[str]
+    squad_code: Optional[str]
+    birth_date: Optional[str]
+    birth_place: Optional[str]
+    #uploadFiles: Optional[List[UploadFile]]
+
+class AccountDataForCreate(BaseModel):
+    account_number: Optional[str]
+    name: Optional[str]
+    second_name: Optional[str]
+    surname: Optional[str]
+    inn: Optional[str]
+    passport_il:  Optional[AccaountDataForCreatePassportData]
+
+class DebtILListCreateSchema(BaseModel):
+    street: str
+    home: str
+    appartment: str
+    one_or_parts: bool
+    property_self: bool
+    il_number: str
+    il_date: str
+    gov_tax: Optional[str]
+    sum_all_get: Optional[str]
+    sum_not_yet_get: Optional[str]
+    debt_sum_il: Optional[str]
+    period: Optional[List]
+    accounts_il: Optional[List[AccountDataForCreate]]

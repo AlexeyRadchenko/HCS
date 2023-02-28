@@ -6,13 +6,67 @@ from sqlalchemy.orm import joinedload, selectinload, join, contains_eager
 from datetime import datetime
 
 from ..database import row2dict
-from .models import All_il, Accounts_il, Egrn_il, Payments_il
+from .models import All_il, Accounts_il, Egrn_il, Payments_il, Passport_il, IL_accounts
 
-async def create_debt_il_object(db: AsyncSession, debt_il_object: Any):
-    db.add(debt_il_object)
+async def create_debt_il_list_with_accounts(db: AsyncSession, data: Any, files: dict):
+    period = [datetime.strptime(p, '%Y-%m-%d') for p in data['period'] if p != '']
+    accounts_created_objs = []
+    for account in data['accounts_il']:
+        pasp = account['passport_il']
+        passport_db_object = Passport_il(
+            seria=pasp['seria'],
+            number=pasp['number'],
+            who_take=pasp['who_take'],
+            when_take=datetime.strptime(pasp['when_take'], '%Y-%m-%d'),
+            squad_code=pasp['squad_code'],
+            birth_date=pasp['birth_date'],
+            birth_place=pasp['birth_place'],
+            scan=files[pasp['uploadFiles'][1]] if len(pasp['uploadFiles'] == 2) else ''                       
+        )
+        await db.add(passport_db_object)
+        await db.commit()
+        await db.refresh(passport_db_object)
+        acc = Accounts_il(
+            account_number=account['account_number'],
+            name=account['account_number'],
+            second_=account['second_number'],
+            surname=account['account_surname'],
+            inn=account['inn'],
+            passport=passport_db_object.id
+        )
+        await db.add(acc)
+        await db.commit()
+        await db.refresh(acc)
+        accounts_created_objs.append(acc.id)
+
+    IL_list_db_object = All_il(
+        street=data['street'],
+        house=data['home'],
+        appartment=data['appartment'],
+        one_or_parts=data['one_or_parts'],
+        property_self=data['property_self'],
+        il_number=data['il_number'],
+        il_date=datetime.strptime(data['il_date'], '%Y-%m-%d'),
+        gov_tax=data['gov_tax'],
+        debt_sum_il=data['debt_sum_il'],
+        start_exec_pross_date=data['period'][0] if len(period) == 2 else None,
+        end_exec_pross_date=data['period'][1] if len(period) == 2 else None,
+        notes='',
+        organistion_id=1,
+    )
+
+    await db.add(IL_list_db_object)
     await db.commit()
-    await db.refresh(debt_il_object)
-    return debt_il_object
+    await db.refresh(IL_list_db_object)
+
+    for acc_id in accounts_created_objs:
+        create_relation_il_accounts_obj = IL_accounts (
+            il_id=IL_list_db_object.id,
+            account_uuid=acc_id
+        )
+        await db.add(create_relation_il_accounts_obj)
+        await db.commit()
+    return 
 
 async def get_all_il_data_list(db: AsyncSession):
     result = await db.execute(
