@@ -23,6 +23,7 @@
             type="month"
             placeholder="выберите месяц"
             format="MMMM-YYYY"
+            value-format="YYYY-MM-DD"
             style="margin-left: 3em;"
           />
           <el-button type="primary" style="margin-left: 1em;" @click.prevent="FilterDataByEdgeDate">Обновить</el-button>

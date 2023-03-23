@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Security, UploadFile, File, Form, Body
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from typing import List, Optional
 from datetime import datetime
@@ -57,7 +58,8 @@ async def create_il_list_with_accounts(
                     while contents:
                         contents = file.file.read(1024 * 1024)
                         f.write(contents)
-                f_paths[file.filename]=path_file       
+                f_paths[file.filename]=path_file
+                data['scan'] = path_file       
             except Exception:
                 return {"message": "There was an error uploading the file(s)"}
             finally:
@@ -65,8 +67,11 @@ async def create_il_list_with_accounts(
 
     print(files)
     print(data)
+
     await create_debt_il_list_with_accounts(db_session, data, f_paths)
-    return JSONResponse(content={'zbs': 'ok'})
+    print(data)
+    jdata = jsonable_encoder(data)
+    return JSONResponse(content=jdata)
 
 @router.get("/il/accounts/all/data", response_model=List[AccountILSchema])
 async def get_accounts_debt_il_handler(

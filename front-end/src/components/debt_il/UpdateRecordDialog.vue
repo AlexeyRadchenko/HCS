@@ -51,6 +51,18 @@
                 />
             </el-select>
         </el-col>
+        <el-col :span="4">
+          <el-form-item  prop="uk_org" required style="margin-left:-135px;">
+            <el-select v-model="ruleForm.uk_org" style="width:100%;">
+                <el-option
+                  v-for="item in uk_organisations"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+            </el-select>
+          </el-form-item>  
+        </el-col>
       </el-row>
       <el-divider />
       <el-row :gutter="20">
@@ -63,6 +75,7 @@
             <el-date-picker
               v-model="ruleForm.il_date"
               format="DD.MM.YYYY"
+              value-format="YYYY-MM-DD"
               type="date"
               label="дата и/л"
               placeholder="дата и/л"
@@ -73,6 +86,7 @@
             <el-date-picker
               v-model="ruleForm.period"
               format="DD.MM.YYYY"
+              value-format="YYYY-MM-DD"
               type="daterange"
               start-placeholder="Начальная дата"
               end-placeholder="Конечная дата"
@@ -115,6 +129,7 @@
                 <el-date-picker
                   v-model="account.passport_il.birth_date"
                   format="DD.MM.YYYY"
+                  value-format="YYYY-MM-DD"
                   type="date"
                   label="Дата рождения"
                   placeholder="Дата рождения"
@@ -130,6 +145,7 @@
                 <el-date-picker
                   v-model="account.passport_il.when_take"
                   format="DD.MM.YYYY"
+                  value-format="YYYY-MM-DD"
                   type="date"
                   label="Когда выдан"
                   placeholder="Когда выдан"
@@ -361,6 +377,16 @@ export default {
         value: false,
         label: 'Соц. найм'  
         }
+      ],
+      uk_organisations:[
+        {
+          value: 1,
+          label: 'Комфортный дом'
+        },
+        {
+          value: 2,
+          label: 'ЖКС - Трехгорный'
+        },
       ],
       searchFIOVisible: false,
       accIndex: 0,

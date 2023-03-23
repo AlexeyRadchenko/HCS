@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload, selectinload, join, contains_eager
 from datetime import datetime
 
 from ..database import row2dict
-from .models import All_il, Accounts_il, Egrn_il, Payments_il, Passport_il, IL_accounts
+from .models import All_il, Accounts_il, Egrn_il, Payments_il, Passport_il, IL_accounts, Organisations_il
 
 async def create_debt_il_list_with_accounts(db: AsyncSession, data: Any, files: dict):
     period = [datetime.strptime(p, '%Y-%m-%d') for p in data['period'] if p != '']
@@ -14,34 +14,35 @@ async def create_debt_il_list_with_accounts(db: AsyncSession, data: Any, files: 
     for account in data['accounts_il']:
         pasp = account['passport_il']
         passport_db_object = Passport_il(
-            seria=pasp['seria'],
+            serial=pasp['seria'],
             number=pasp['number'],
             who_take=pasp['who_take'],
-            when_take=datetime.strptime(pasp['when_take'], '%Y-%m-%d'),
+            date_take=datetime.strptime(pasp['when_take'], '%Y-%m-%d') if pasp['when_take'] else None,
             squad_code=pasp['squad_code'],
-            birth_date=pasp['birth_date'],
+            birth_date=datetime.strptime(pasp['birth_date'], '%Y-%m-%d') if pasp['birth_date'] else None,
             birth_place=pasp['birth_place'],
-            scan=files[pasp['uploadFiles'][1]] if len(pasp['uploadFiles'] == 2) else ''                       
+            scan=files[pasp['uploadFiles'][1]] if len(pasp['uploadFiles']) == 2 else ''                       
         )
-        await db.add(passport_db_object)
+        db.add(passport_db_object)
         await db.commit()
         await db.refresh(passport_db_object)
         acc = Accounts_il(
             account_number=account['account_number'],
-            name=account['account_number'],
-            second_=account['second_number'],
-            surname=account['account_surname'],
+            name=account['name'],
+            second_name=account['second_name'],
+            surname=account['surname'],
             inn=account['inn'],
             passport=passport_db_object.id
         )
-        await db.add(acc)
+        db.add(acc)
         await db.commit()
         await db.refresh(acc)
-        accounts_created_objs.append(acc.id)
+        accounts_created_objs.append(acc.uuid)
+        account['uuid'] = acc.uuid
 
     IL_list_db_object = All_il(
         street=data['street'],
-        house=data['home'],
+        house=data['house'],
         appartment=data['appartment'],
         one_or_parts=data['one_or_parts'],
         property_self=data['property_self'],
@@ -52,21 +53,22 @@ async def create_debt_il_list_with_accounts(db: AsyncSession, data: Any, files: 
         start_exec_pross_date=data['period'][0] if len(period) == 2 else None,
         end_exec_pross_date=data['period'][1] if len(period) == 2 else None,
         notes='',
-        organistion_id=1,
+        organisation_id=data['uk_org'],
     )
 
-    await db.add(IL_list_db_object)
+    db.add(IL_list_db_object)
     await db.commit()
     await db.refresh(IL_list_db_object)
 
-    for acc_id in accounts_created_objs:
+    for acc_uuid in accounts_created_objs:
         create_relation_il_accounts_obj = IL_accounts (
             il_id=IL_list_db_object.id,
-            account_uuid=acc_id
+            account_uuid=acc_uuid
         )
-        await db.add(create_relation_il_accounts_obj)
+        db.add(create_relation_il_accounts_obj)
         await db.commit()
-    return 
+        data['id'] = IL_list_db_object.id
+    return data
 
 async def get_all_il_data_list(db: AsyncSession):
     result = await db.execute(
@@ -176,3 +178,11 @@ async def get_payments_history_by_il_id(db: AsyncSession, il_id: int):
         )
     )
     return result.scalars().unique().all()
+
+async def create_debt_il_object(db:AsyncSession, obj:Any):
+    db.add(obj)
+    await db.commit()
+    await db.refresh(obj)
+    return obj
+    
+    

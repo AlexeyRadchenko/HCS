@@ -23,8 +23,8 @@
           </el-form-item>  
         </el-col>
         <el-col :span="4">
-          <el-form-item prop="home" required >
-            <el-input v-model="ruleForm.home" placeholder="Дом" />
+          <el-form-item prop="house" required >
+            <el-input v-model="ruleForm.house" placeholder="Дом" />
           </el-form-item>  
         </el-col>
         <el-col :span="4">
@@ -58,6 +58,18 @@
             </el-select>
           </el-form-item>  
         </el-col>
+        <el-col :span="4">
+          <el-form-item  prop="uk_org" required>
+            <el-select v-model="ruleForm.uk_org" style="width:100%;" >
+                <el-option
+                  v-for="item in uk_organisations"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+            </el-select>
+          </el-form-item>  
+        </el-col>
       </el-row>
       <el-divider />
       <el-row :gutter="20">
@@ -71,6 +83,7 @@
             <el-date-picker
               v-model="ruleForm.il_date"
               format="DD.MM.YYYY"
+              value-format="YYYY-MM-DD"
               type="date"
               label="дата и/л"
               placeholder="дата и/л"
@@ -83,6 +96,7 @@
             <el-date-picker
               v-model="ruleForm.period"
               format="DD.MM.YYYY"
+              value-format="YYYY-MM-DD"
               type="daterange"
               start-placeholder="Начальная дата"
               end-placeholder="Конечная дата"
@@ -157,6 +171,7 @@
                   <el-date-picker
                     v-model="account.passport_il.birth_date"
                     format="DD.MM.YYYY"
+                    value-format="YYYY-MM-DD"
                     type="date"
                     label="Дата рождения"
                     placeholder="Дата рождения"
@@ -186,6 +201,7 @@
                 <el-date-picker
                   v-model="account.passport_il.when_take"
                   format="DD.MM.YYYY"
+                  value-format="YYYY-MM-DD"
                   type="date"
                   label="Когда выдан"
                   placeholder="Когда выдан"
@@ -285,7 +301,7 @@ export default defineComponent ({
   setup() {
     const ruleForm = reactive({
         street: '',
-        home:'',
+        house:'',
         appartment: '',
         one_or_parts: true,
         property_self: true,
@@ -298,6 +314,7 @@ export default defineComponent ({
         start_exec_pross_date: '',
         end_exec_pross_date: '',
         period:[],
+        uk_org: '',
         accounts_il: [
           {
             uuid: '',
@@ -327,7 +344,7 @@ export default defineComponent ({
             { required: true, message: 'Пожалуйста выберите улицу', trigger: 'blur' },
             //{ min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
           ],
-        home: [
+        house: [
             {
               required: true,
               message: 'Пожалуйста укажите номер дома',
@@ -400,6 +417,13 @@ export default defineComponent ({
               
             },
           },
+        ],
+        uk_org: [
+            {
+              required: true,
+              message: 'Пожалуйста укажите упр. компанию',
+              trigger: 'change',
+            },
         ],   
     })
     
@@ -447,6 +471,16 @@ export default defineComponent ({
         label: 'Соц. найм'  
         }
       ],
+      uk_organisations:[
+        {
+          value: 1,
+          label: 'Комфортный дом'
+        },
+        {
+          value: 2,
+          label: 'ЖКС - Трехгорный'
+        },
+      ],
       searchFIOVisible: false,
       accIndex: 0,
       currentFIO: null,
@@ -456,7 +490,7 @@ export default defineComponent ({
   },
   methods:{
     async submitForm (formEl){
-      console.log(formEl)
+      let result = null
       await formEl.validate((valid, fields) => {
         if (valid) {
           //console.log('submit!', this.ruleForm)
@@ -475,15 +509,21 @@ export default defineComponent ({
             }
             formData.append(key, data[key])
           })
-          console.log('-------->', data)
-          console.log('-------->', formData.values)
-          let result = debt_il_create_list_with_accounts_data(formData)
-          console.log(result)
+          //console.log('-------->', data)
+          //console.log('-------->', formData.values)
+          result = debt_il_create_list_with_accounts_data(formData)
         } else {
           console.log('error submit!', fields)
           //console.log('-<<<<', this.ruleForm)
         }
-  })    
+  })
+      const get_record = async () => {
+      const record = await result
+      console.log(record)
+      this.$parent.tableData.unshift(record)
+      this.dialogVisible = false
+      }
+      get_record()    
     },
     resetForm (formEl) {
       if (!formEl) return
