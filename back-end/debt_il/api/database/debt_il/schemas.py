@@ -86,6 +86,10 @@ class EGRNDocFileSchema(BaseModel):
     file_name: Optional[str]
     file_path: str
 
+class PassportScanFileSchema(BaseModel):
+    file_path: str
+    file_name: Optional[str]  
+
 class PaymentUploadData(BaseModel):
     date: Optional[str]
     type:Optional[str]

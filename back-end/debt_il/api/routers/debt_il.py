@@ -6,7 +6,7 @@ from typing import List, Optional
 from datetime import datetime
 
 from ..database.debt_il.schemas import ( AllILDataSchema, AccountILSchema, EgrnILSchema, EGRNDocFileSchema, PaymentUploadDataListSchema, 
-    PaymentsILSchema, DebtILListCreateSchema
+    PaymentsILSchema, PassportScanFileSchema
  )
 from ..database.debt_il.crud import (
     get_all_il_data_list, get_all_fio_from_db, get_debt_il_egrn_docs_by_il_id, create_debt_il_egrn_doc_object, del_egrn_doc_by_id,
@@ -50,7 +50,7 @@ async def create_il_list_with_accounts(
     ):
     f_paths = {}
     if files:
-        for file in files:
+        for index, file in enumerate(files):
             path_file = settings.FILE_STORAGE_PATH + '/accounts_il/passports/' + str(int(datetime.utcnow().timestamp())) + '__' +  file.filename
             try:
                 with open(path_file, 'wb') as f:
@@ -59,8 +59,9 @@ async def create_il_list_with_accounts(
                         contents = file.file.read(1024 * 1024)
                         f.write(contents)
                 f_paths[file.filename]=path_file
-                data['scan'] = path_file       
-            except Exception:
+                data['accounts_il'][0]['passport_il']['scan'] = path_file       
+            except Exception as e:
+                print(e)
                 return {"message": "There was an error uploading the file(s)"}
             finally:
                 file.file.close()
@@ -72,6 +73,14 @@ async def create_il_list_with_accounts(
     print(data)
     jdata = jsonable_encoder(data)
     return JSONResponse(content=jdata)
+
+@router.post("/il/accounts/passport/download")
+async def get_passport_scan(
+    passportScanPath: PassportScanFileSchema,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    ):
+    return FileResponse(path=passportScanPath.file_path)
+
 
 @router.get("/il/accounts/all/data", response_model=List[AccountILSchema])
 async def get_accounts_debt_il_handler(

@@ -280,6 +280,26 @@ export var debt_il_download_egrn_docs_by_file_path = async function (file_path, 
   })
 }
 
+export var debt_il_download_account_passport_scan_by_file_path = async function (file_path, file_name) {
+  setHeaders(http)
+  let data = { file_name: file_name, file_path: file_path }
+  return await http.post(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/accounts/passport/download', data, {responseType: 'blob' })
+  .then(response => {
+    if (response.status == 200)
+      {
+        fileDownload(response.data, file_name);
+      }
+  })
+  .catch(e => {
+    if (!e.response) {
+      console.log('сервер не отвечает')
+      return null
+    } else {
+      return null
+    }
+  })
+}
+
 export var debt_il_payment_data_upload = async function (data_list) {
   setHeaders(http)
   return await http.post(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/payment_il_doc/data/upload', { data: data_list })

@@ -71,7 +71,16 @@
                       <el-table-column label="Серия и номер паспорта" :formatter="passportFormatter" align="center" width="120" />
                       <el-table-column label="Кем и когда выдан" :formatter="passportWhoAndWhereFormatter" align="center"  width="430" />
                       <el-table-column label="Код подразделения" prop="passport_il.squad_code" align="center" width="110" />
-                      <el-table-column label="Скан паспорта" prop="passport_il.scan" align="center" width="110" />
+                      <el-table-column label="Скан паспорта" align="center" width="110">
+                        <template #default="scope">
+                          <button @click="paspScanDownload(scope.row.passport_il)" class="d-button-hover" v-if="scope.row.passport_il.scan">
+                            <font-awesome-icon :icon="['fas', 'fa-file-pdf']"  v-if="'pdf' === fileExtension(scope.row.passport_il) " size="4x" />
+                            <font-awesome-icon :icon="['fas', 'fa-file-word']"  v-if="'docx' === fileExtension(scope.row.passport_il) " size="4x" />
+                            <font-awesome-icon :icon="['fas', 'fa-file-excel']"  v-if="'xlsx' === fileExtension(scope.row.passport_il) " size="4x" />
+                            <font-awesome-icon :icon="['fas', 'fa-file']"  v-if="!(['pdf', 'docx', 'xlsx'].includes(fileExtension(scope.row.passport_il)))" size="4x" />
+                          </button>
+                        </template>
+                      </el-table-column>
                     </el-table>
                   </div>
                 </template>
@@ -136,13 +145,14 @@
 <script>
 import moment from 'moment/dist/moment'
 import ru from 'moment/dist/locale/ru'
-import { debt_il_get_all_il_list, debt_il_get_all_il_list_by_edge_date } from '../../http/http-common'
+import { debt_il_get_all_il_list, debt_il_get_all_il_list_by_edge_date, debt_il_download_account_passport_scan_by_file_path } from '../../http/http-common'
 import CreateRecordDialog from './CreateRecordDialog.vue'
 import UpdateRecordDialog from './UpdateRecordDialog.vue'
 import DeleteRecordDialog from './DeleteRecordDialog.vue'
 import EGRNDocsDialog from './EGRNDocsDialog.vue'
 import PaymentsUploadDialog from './PaymentsUploadDialog.vue'
 import PaymentsHistoryDialog from './PaymentsHistoryDialog.vue'
+import { toRaw } from 'vue'
 
 export default {
   components: {
@@ -163,161 +173,6 @@ export default {
         searchAddress: '',
         searchFIO: '',
         searchIL: '',
-        /*tableData: [
-          {
-            id: 0,
-            street: "60 лет Октября",
-            house: "10",
-            appartment: "20",
-            accounts_il: [
-              {
-                uuid: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                account_number: "100002222",
-                name: "Иван",
-                second_name: "Иванович",
-                surname: "Иванов",
-                passport_il: {
-                  id: 0,
-                  seria: "74 05",
-                  number: "111111",
-                  who_take: "ОВД администрации города Трехгорного Челябинской области",
-                  when_take: "2022-11-02T10:56:04.116Z",
-                  squad_code: "740-000",
-                  birth_date: "2022-11-02T10:56:04.116Z",
-                  birth_place: "г Златоуст-36 Челябинской области",
-                  scan: "string"
-                }
-              },
-              {
-                uuid: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                account_number: "100002222",
-                name: "Петр",
-                second_name: "Петрович",
-                surname: "Петров",
-                passport_il: {
-                  id: 0,
-                  seria: "75 05",
-                  number: "0000000",
-                  who_take: "ОВД администрации города Трехгорного Челябинской области",
-                  when_take: "2022-11-02T10:56:04.116Z",
-                  squad_code: "740-000",
-                  birth_date: "2022-11-02T10:56:04.116Z",
-                  birth_place: "г Златоуст-36 Челябинской области",
-                  scan: "string"
-                }
-              }
-            ],
-            "egrn_il": [
-              {
-                "id": 0,
-                "date": "2022-11-10T09:20:55.717Z",
-                "number": "string",
-                "file": "string"
-              }
-            ],
-            property_self: true,
-            one_or_parts: true,
-            il_number: "2-445/2022",
-            il_date: "2022-11-02T10:56:04.116Z",
-            ur_in_work: true,
-            gov_tax: 1000.45,
-            order_cancel: true,
-            bailiff_forward_date: "2022-11-02T10:56:04.116Z",
-            start_exec_pross_date: "2022-11-02T10:56:04.116Z",
-            end_exec_pross_date: "2022-11-02T10:56:04.116Z",
-            period:[],
-            sum_all_get: 50000.00,
-            sum_not_yet_get: 255000.70,
-            payments: 0,
-            payments_il: [
-              {
-                id: 0,
-                date: "2022-11-02T10:56:04.116Z",
-                type: "string",
-                sum: 0
-              }
-            ],
-            debt_sum: 305156.54,
-            notes: "string"
-          },
-          
-          {
-            id: 1,
-            street: "50 лет победы",
-            house: "10",
-            appartment: "20",
-            accounts_il: [
-              {
-                uuid: "3fa85f64-5717-4562-b3fc-2b963f66afa6",
-                account_number: "100002222",
-                name: "Иван",
-                second_name: "Иванович",
-                surname: "Иванов",
-                passport_il: {
-                  id: 1,
-                  seria: "74 05",
-                  number: "111111",
-                  who_take: "ОВД администрации города Трехгорного Челябинской области",
-                  when_take: "2022-11-02T10:56:04.116Z",
-                  squad_code: "740-000",
-                  birth_date: "2022-11-02T10:56:04.116Z",
-                  birth_place: "г Златоуст-36 Челябинской области",
-                  scan: "string"
-                }
-              },
-              {
-                uuid: "3fa85f64-5717-4562-b3fc-2c983f66afa6",
-                account_number: "100002222",
-                name: "Петр",
-                second_name: "Петрович",
-                surname: "Петров",
-                passport_il: {
-                  id: 2,
-                  seria: "75 05",
-                  number: "0000000",
-                  who_take: "ОВД администрации города Трехгорного Челябинской области",
-                  when_take: "2022-11-02T10:56:04.116Z",
-                  squad_code: "740-000",
-                  birth_date: "2022-11-02T10:56:04.116Z",
-                  birth_place: "г Златоуст-36 Челябинской области",
-                  scan: "string"
-                }
-              }
-            ],
-            "egrn_il": [
-              {
-                "id": 0,
-                "date": "2022-11-10T09:20:55.717Z",
-                "number": "string",
-                "file": "string"
-              }
-            ],
-            property_self: true,
-            one_or_parts: true,
-            il_number: "2-446/2022",
-            il_date: "2022-11-02T10:56:04.116Z",
-            ur_in_work: true,
-            gov_tax: 1000.45,
-            order_cancel: false,
-            bailiff_forward_date: "2022-11-02T10:56:04.116Z",
-            start_exec_pross_date: "2022-11-02T10:56:04.116Z",
-            end_exec_pross_date: "2022-10-02T10:56:04.116Z",
-            period:[],
-            sum_all_get: 50000.00,
-            sum_not_yet_get: 255000.70,
-            payments: 0,
-            payments_il: [
-              {
-                id: 0,
-                date: "2022-11-02T10:56:04.116Z",
-                type: "string",
-                sum: 0
-              }
-            ],
-            debt_sum: 305156.54,
-            notes: "string"
-          }
-       ],*/
         tableData:[],
         showTable:false,
         reportMonthYear: '',   
@@ -430,7 +285,17 @@ export default {
         this.tableData = data
         this.showTable = true
       }
-    }
+    },
+    async paspScanDownload (paspProxyObj) {
+      let paspObj = toRaw(paspProxyObj)
+      let fileName = paspObj.scan.split('/').pop()
+      await debt_il_download_account_passport_scan_by_file_path(paspObj.scan, fileName)
+    },
+    fileExtension (filePath) {
+      //console.log('fp pp', this.egrnData)
+      let paspObj = toRaw(filePath)
+      return paspObj.scan.split('.').pop()
+    },  
   },
   computed: {
     filterTableData () {
@@ -525,6 +390,10 @@ export default {
 .main-button-row-column {
   margin-top: 2em;
   justify-content: right;
+}
+
+.d-button-hover {
+  cursor: pointer;
 }
 
 </style>

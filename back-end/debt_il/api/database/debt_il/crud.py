@@ -21,7 +21,7 @@ async def create_debt_il_list_with_accounts(db: AsyncSession, data: Any, files: 
             squad_code=pasp['squad_code'],
             birth_date=datetime.strptime(pasp['birth_date'], '%Y-%m-%d') if pasp['birth_date'] else None,
             birth_place=pasp['birth_place'],
-            scan=files[pasp['uploadFiles'][1]] if len(pasp['uploadFiles']) == 2 else ''                       
+            scan=pasp['scan']                     
         )
         db.add(passport_db_object)
         await db.commit()

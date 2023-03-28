@@ -170,6 +170,7 @@
                     </div>
                   </template>
                 </el-upload>
+                <el-button type="primary" v-if="account.passport_il.scan">Скан. паспорта</el-button>
               </el-col>
             </el-row>
             <el-row style="margin-top:1em;width: 98%">
