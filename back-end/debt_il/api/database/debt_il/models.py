@@ -160,6 +160,10 @@ class All_il(Base):
     @hybrid_property
     def sum_all_get(self):
         return sum(payments.sum for payments in self.payments_il)
+    
+    """@hybrid_property
+    def period(self):
+        return [self.start_exec_pross_date, self.end_exec_pross_date]"""
 
     #@sum_all_get.expression
     #def sum_all_get(cls):
@@ -169,7 +173,9 @@ class All_il(Base):
 
     @hybrid_property
     def sum_not_yet_get(self):
-        return self.debt_sum_il - self.sum_all_get
+        debt_sum = self.debt_sum_il if self.debt_sum_il else 0
+        all_get = self.sum_all_get if self.sum_all_get else 0
+        return debt_sum - all_get
 
 
 class IL_accounts(Base):

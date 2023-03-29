@@ -516,7 +516,7 @@ export default defineComponent ({
           console.log('error submit!', fields)
           //console.log('-<<<<', this.ruleForm)
         }
-  })
+    })
       const get_record = async () => {
       const record = await result
       console.log(record)

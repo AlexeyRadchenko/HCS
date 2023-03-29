@@ -11,20 +11,20 @@ from ..database.debt_il.schemas import ( AllILDataSchema, AccountILSchema, EgrnI
 from ..database.debt_il.crud import (
     get_all_il_data_list, get_all_fio_from_db, get_debt_il_egrn_docs_by_il_id, create_debt_il_egrn_doc_object, del_egrn_doc_by_id,
     get_il_list_by_il_number, create_payment_record_in_db, get_payments_history_by_il_id, get_all_il_data_list_by_edge_date,
-    create_debt_il_list_with_accounts
+    create_debt_il_list_with_accounts, update_debt_il_list_with_accounts
     )
 from ..database.debt_il.models import Egrn_il, Payments_il
 from ..security.access_depends import user_scope_authorize
 from ..database.database import get_async_session
 from ..settings.settings import settings
 from ..utils.utils import get_payer_uuid_or_fio, get_date_from_str, get_decimal_from_str
-from .depends import create_il_list_with_accounts
+from .depends import depends_create_il_list_with_accounts, depends_update_il_list_with_accounts
 
 router = APIRouter()
 
 
 @router.get("/il/all/data", response_model=List[AllILDataSchema])
-async def create_contact_address_handler(
+async def get_il_data_list(
     user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
@@ -32,7 +32,7 @@ async def create_contact_address_handler(
     return il_data_in_db
 
 @router.get("/il/{month_year}/data", response_model=List[AllILDataSchema])
-async def create_contact_address_handler(
+async def get_il_data_list_by_month_year(
     month_year: str,
     user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
@@ -43,7 +43,7 @@ async def create_contact_address_handler(
 
 @router.post("/il/all/create")
 async def create_il_list_with_accounts(
-    data: dict = Depends(create_il_list_with_accounts),
+    data: dict = Depends(depends_create_il_list_with_accounts),
     files: Optional[List[UploadFile]] = File(None),
     user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
@@ -70,6 +70,40 @@ async def create_il_list_with_accounts(
     print(data)
 
     await create_debt_il_list_with_accounts(db_session, data, f_paths)
+    print(data)
+    jdata = jsonable_encoder(data)
+    return JSONResponse(content=jdata)
+
+
+@router.post("/il/all/update")
+async def update_il_list_with_accounts(
+    data: dict = Depends(depends_update_il_list_with_accounts),
+    files: Optional[List[UploadFile]] = File(None),
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    f_paths = {}
+    if files:
+        for index, file in enumerate(files):
+            path_file = settings.FILE_STORAGE_PATH + '/accounts_il/passports/' + str(int(datetime.utcnow().timestamp())) + '__' +  file.filename
+            try:
+                with open(path_file, 'wb') as f:
+                    contents = 1
+                    while contents:
+                        contents = file.file.read(1024 * 1024)
+                        f.write(contents)
+                f_paths[file.filename]=path_file
+                data['accounts_il'][0]['passport_il']['scan'] = path_file       
+            except Exception as e:
+                print(e)
+                return {"message": "There was an error uploading the file(s)"}
+            finally:
+                file.file.close()
+
+    print(files)
+    print(data)
+
+    await update_debt_il_list_with_accounts(db_session, data, f_paths)
     print(data)
     jdata = jsonable_encoder(data)
     return JSONResponse(content=jdata)

@@ -152,7 +152,7 @@ import DeleteRecordDialog from './DeleteRecordDialog.vue'
 import EGRNDocsDialog from './EGRNDocsDialog.vue'
 import PaymentsUploadDialog from './PaymentsUploadDialog.vue'
 import PaymentsHistoryDialog from './PaymentsHistoryDialog.vue'
-import { toRaw } from 'vue'
+import { toRaw, reactive, toRef } from 'vue'
 
 export default {
   components: {
@@ -238,13 +238,18 @@ export default {
             squad_code: "",
             birth_date: "",
             birth_place: "",
-            scan: ""
+            scan: "",
+            uploadFiles: [],
           }
+        } else {
+          element.passport_il['uploadFiles'] = []
         }
       })
     
       this.$refs.updateRecordDialog.dialogVisible = true
-      this.$refs.updateRecordDialog.ruleForm = this.filterTableData[rowIndex]
+      this.$refs.updateRecordDialog.ruleForm = reactive(this.filterTableData[rowIndex])
+      this.$refs.updateRecordDialog.ruleFormRef = toRef(this.$refs.updateRecordDialog.ruleForm)
+      this.$refs.updateRecordDialog.rowIndex = rowIndex
     },
     egrnDocDialogCall (rowId, il_number) {
       this.$refs.egrnDocsDialog.dialogVisible = true
@@ -342,6 +347,7 @@ export default {
     let data = await debt_il_get_all_il_list()
     if (data) {
       data.forEach(element => {
+        element.period = [element.start_exec_pross_date, element.end_exec_pross_date]
         element.accounts_il.forEach(el => {
           if (!el.passport_il) {
             el.passport_il = {
@@ -353,7 +359,8 @@ export default {
               squad_code: "",
               birth_date: "",
               birth_place: "",
-              scan: ""
+              scan: "",
+              empty: true,
             }
           }
         })

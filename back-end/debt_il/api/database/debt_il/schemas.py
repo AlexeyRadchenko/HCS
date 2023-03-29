@@ -72,6 +72,7 @@ class AllILDataSchema(BaseModel):
     order_cancel: bool
     bailiff_forward_date: Optional[datetime]
     start_exec_pross_date: Optional[datetime]
+    end_exec_pross_date: Optional[datetime]
     sum_all_get: Optional[Decimal]
     sum_not_yet_get: Optional[Decimal]
     payments: Optional[Decimal]

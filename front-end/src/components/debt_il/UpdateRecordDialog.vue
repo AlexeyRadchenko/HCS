@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" title="Создать запись" width="80%" :close-on-click-modal="false" draggable>
+  <el-dialog v-model="dialogVisible" title="Изменить запись" width="80%" :close-on-click-modal="false" draggable>
     <el-form
       ref="ruleFormRef"
       :model="ruleForm"
@@ -158,18 +158,19 @@
             <el-row style="margin-top:1em;width: 870px;">
               <el-col :span="24">
                 <el-upload
-                  action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-                  class="upload-block"
-                  :limit="1"
-                  :data="{'record-index': index}"
-                >
-                  <el-button type="primary">Загрузить скан. паспорта</el-button>
-                  <template #tip>
-                    <div class="el-upload__tip">
-                      pdf файл размером не более 20 мб.
-                    </div>
-                  </template>
-                </el-upload>
+                action="#"
+                v-model:file-list="account.passport_il.uploadFiles"
+                class="upload-block"
+                :limit="1"
+                :auto-upload="false"
+              >
+                <el-button type="primary">Загрузить скан. паспорта</el-button>
+                <template #tip>
+                  <div class="el-upload__tip">
+                    pdf файл размером не более 20 мб.
+                  </div>
+                </template>
+              </el-upload>
                 <el-button type="primary" v-if="account.passport_il.scan">Скан. паспорта</el-button>
               </el-col>
             </el-row>
@@ -223,7 +224,7 @@
         <template #footer>
         <span class="dialog-footer">
             <el-button @click="dialogVisible = false">Отмена</el-button>
-            <el-button type="primary" @click="dialogVisible = false">
+            <el-button type="primary" @click="submitForm(ruleFormRef)">
             Сохранить
             </el-button>
         </span>
@@ -233,74 +234,158 @@
 
 <script>
 import { v4 as uuidv4 } from 'uuid'
-import { onMounted } from '@vue/runtime-core'
-import { debt_il_get_all_accounts_il_list } from '../../http/http-common'
+
+import { reactive, defineComponent, toRef, toRaw } from 'vue'
+import { debt_il_get_all_accounts_il_list, debt_il_update_list_with_accounts_data } from '../../http/http-common'
 //в onMound сгенерировать первый uuid в fuleForm.accounts_li.uuid
 export default {
-  expose: ['dialogVisible', 'ruleForm'],
+  expose: ['dialogVisible', 'ruleForm', 'ruleFormRef'],
   setup() {
+
+    let ruleFormRef = null
+    let ruleForm = null
+    /*const ruleForm = reactive({
+        id: '',
+        street: '',
+        house:'',
+        appartment: '',
+        one_or_parts: true,
+        property_self: true,
+        il_number: '',
+        il_date: '',
+        gov_tax: '',
+        sum_all_get: '',
+        sum_not_yet_get: '',
+        debt_sum_il: '',
+        start_exec_pross_date: '',
+        end_exec_pross_date: '',
+        period:[],
+        uk_org: '',
+        accounts_il: [
+          {
+            uuid: '',
+            account_number: '',
+            name: '',
+            second_name: '',
+            surname: '',
+            inn: '',
+            passport_il: {
+              id: 1,
+              seria: '',
+              number: '',
+              who_take: '',
+              when_take: '',
+              squad_code: '',
+              birth_date: '',
+              birth_place: '',
+              scan: '',
+              uploadFiles: [],
+              empty: true,
+            } 
+          }
+        ],
+      })*/
+
+    const rules = reactive({
+        street: [
+            { required: true, message: 'Пожалуйста выберите улицу', trigger: 'blur' },
+            //{ min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
+          ],
+        house: [
+            {
+              required: true,
+              message: 'Пожалуйста укажите номер дома',
+              trigger: 'change',
+            },
+          ],
+        appartment: [
+            {
+              required: true,
+              message: 'Пожалуйста укажите номер квартиры',
+              trigger: 'change',
+            },
+          ],
+        one_or_parts: [
+            {
+              required: true,
+              message: 'Пожалуйста выберите долю владения имуществом',
+              trigger: 'change',
+            },
+          ],
+        property_self: [
+            {
+              required: true,
+              message: 'Пожалуйста выберите тип имущества',
+              trigger: 'change',
+            },
+          ],
+        il_number: [
+            {
+              required: true,
+              message: 'Пожалуйста укажите номер исполнительного листа',
+              trigger: 'change',
+            },
+          ],
+        il_date: [
+            {
+              type: 'date',
+              required: true,
+              message: 'Пожалуйста укажите дату исполнительного листа',
+              trigger: 'change',
+            },
+          ],
+        period: [
+            {
+              type: 'array',
+              required: false,
+              message: 'Пожалуйста укажите период исполнительного производства',
+              trigger: 'change',
+            },
+        ],
+        gov_tax: [
+            {
+              required: true,
+              message: 'Пожалуйста укажите гос. пошлину',
+              trigger: 'change',
+            },
+        ],
+        debt_sum_il: [
+            {
+              required: true,
+              message: 'Пожалуйста укажите сумму задолженности',
+              trigger: 'change',
+            },
+        ],
+        accounts_il: [
+          {
+            type: 'array',
+            required: true,
+            defaultField: { 
+              
+            },
+          },
+        ],
+        uk_org: [
+            {
+              required: true,
+              message: 'Пожалуйста укажите упр. компанию',
+              trigger: 'change',
+            },
+        ],   
+    })
+    
+    //const ruleFormRef = toRef(ruleForm)
+    
+
+    return {
+      ruleFormRef,ruleForm, rules
+    }  
     
   },
   data() {
     return {
       dialogVisible: false,
       formSize: 'default',
-      ruleFormRef: {},
-      ruleForm: {},
-      rules: {
-        street: [
-          { required: true, message: 'Пожалуйста выберите улицу', trigger: 'blur' },
-          { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
-        ],
-        region: [
-          {
-            required: true,
-            message: 'Please select Activity zone',
-            trigger: 'change',
-          },
-        ],
-        count: [
-          {
-            required: true,
-            message: 'Please select Activity count',
-            trigger: 'change',
-          },
-        ],
-        date1: [
-          {
-            type: 'date',
-            required: true,
-            message: 'Please pick a date',
-            trigger: 'change',
-          },
-        ],
-        date2: [
-          {
-            type: 'date',
-            required: true,
-            message: 'Please pick a time',
-            trigger: 'change',
-          },
-        ],
-        type: [
-          {
-            type: 'array',
-            required: true,
-            message: 'Please select at least one activity type',
-            trigger: 'change',
-          },
-        ],
-        resource: [
-          {
-            required: true,
-            message: 'Please select activity resource',
-            trigger: 'change',
-          },
-        ],
-        desc: [
-          { required: true, message: 'Please input activity form', trigger: 'blur' },
-        ],
-      },
       options_street:[
         {
         value: '50 лет Победы',
@@ -394,18 +479,48 @@ export default {
       currentFIO: null,
       fioData:[],
       fioSearchinput: '',
+      rowIndex: null,
     }
   },
   methods:{
     async submitForm (formEl) {
-      if (!formEl) return
+
+      const get_record = async () => {
+      const record = await result
+      console.log(record)
+      this.$parent.tableData[this.rowIndex] = record
+      this.dialogVisible = false
+      }
+
+      let result = null
       await formEl.validate((valid, fields) => {
         if (valid) {
-          console.log('submit!')
+          //console.log('submit!', this.ruleForm)
+          let data = toRaw(this.ruleForm)
+          let formData = new FormData()     
+          Object.keys(data).forEach(key =>{
+            if (key === 'accounts_il') {
+              data[key].forEach((account, index) => {
+                console.log(account.passport_il.uploadFiles.length, account.passport_il.uploadFiles)  
+                if (account.passport_il.uploadFiles.length !=0) {
+                  //mutliple append in key @files@ create list file objects
+                  formData.append('files', account.passport_il.uploadFiles[0].raw,  account.passport_il.uploadFiles[0].name)
+                  account.passport_il.uploadFiles = account.passport_il.uploadFiles[0].name
+                }
+                formData.append('accounts_il', JSON.stringify(account))
+              })
+            }
+            formData.append(key, data[key])
+          })
+          //console.log('-------->', data)
+          //console.log('-------->', formData.values)
+          result = debt_il_update_list_with_accounts_data(formData)
+          get_record()
         } else {
           console.log('error submit!', fields)
+          //console.log('-<<<<', this.ruleForm)
         }
-      })
+      })    
     },
     resetForm (formEl) {
       if (!formEl) return
@@ -436,7 +551,8 @@ export default {
           squad_code: "",
           birth_date: "",
           birth_place: "",
-          scan: ""
+          scan: "",
+          uploadFiles: [],
         }  
       })
     },

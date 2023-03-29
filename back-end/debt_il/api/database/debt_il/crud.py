@@ -70,6 +70,74 @@ async def create_debt_il_list_with_accounts(db: AsyncSession, data: Any, files: 
         data['id'] = IL_list_db_object.id
     return data
 
+async def update_debt_il_list_with_accounts(db: AsyncSession, data: Any, files: dict):
+    period = [datetime.strptime(p, '%Y-%m-%d') for p in data['period'] if p != '' and p != ',']
+    accounts_created_objs = []
+    for account in data['accounts_il']:
+        pasp_resulti_in_db = None
+        pasp = account['passport_il']
+        if not pasp.get('empty'):
+            pasp_in_db = await db.execute(
+                select(
+                    Passport_il
+                )
+                .where(Passport_il.id == pasp['id'])
+            )
+            pasp_resulti_in_db = pasp_in_db.scalars()
+            if pasp_resulti_in_db:
+                await db.execute(
+                    update(Passport_il)\
+                    .where(Passport_il.id == pasp['id'])\
+                    .values(
+                        serial=pasp['seria'],
+                        number=pasp['number'],
+                        who_take=pasp['who_take'],
+                        date_take=datetime.strptime(pasp['when_take'], '%Y-%m-%d') if pasp['when_take'] else None,
+                        squad_code=pasp['squad_code'],
+                        birth_date=datetime.strptime(pasp['birth_date'], '%Y-%m-%d') if pasp['birth_date'] else None,
+                        birth_place=pasp['birth_place'],
+                        scan=pasp['scan']  
+                    )
+                )    
+                await db.commit()                     
+       
+        await db.execute(
+            update(Accounts_il)\
+            .where(Accounts_il.uuid == account['uuid'])\
+            .values(
+                account_number=account['account_number'],
+                name=account['name'],
+                second_name=account['second_name'],
+                surname=account['surname'],
+                inn=account['inn'],
+                passport=pasp_resulti_in_db.id if pasp_resulti_in_db else None
+            )
+        )    
+        await db.commit()
+
+    await db.execute(
+        update(All_il)\
+        .where(All_il.id == data['id'])\
+        .values(
+            street=data['street'],
+            house=data['house'],
+            appartment=data['appartment'],
+            one_or_parts=data['one_or_parts'],
+            property_self=data['property_self'],
+            il_number=data['il_number'],
+            il_date=datetime.strptime(data['il_date'][:9], '%Y-%m-%d'),
+            gov_tax=data['gov_tax'],
+            debt_sum_il=data['debt_sum_il'],
+            start_exec_pross_date=data['period'][0] if len(period) == 2 else None,
+            end_exec_pross_date=data['period'][1] if len(period) == 2 else None,
+            notes='',
+            organisation_id=data['uk_org'],
+        )
+    )    
+    await db.commit()
+
+    return data
+
 async def get_all_il_data_list(db: AsyncSession):
     result = await db.execute(
         select(
