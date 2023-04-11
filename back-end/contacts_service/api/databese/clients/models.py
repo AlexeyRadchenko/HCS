@@ -31,14 +31,14 @@ class ContactsAddresses(Base):
 class ContactsClientOrganisations(Base):
     __tablename__ = "client_organisations"
 
-    client_uuid = Column(Text(length=36), ForeignKey('clients.uuid'), primary_key=True) # for dev in sqlite
-    #client_uuid = Column(UUID(as_uuid=True), ForeignKey('clients.uuid'), primary_key=True) # for postresql
+    #client_uuid = Column(Text(length=36), ForeignKey('clients.uuid'), primary_key=True) # for dev in sqlite
+    client_uuid = Column(UUID(as_uuid=True), ForeignKey('clients.uuid'), primary_key=True) # for postresql
     org_id = Column(Integer, ForeignKey('organisations.id'), primary_key=True)    
 
 class ContactsClientsAddresses(Base):
     __tablename__ = "clients_addresses"
-    client_uuid = Column(Text(length=36), ForeignKey('clients.uuid'), primary_key=True) # for dev in sqlite
-    #client_uuid = Column(UUID(as_uuid=True), ForeignKey('clients.uuid'), primary_key=True) # for postresql
+    #client_uuid = Column(Text(length=36), ForeignKey('clients.uuid'), primary_key=True) # for dev in sqlite
+    client_uuid = Column(UUID(as_uuid=True), ForeignKey('clients.uuid'), primary_key=True) # for postresql
     address_id = Column(Integer, ForeignKey('addresses.id'), primary_key=True)
     full_owner = Column(Boolean, default=False)
     part_owner = Column(Boolean, default=False)
@@ -67,8 +67,8 @@ class ContactsPhones(Base):
     __tablename__ = "phones"
 
     id = Column(Integer, primary_key=True, index=True, nullable=False, autoincrement=True)
-    client_uuid = Column(Text(length=36), ForeignKey('clients.uuid'), nullable=True)
-    #client_uuid = Column(UUID(as_uuid=True), ForeignKey('clients.uuid'), nullable=True)
+    #client_uuid = Column(Text(length=36), ForeignKey('clients.uuid'), nullable=True)
+    client_uuid = Column(UUID(as_uuid=True), ForeignKey('clients.uuid'), nullable=True)
     home_phone = Column(String, nullable=False)
     work_phone = Column(String, nullable=False)
     mobile_phone = Column(String, nullable=False)    
@@ -91,8 +91,8 @@ class ContactsOrganisations(Base):
 class ContactsClients(Base):
     __tablename__ = "clients"
 
-    uuid = Column(Text(length=36), primary_key=True, default=lambda: str(uuid.uuid4())) # for dev in sqlite
-    #uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4) # for postresql
+    #uuid = Column(Text(length=36), primary_key=True, default=lambda: str(uuid.uuid4())) # for dev in sqlite
+    uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4) # for postresql
     name = Column(String, nullable=True)
     second_name = Column(String, nullable=True)
     surname = Column(String, nullable=True)

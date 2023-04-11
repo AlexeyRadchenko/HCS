@@ -38,6 +38,7 @@ class ManagementUserInDB(User):
 
     class Config:
         orm_mode = True
+        
 class AccountScopes(BaseModel):
     id: int
     scope_name: str

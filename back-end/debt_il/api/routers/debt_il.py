@@ -25,7 +25,7 @@ router = APIRouter()
 
 @router.get("/il/all/data", response_model=List[AllILDataSchema])
 async def get_il_data_list(
-    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE, settings.JURIST_GROUP_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
     il_data_in_db = await get_all_il_data_list(db_session)
@@ -34,7 +34,7 @@ async def get_il_data_list(
 @router.get("/il/{month_year}/data", response_model=List[AllILDataSchema])
 async def get_il_data_list_by_month_year(
     month_year: str,
-    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE, settings.JURIST_GROUP_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
     edge_date = datetime.strptime(month_year, '%Y-%m-%d')
@@ -45,7 +45,7 @@ async def get_il_data_list_by_month_year(
 async def create_il_list_with_accounts(
     data: dict = Depends(depends_create_il_list_with_accounts),
     files: Optional[List[UploadFile]] = File(None),
-    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE, settings.JURIST_GROUP_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
     f_paths = {}
@@ -79,7 +79,7 @@ async def create_il_list_with_accounts(
 async def update_il_list_with_accounts(
     data: dict = Depends(depends_update_il_list_with_accounts),
     files: Optional[List[UploadFile]] = File(None),
-    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE, settings.JURIST_GROUP_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
     f_paths = {}
@@ -111,14 +111,14 @@ async def update_il_list_with_accounts(
 @router.post("/il/accounts/passport/download")
 async def get_passport_scan(
     passportScanPath: PassportScanFileSchema,
-    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE, settings.JURIST_GROUP_SCOPE]),
     ):
     return FileResponse(path=passportScanPath.file_path)
 
 
 @router.get("/il/accounts/all/data", response_model=List[AccountILSchema])
 async def get_accounts_debt_il_handler(
-    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE, settings.JURIST_GROUP_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
     accounts_data_in_db = await get_all_fio_from_db(db_session)
@@ -133,7 +133,7 @@ async def upload(
     il_number:Optional[str] = Form(None),
     il_base_id:str = Form(...),
     file: UploadFile = File(...),
-    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE, settings.JURIST_GROUP_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
     path_file=None
@@ -169,7 +169,7 @@ async def upload(
 @router.delete("/il/egrn_il_doc/data/{egrn_doc_id}")
 async def delete_egrn_doc_by_id(
     egrn_doc_id: str,
-    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE, settings.JURIST_GROUP_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
     bool_result = await del_egrn_doc_by_id(db_session, int(egrn_doc_id))
@@ -182,7 +182,7 @@ async def delete_egrn_doc_by_id(
 @router.get("/il/egrn_il_doc/data/{il_id}", response_model=List[EgrnILSchema])
 async def get_egrn_il_docs_data_by_il_id(
     il_id: str,
-    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE, settings.JURIST_GROUP_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
     egrn_data_list = await get_debt_il_egrn_docs_by_il_id(db_session, int(il_id))
@@ -191,14 +191,14 @@ async def get_egrn_il_docs_data_by_il_id(
 @router.post("/il/egrn_il_doc/download/")
 async def get_egrn_doc_by_file_path(
     file: EGRNDocFileSchema,
-    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE, settings.JURIST_GROUP_SCOPE]),
     ):
     return FileResponse(path=file.file_path)
 
 @router.post("/il/payment_il_doc/data/upload")
 async def upload_payment_doc_data(
     data: PaymentUploadDataListSchema,   
-    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE, settings.JURIST_GROUP_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
 ):  
     broken_data = []
@@ -223,7 +223,7 @@ async def upload_payment_doc_data(
 @router.get("/il/payments_il_doc/data/{il_id}", response_model=List[PaymentsILSchema])
 async def get_payments_il_data_by_il_id(
     il_id: str,
-    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE]),
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_DEBT_IL_SCOPE, settings.JURIST_GROUP_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
     payments_history_in_db = await get_payments_history_by_il_id(db_session, int(il_id))

@@ -153,6 +153,7 @@ import EGRNDocsDialog from './EGRNDocsDialog.vue'
 import PaymentsUploadDialog from './PaymentsUploadDialog.vue'
 import PaymentsHistoryDialog from './PaymentsHistoryDialog.vue'
 import { toRaw, reactive, toRef } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 export default {
   components: {
@@ -345,7 +346,21 @@ export default {
     let currentMonthYear = moment().endOf('month').format('YYYY-MM-DD')
     this.reportMonthYear = currentMonthYear
     let data = await debt_il_get_all_il_list()
-    if (data) {
+    if (data === 401) {
+      ElMessageBox.alert('У Вас нет прав доступа', 'Ошибка', {
+      // if you want to disable its autofocus
+      // autofocus: false,
+      confirmButtonText: 'OK',
+      callback: (action) => {
+        /*ElMessage({
+            type: 'info',
+            message: `action: ${action}`,
+          })*/
+          this.$router.push({ path: '/services'})
+        },
+      })
+    }
+    if (data && data != 401) {
       data.forEach(element => {
         element.period = [element.start_exec_pross_date, element.end_exec_pross_date]
         element.accounts_il.forEach(el => {

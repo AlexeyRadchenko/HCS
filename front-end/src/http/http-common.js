@@ -163,7 +163,7 @@ export var debt_il_get_all_il_list = async function () {
       console.log('сервер не отвечает')
       return null
     } else {
-      return null
+      return e.response.status
     }
   })
 }
