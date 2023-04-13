@@ -141,17 +141,18 @@ async def upload(
         path_file = settings.DEBT_IL_UPLOAD_PATH + '/' + file.filename
     elif storage_path == 'egrn_il':
         path_file = settings.FILE_STORAGE_PATH + '/egrn/' + str(int(datetime.utcnow().timestamp())) + '__' + il_base_id + '_'  +  file.filename    
-        
-    try:
-        with open(path_file, 'wb') as f:
-            contents = 1
-            while contents:
-                contents = file.file.read(1024 * 1024)
-                f.write(contents)
-    except Exception:
-        return {"message": "There was an error uploading the file(s)"}
-    finally:
-        file.file.close()
+
+    if path_file:    
+        try:
+            with open(path_file, 'wb') as f:
+                contents = 1
+                while contents:
+                    contents = file.file.read(1024 * 1024)
+                    f.write(contents)
+        except Exception:
+            return {"message": "There was an error uploading the file(s)"}
+        finally:
+            file.file.close()
 
     if storage_path == 'egrn_il':
         egrn_doc_date_datetime = None

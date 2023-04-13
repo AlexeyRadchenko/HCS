@@ -3,7 +3,7 @@ from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import false, select, update, desc, cast, func, Integer, and_, insert, or_
 from sqlalchemy.orm import joinedload, selectinload, join, contains_eager
-from datetime import datetime
+from datetime import datetime, date
 
 from ..database import row2dict
 from .models import All_il, Accounts_il, Egrn_il, Payments_il, Passport_il, IL_accounts, Organisations_il
@@ -219,7 +219,7 @@ async def get_il_list_by_il_number(db: AsyncSession, il_number: str):
     return result.scalars().unique().all()
 
 async def create_payment_record_in_db(
-    db: AsyncSession, date: datetime, type: str, sum: Decimal, il_id: int, uuid: Optional[str]=None, fio: Optional[str]=None):
+    db: AsyncSession, date: date, type: str, sum: Decimal, il_id: int, uuid: Optional[str]=None, fio: Optional[str]=None):
     await db.execute(
         insert(Payments_il)
         .values(
