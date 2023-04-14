@@ -13,11 +13,21 @@ var setHeaders = function (axios_instance) {
   axios_instance.defaults.headers.common['Authorization'] = null
   axios_instance.defaults.headers.common['Content-Type'] = 'application/json'
 
-} 
+}
+
+let get_root_url = function(env_param, dev_root_url) {
+  if (env_param != 'production') {
+    return dev_root_url
+  }
+  else {
+    return import.meta.env.VITE_API_BASEURL
+  }
+}
 
 export var login = function(authStore, userFormData, loading, router) {
   var token = null
-  http.post(import.meta.env.VITE_API_USER_CONTROL_ROOT+'/api/v1/users_control_service/token', userFormData)
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_USER_CONTROL_ROOT) 
+  http.post(root_url + '/api/v1/users_control_service/token', userFormData)
     .then(response => {
       if (response.status == 200)
         token = response.data.access_token
@@ -43,7 +53,8 @@ export var login = function(authStore, userFormData, loading, router) {
 
 export var current_active_user = async function () {
     setHeaders(http)
-    return await http.get(import.meta.env.VITE_API_USER_CONTROL_ROOT+'/api/v1/users_control_service/management_users/me')
+    let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_USER_CONTROL_ROOT)
+    return await http.get(root_url + '/api/v1/users_control_service/management_users/me')
     .then(response => {
       if (response.status == 200)
         return response.data
@@ -60,7 +71,8 @@ export var current_active_user = async function () {
 
 export var get_addresses_house_street_by_org_id = async function(id) {
     setHeaders(http)
-    var api_url = import.meta.env.VITE_API_CONTACTS_ROOT+`/api/v1/contacts_service/organisation/${id}/addresses_house_street`
+    let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_CONTACTS_ROOT)
+    var api_url = root_url + `/api/v1/contacts_service/organisation/${id}/addresses_house_street`
     return await http.get(api_url)
     .then((response) => {
         if (response.status != 200)
@@ -77,7 +89,8 @@ export var get_addresses_house_street_by_org_id = async function(id) {
 
 export var get_contacts_list = async function() {
   setHeaders(http)
-  var api_url = import.meta.env.VITE_API_CONTACTS_ROOT+`/api/v1/contacts_service/contacts_users/contacts`
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_CONTACTS_ROOT)
+  var api_url = root_url+`/api/v1/contacts_service/contacts_users/contacts`
   return await http.get(api_url)
   .then((response) => {
       if (response.status != 200)
@@ -94,7 +107,8 @@ export var get_contacts_list = async function() {
 
 export var create_new_record_in_contacts = async function(formModalData) {
   setHeaders(http)
-  var api_url = import.meta.env.VITE_API_CONTACTS_ROOT+`/api/v1/contacts_service/contacts_users/create_contact`;
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_CONTACTS_ROOT)
+  var api_url = root_url+`/api/v1/contacts_service/contacts_users/create_contact`;
   return http.post(api_url, formModalData)
   .then((response) => {
       if (response.status != 200){
@@ -114,7 +128,8 @@ export var create_new_record_in_contacts = async function(formModalData) {
 
 export var update_record_in_contacts = async function(formModalData) {
   setHeaders(http)
-  var api_url = import.meta.env.VITE_API_CONTACTS_ROOT+`/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_CONTACTS_ROOT)
+  var api_url = root+`/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
   return http.put(api_url, formModalData)
   .then((response) => {
       if (response.status != 200){
@@ -133,7 +148,8 @@ export var update_record_in_contacts = async function(formModalData) {
 
 export var delete_record_in_contacts = async function(formModalData) {
   setHeaders(http)
-  var api_url = import.meta.env.VITE_API_CONTACTS_ROOT+`/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_CONTACTS_ROOT)
+  var api_url = root_url+`/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
   return http.delete(api_url, {data: {system_user: formModalData.get('system_user')}})
   .then((response) => {
       console.log(response.data, response.status)
@@ -153,7 +169,8 @@ export var delete_record_in_contacts = async function(formModalData) {
 
 export var debt_il_get_all_il_list = async function () {
   setHeaders(http)
-  return await http.get(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/all/data')
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_DEBT_IL_ROOT)
+  return await http.get(root_url+'/api/v1/debt_il_service/il/all/data')
   .then(response => {
     if (response.status == 200)
       return response.data
@@ -170,7 +187,8 @@ export var debt_il_get_all_il_list = async function () {
 
 export var debt_il_get_all_il_list_by_edge_date = async function (monthYear) {
   setHeaders(http)
-  return await http.get(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/' + monthYear + '/data')
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_DEBT_IL_ROOT)
+  return await http.get(root_url+'/api/v1/debt_il_service/il/' + monthYear + '/data')
   .then(response => {
     if (response.status == 200)
       return response.data
@@ -187,8 +205,9 @@ export var debt_il_get_all_il_list_by_edge_date = async function (monthYear) {
 
 export var debt_il_create_list_with_accounts_data = async function (data) {
   setHeaders(http)
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_DEBT_IL_ROOT)
   http.defaults.headers.common['Content-Type'] = `multipart/form-data`
-return await http.post(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/all/create/', data
+  return await http.post(root_url+'/api/v1/debt_il_service/il/all/create/', data
   )
   .then(response => {
     if (response.status == 200)
@@ -209,8 +228,9 @@ return await http.post(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_se
 
 export var debt_il_update_list_with_accounts_data = async function (data) {
   setHeaders(http)
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_DEBT_IL_ROOT)
   http.defaults.headers.common['Content-Type'] = `multipart/form-data`
-return await http.post(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/all/update/', data
+  return await http.post(root_url+'/api/v1/debt_il_service/il/all/update/', data
   )
   .then(response => {
     if (response.status == 200)
@@ -231,7 +251,8 @@ return await http.post(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_se
 
 export var debt_il_get_all_accounts_il_list = async function () {
   setHeaders(http)
-  return await http.get(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/accounts/all/data')
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_DEBT_IL_ROOT)
+  return await http.get(root_url+'/api/v1/debt_il_service/il/accounts/all/data')
   .then(response => {
     if (response.status == 200)
       return response.data
@@ -249,7 +270,8 @@ export var debt_il_get_all_accounts_il_list = async function () {
 
 export var debt_il_get_egrn_docs_by_id_il = async function (il_id) {
   setHeaders(http)
-  return await http.get(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/egrn_il_doc/data/' + il_id)
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_DEBT_IL_ROOT)
+  return await http.get(root_url+'/api/v1/debt_il_service/il/egrn_il_doc/data/' + il_id)
   .then(response => {
     if (response.status == 200)
       return response.data
@@ -266,7 +288,8 @@ export var debt_il_get_egrn_docs_by_id_il = async function (il_id) {
 
 export var debt_il_del_egrn_docs_by_egrn_doc_id = async function (egrn_doc_id) {
   setHeaders(http)
-  return await http.delete(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/egrn_il_doc/data/' + egrn_doc_id)
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_DEBT_IL_ROOT)
+  return await http.delete(root_url+'/api/v1/debt_il_service/il/egrn_il_doc/data/' + egrn_doc_id)
   .then(response => {
     if (response.status == 200)
       return response.data
@@ -285,7 +308,8 @@ export var debt_il_del_egrn_docs_by_egrn_doc_id = async function (egrn_doc_id) {
 export var debt_il_download_egrn_docs_by_file_path = async function (file_path, file_name) {
   setHeaders(http)
   let data = { file_name: file_name, file_path: file_path }
-  return await http.post(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/egrn_il_doc/download/', data, {responseType: 'blob' })
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_DEBT_IL_ROOT)
+  return await http.post(root_url+'/api/v1/debt_il_service/il/egrn_il_doc/download/', data, {responseType: 'blob' })
   .then(response => {
     if (response.status == 200)
       {
@@ -305,7 +329,8 @@ export var debt_il_download_egrn_docs_by_file_path = async function (file_path, 
 export var debt_il_download_account_passport_scan_by_file_path = async function (file_path, file_name) {
   setHeaders(http)
   let data = { file_name: file_name, file_path: file_path }
-  return await http.post(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/accounts/passport/download', data, {responseType: 'blob' })
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_DEBT_IL_ROOT)
+  return await http.post(root_url+'/api/v1/debt_il_service/il/accounts/passport/download', data, {responseType: 'blob' })
   .then(response => {
     if (response.status == 200)
       {
@@ -324,7 +349,8 @@ export var debt_il_download_account_passport_scan_by_file_path = async function 
 
 export var debt_il_payment_data_upload = async function (data_list) {
   setHeaders(http)
-  return await http.post(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/payment_il_doc/data/upload', { data: data_list })
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_DEBT_IL_ROOT)
+  return await http.post(root_url+'/api/v1/debt_il_service/il/payment_il_doc/data/upload', { data: data_list })
   .then(response => {
     if (response.status == 200)
       return response.data
@@ -341,7 +367,8 @@ export var debt_il_payment_data_upload = async function (data_list) {
 
 export var debt_il_get_payments_il_by_id_il = async function (il_id) {
   setHeaders(http)
-  return await http.get(import.meta.env.VITE_API_DEBT_IL_ROOT+'/api/v1/debt_il_service/il/payments_il_doc/data/' + il_id)
+  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_DEBT_IL_ROOT)
+  return await http.get(root_url+'/api/v1/debt_il_service/il/payments_il_doc/data/' + il_id)
   .then(response => {
     if (response.status == 200)
       return response.data
