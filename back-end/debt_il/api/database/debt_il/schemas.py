@@ -77,7 +77,7 @@ class AllILDataSchema(BaseModel):
     sum_not_yet_get: Optional[Decimal]
     payments: Optional[Decimal]
     payments_il: Optional[List[PaymentsILSchema]]
-    debt_sum: Optional[Decimal]
+    debt_sum_il: Optional[Decimal]
     notes: Optional[str]
 
     class Config:

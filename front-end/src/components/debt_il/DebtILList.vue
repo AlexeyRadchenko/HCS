@@ -94,7 +94,7 @@
               </el-table-column>  
               <el-table-column prop="start_exec_pross_date" :formatter="dateCellFormatter" label="Дата исп./произиводства" width="120" align="center" />
               <el-table-column prop="gov_tax" :formatter="decimalCellFormatter" label="Сумма госпошлины" width="120" align="center" />
-              <el-table-column prop="debt_sum" :formatter="decimalCellFormatter" label="Сумма долга" width="120" align="center" />
+              <el-table-column prop="debt_sum_il" :formatter="decimalCellFormatter" label="Сумма долга" width="120" align="center" />
               <el-table-column prop="sum_all_get" :formatter="decimalCellFormatter" label="Взысканная сумма" width="120" align="center" />
               <el-table-column prop="sum_not_yet_get" :formatter="decimalCellFormatter" label="Остаток задолженности" width="120" />
               <el-table-column label="Передано юристу" width="130" align="center">
@@ -216,6 +216,7 @@ export default {
         return 'Передать'
     },
     addressSort (a, b) {
+
       let adr1 = a.street + ' ' + a.house + ' - ' + a.appartment
       let adr2 = b.street + ' ' + b.house + ' - ' + b.appartment
       let sortded = [adr1, adr2].sort()
