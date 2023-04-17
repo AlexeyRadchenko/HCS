@@ -22,6 +22,8 @@ class Settings(BaseModel):
     DEBT_IL_UPLOAD_PATH: str
     FILE_STORAGE_PATH: str
     JURIST_GROUP_SCOPE: str
+    DEBT_IL_EGRN_UPLOAD_PATH: str
+    DEBT_IL_ACCOUNTS_PASSPORT_UPLOAD_PATH: str
 
 with open(f"{PATH}/{API_CONFIG_FILE}", "r") as stream:
     try:

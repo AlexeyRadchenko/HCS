@@ -51,7 +51,7 @@ async def create_il_list_with_accounts(
     f_paths = {}
     if files:
         for index, file in enumerate(files):
-            path_file = settings.FILE_STORAGE_PATH + '/accounts_il/passports/' + str(int(datetime.utcnow().timestamp())) + '__' +  file.filename
+            path_file = settings.DEBT_IL_ACCOUNTS_PASSPORT_UPLOAD_PATH + str(int(datetime.utcnow().timestamp())) + '__' +  file.filename
             try:
                 with open(path_file, 'wb') as f:
                     contents = 1
@@ -85,7 +85,7 @@ async def update_il_list_with_accounts(
     f_paths = {}
     if files:
         for index, file in enumerate(files):
-            path_file = settings.FILE_STORAGE_PATH + '/accounts_il/passports/' + str(int(datetime.utcnow().timestamp())) + '__' +  file.filename
+            path_file = settings.DEBT_IL_ACCOUNTS_PASSPORT_UPLOAD_PATH + str(int(datetime.utcnow().timestamp())) + '__' +  file.filename
             try:
                 with open(path_file, 'wb') as f:
                     contents = 1
@@ -138,9 +138,9 @@ async def upload(
     ):
     path_file=None
     if storage_path == 'payments_il':
-        path_file = settings.DEBT_IL_UPLOAD_PATH + '/' + file.filename
+        path_file = settings.DEBT_IL_UPLOAD_PATH + file.filename
     elif storage_path == 'egrn_il':
-        path_file = settings.FILE_STORAGE_PATH + '/egrn/' + str(int(datetime.utcnow().timestamp())) + '__' + il_base_id + '_'  +  file.filename    
+        path_file = settings.DEBT_IL_EGRN_UPLOAD_PATH + str(int(datetime.utcnow().timestamp())) + '__' + il_base_id + '_'  +  file.filename    
 
     if path_file:    
         try:

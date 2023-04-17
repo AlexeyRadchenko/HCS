@@ -22,5 +22,6 @@ MANAGEMENT_DEBT_IL_SCOPE: management_debt_il
 JURIST_GROUP_SCOPE: jurist_debt_il
 
 # Debt Il path for upload payments files
-DEBT_IL_UPLOAD_PATH: '/home/bers/Projects/filestorage/payments'
-FILE_STORAGE_PATH: '/home/bers/Projects/filestorage'
+DEBT_IL_UPLOAD_PATH: '/home/serveradm/HCS/filestorage/payments/'
+DEBT_IL_EGRN_UPLOAD_PATH: '/home/serveradm/HCS/filestorage/payments/egrn/'
+DEBT_IL_ACCOUNTS_PASSPORT_UPLOAD_PATH: '/home/serveradm/HCS/filestorage/accounts_il/passports/'
