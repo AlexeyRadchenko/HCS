@@ -121,7 +121,8 @@ class ContactsEditJournal(Base):
     __tablename__ = "edit_journal"
     
     id = Column(Integer, primary_key=True, index=True, nullable=False, autoincrement=True)
-    client_uuid = Column(Text(length=36), ForeignKey('clients.uuid'), nullable=False)
+    #client_uuid = Column(Text(length=36), ForeignKey('clients.uuid'), nullable=False)
+    client_uuid = Column(UUID(as_uuid=True), ForeignKey('clients.uuid'), nullable=False)
     date_create = Column(DateTime, nullable=False, server_default=func.now())
     date_update = Column(DateTime, nullable=True, onupdate=func.now())
     date_delete = Column(DateTime, nullable=True)
