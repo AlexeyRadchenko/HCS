@@ -23,5 +23,13 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  usePolling: true
+  usePolling: true,
+  server: {
+    hmr: {
+        host: 'localhost',
+    },
+    watch: {
+      usePolling: true, // Enable polling for file changes
+    },
+  },
 })

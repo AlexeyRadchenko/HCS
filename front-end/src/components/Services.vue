@@ -26,13 +26,13 @@
         </div>
       </el-col>
       <el-col :span="4">
-        <div class="items">
-          <router-link to="/management_accounts">
+        <div class="items mkd">
+          <router-link to="/mkd_services">
             <div class="icon-wrapper">
               <font-awesome-icon :icon="['fas', 'address-card']" size="7x" />
             </div>
             <div class="project-name">
-              <p>COLLECTIONS</p>
+              <p>ОКАЗАННЫЕ УСЛУГИ (РАБОТЫ ПО МКД)</p>
             </div>
           </router-link>  
       </div>  
@@ -160,5 +160,9 @@ nav li:hover,
    background-color: indianred;
    cursor: pointer;
    text-decoration: none;
+ }
+
+ .mkd {
+  grid-template-rows: 7fr 1fr;
  }
 </style>

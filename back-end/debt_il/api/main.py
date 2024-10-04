@@ -4,9 +4,9 @@ from .routers import debt_il
 
 
 app = FastAPI(
-    servers=[ 
+    """servers=[ 
         {"url": "https://komfort-trg.fvds.ru", "description": "Production environment"},
-    ], 
+    ],"""
     title='Debt IL service API',
     docs_url='/api/v1/debt_il_service/docs', 
     redoc_url='/api/v1/debt_il_service/redoc',
@@ -24,7 +24,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
+)               
 
 @app.get("/")
 async def root():
