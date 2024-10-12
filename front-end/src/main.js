@@ -7,11 +7,15 @@ import { faMoneyCheck, faAddressCard, faUserCheck, faBars, faAngleDown, faBook, 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import 'element-plus/theme-chalk/display.css'
 import 'element-plus/dist/index.css'
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import VueTheMask from 'vue-the-mask'
+import ru from 'element-plus/es/locale/lang/ru'
+import 'dayjs/locale/ru'
 
 import App from './App.vue'
 import router from './router'
 import { lib } from 'crypto-js'
+import { locale } from 'dayjs'
 
 library.add(faAddressCard, faMoneyCheck, faUserCheck,
       faBars, faAngleDown, faBook, faUser, faHouseUser, 
@@ -21,7 +25,7 @@ library.add(faAddressCard, faMoneyCheck, faUserCheck,
 
 const app = createApp(App)
 app.component("font-awesome-icon", FontAwesomeIcon)
-app.use(ElementPlus)
+app.use(ElementPlus, {locale: ru,})
 app.use(createPinia())
 app.use(router)
 app.use(VueTheMask)

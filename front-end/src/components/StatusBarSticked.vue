@@ -30,6 +30,7 @@
                         </div>
                         <template #dropdown>
                         <el-dropdown-menu>
+                            <el-dropdown-item @click="toggleDark()">{{ isDark ? 'Светлая тема' : 'Тёмная тема' }}</el-dropdown-item>
                             <el-dropdown-item @click="exit">Выход</el-dropdown-item>
                         </el-dropdown-menu>
                         </template>
@@ -94,12 +95,16 @@
 <script>
 import { defineComponent } from 'vue'
 import { useAuthStore } from '../storage/auth';
+import { useDark, useToggle } from '@vueuse/core'
+
+
 
 export default defineComponent({
     setup() {
         const authStore = useAuthStore()
-
-        return { authStore }
+        const isDark = useDark()
+        const toggleDark = useToggle(isDark)
+        return { authStore, isDark, toggleDark }
     },
     data () {
         return {

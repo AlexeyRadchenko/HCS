@@ -3,7 +3,7 @@
         <el-container >
             <el-header>
                 <el-row>
-                    <el-col :span="8"><div class="service-title"><h1>{{ serviceTitle }}</h1></div></el-col>  
+                    <el-col :span="8"><div class="service-title"><el-text><h1>{{ serviceTitle }}</h1></el-text></div></el-col>  
                     <el-col :span="12"><div></div></el-col>
                     <el-col :span="4"><div class="all-works-btn-wrapper"><el-button type="primary" @click="dialogTypeOfWorksTableVisibleMain = true">Виды работ</el-button></div></el-col>
                 </el-row>  
@@ -36,6 +36,7 @@
                       <WorksRegester
                        :selected-house-id="selectedHouseId"
                        :selected-company-id="selectedCompanyId"
+                       :selected-house-name="getSelectedHouse"
                         />
                     </el-col>
                   </el-row>
@@ -57,8 +58,8 @@ import WorksRegester from './WorksRegester.vue';
 const message = ref('Привет, Vue 3!');
 const serviceTitle = ref('Оказанные услуги (работы по МКД)')
 const dialogTypeOfWorksTableVisibleMain = ref(false)
-const selectedHouseId = ref('')
-const selectedCompanyId = ref('')
+const selectedHouseId = ref('1')
+const selectedCompanyId = ref('1')
 
 // Логика для компонента
 const count = ref(0);
@@ -67,6 +68,9 @@ const houses_komf = ref([
   {id: '2', house: '60 лет Октября - 10'},
   {id: '3', house: 'Володина -12'}
 ])
+const getSelectedHouse = computed(() => {
+  return houses_komf.value.find(house => house.id === selectedHouseId.value)?.house
+})
 const gridData = [
 {
   date: '2016-05-02',
