@@ -123,10 +123,73 @@
                         clearable
                       />
                     </el-col>
+                    <el-col :span="3" class="mkd-works-left-margin-col">
+                      <el-button type="primary" style="width: 100%; margin-top: 1em;">Сохранить</el-button>
+                    </el-col>
                 </el-row>
                 <el-row>
-                  <el-col :span="10">
-                    Поля для выбора работ, периодичности, количества ел, стоимости, цена
+                  <el-col :span="24">
+                    <el-table :data="tableData" style="width: 100%" max-height="450">
+                      <el-table-column label="№ П/П" width="90">
+                        <template #default="scope">
+                          <el-input v-model="scope.row.orderNum" style="width: 100%"/>
+                        </template>
+                      </el-table-column>
+                      <el-table-column  label="Наименование вида работы (услуги)" width="420">
+                        <template #default="scope">
+                          <el-select-v2
+                            v-model="scope.row.nameWorkOrService"
+                            :options="works"
+                            placeholder="Выберите работу услугу"
+                            style="width: 100%"
+                            filterable
+                            clearable
+                          />
+                        </template>
+                      </el-table-column>  
+                      <el-table-column label="Периодичость" width="200">
+                        <template #default="scope">
+                          <el-select-v2
+                            v-model="scope.row.period"
+                            :options="periods"
+                            placeholder="Периодичность"
+                            style="width: 100%"
+                            filterable
+                            clearable
+                          />
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="Кол-во единиц измерений" width="120">
+                        <template #default="scope">
+                          <el-input v-model="scope.row.quantity" style="width: 100%"/>
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="Стоимость оказанной услуги за единицу, руб/м2" width="130">
+                        <template #default="scope">
+                          <el-input v-model="scope.row.costOfPart" style="width: 100%"/>
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="Цена выполненной работы (оказанной услуги) в рублях" width="170">
+                        <template #default="scope">
+                          <el-input v-model="scope.row.Sum" style="width: 100%"/>
+                        </template>
+                      </el-table-column>
+                      <el-table-column fixed="right" label="Строка" min-width="35">
+                        <template #default="scope">
+                          <el-button
+                            link
+                            type="danger"
+                            size="small"
+                            @click.prevent="deleteRow(scope.$index)"
+                          >
+                            Remove
+                          </el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                    <el-button class="mt-4" style="width: 100%" @click="onAddItem">
+                      Add Item
+                    </el-button>
                   </el-col>
                 </el-row>
             </main>  
@@ -139,6 +202,8 @@
 // Импортируйте необходимые функции, если нужно
 import { ref, reactive, computed, onMounted, watch, defineModel, toRaw, defineProps } from 'vue';
 import { genFileId } from 'element-plus'
+import dayjs from 'dayjs'
+
 
 const props = defineProps({
     houseId: String,
@@ -159,6 +224,19 @@ const actInputData = ref({
 })
 const inputSmetaNum = ref('')
 const inputActNum = ref('')
+const worksNames = ['JDkjfglasfld', 'adsasdasdads', 'KGFgkl;ldskfgldkfgdfgsdfsdfsdfgsfgdfgdlbkjdlbgkjdlkhbgjdlkfjgldkfjg', 'fsjkgvlskgjldsfk', 'e', 'f', 'g', 'h', 'i', 'j']
+const periodsNames = ['постоянно', '6 месяцев', 'согласно санитарным нормам',]
+
+const works = Array.from({ length: worksNames.length}).map((_, idx) => ({
+  value: `Option ${idx + 1}`,
+  label: worksNames[idx],
+}))
+
+const periods = Array.from({ length: periodsNames.length}).map((_, idx) => ({
+  value: `Option ${idx + 1}`,
+  label: periodsNames[idx],
+}))
+
 
 const handleExceedSmeta = (files) => { 
   if (uploadSmeta.value) {
@@ -194,6 +272,32 @@ const submitUploadAct = () => {
   if (uploadAct.value) {
     uploadAct.value.submit()
   }
+}
+
+const tableData = ref([
+  {
+    orderNum: '1',
+    nameWorkOrService: 'Tom',
+    period: 'California',
+    quantity: 'Los Angeles',
+    costOfPart: 'No. 189, Grove St, Los Angeles',
+    Sum: 'CA 90036',
+  },
+])
+
+const deleteRow = (index) => {
+  tableData.value.splice(index, 1)
+}
+
+const onAddItem = () => {
+  tableData.value.push({
+    orderNum: '1',
+    nameWorkOrService: 'Tom',
+    period: 'California',
+    quantity: 'Los Angeles',
+    costOfPart: 'No. 189, Grove St, Los Angeles',
+    Sum: 'CA 90036',
+  })
 }
 
 onMounted(() => {

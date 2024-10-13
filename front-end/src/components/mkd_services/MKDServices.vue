@@ -4,8 +4,9 @@
             <el-header>
                 <el-row>
                     <el-col :span="8"><div class="service-title"><el-text><h1>{{ serviceTitle }}</h1></el-text></div></el-col>  
-                    <el-col :span="12"><div></div></el-col>
-                    <el-col :span="4"><div class="all-works-btn-wrapper"><el-button type="primary" @click="dialogTypeOfWorksTableVisibleMain = true">Виды работ</el-button></div></el-col>
+                    <el-col :span="11"><div></div></el-col>
+                    <el-col :span="3"><div class="all-works-regestry-btn-wrapper"><el-button type="primary" @click="dialogWorksRegistryMain = true">Реестр актов формы КС-2</el-button></div></el-col>
+                    <el-col :span="2"><div class="all-works-btn-wrapper"><el-button type="primary" @click="dialogTypeOfWorksTableVisibleMain = true">Виды работ</el-button></div></el-col>
                 </el-row>  
             </el-header>
             <el-container>
@@ -44,6 +45,7 @@
               </el-main>
             </el-container>
         </el-container>
+        <MKDAllWorksRegestry v-model:dialogAllWorksRegisterVisibleSub="dialogWorksRegistryMain" />
         <WorkTypesModal v-model:dialogTypeOfWorksTableVisibleSub="dialogTypeOfWorksTableVisibleMain" />
     </div>
   </template>
@@ -53,11 +55,13 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import WorkTypesModal from './modal/WorkTypesModal.vue';
 import WorksRegester from './WorksRegester.vue';
+import MKDAllWorksRegestry from './modal/MKDAllWorksRegestry.vue';
 
 // Создайте реактивные переменные
 const message = ref('Привет, Vue 3!');
 const serviceTitle = ref('Оказанные услуги (работы по МКД)')
 const dialogTypeOfWorksTableVisibleMain = ref(false)
+const dialogWorksRegistryMain = ref(false)
 const selectedHouseId = ref('1')
 const selectedCompanyId = ref('1')
 
@@ -129,6 +133,10 @@ onMounted(() => {
 }
 
 .all-works-btn-wrapper{
+  padding-top: 0.8em;
+  text-align: right;
+}
+.all-works-regestry-btn-wrapper {
   padding-top: 0.8em;
   text-align: right;
 }
