@@ -1,27 +1,19 @@
 <template>
     <div class="mkd-services-work-types-wrapper-conteiner">
         <el-dialog v-model="dialogTypeOfWorksTableVisibleSub" title="Реестры работ" width="1250">
-          <el-tabs type="border-card">
-            <el-tab-pane label="Сантехнические работы">
-              <h1>Сантехнические работы</h1>
-              <el-table :data="tableData " :span-method="spanMethod">
-                <el-table-column prop="work" label="Перечень услуг и работ по содержанию и текущему ремонту общего имущества в многоквартирном доме" width="350">
-                  <template #default="scope">
-                    <div style="display: flex; align-items: center">
-                      <span style="color: blueviolet" v-if="scope.row.type != 'fix'">{{ scope.row.work }}</span>
-                      <span style="color: red" v-else="scope.row.type">{{ scope.row.work }}</span>
-                    </div>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="workInclude" label="Cостав работ" width="525" />
-                <el-table-column prop="period" label="Периодичность выполнения работ" width="125" />
-                <el-table-column prop="base" label="Обоснование" width="200" />
-              </el-table>
-            </el-tab-pane>
-            <el-tab-pane label="Электромонтажные работы">Config</el-tab-pane>
-            <el-tab-pane label="Общестроительные работы">Role</el-tab-pane>
-            <el-tab-pane label="Дератизация и дезинсекция">Task</el-tab-pane>
-          </el-tabs>
+          <el-table :data="tableData " :span-method="spanMethod">
+            <el-table-column prop="work" label="Перечень услуг и работ по содержанию и текущему ремонту общего имущества в многоквартирном доме" width="350">
+              <template #default="scope">
+                <div style="display: flex; align-items: center">
+                  <span style="color: blueviolet" v-if="scope.row.type != 'fix'">{{ scope.row.work }}</span>
+                  <span style="color: red" v-else="scope.row.type">{{ scope.row.work }}</span>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="workInclude" label="Cостав работ" width="525" />
+            <el-table-column prop="period" label="Периодичность выполнения работ" width="125" />
+            <el-table-column prop="base" label="Обоснование" width="200" />
+          </el-table>
         </el-dialog>
     </div>
 </template>

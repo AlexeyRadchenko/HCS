@@ -1,9 +1,10 @@
 <template>
     <div class="mkd-services-works-regester-wrapper-conteiner">
       <el-text class="mx-1" size="large">{{ selectedCompanyId }} - {{ selectedHouseId }}</el-text>
-      <el-table :data="tableData" style="width: 100%" max-height="250">
+      <el-table :data="tableData" style="width: 100%" max-height="900">
         <el-table-column fixed prop="numOrder" label="№" width="50" />
         <el-table-column prop="worksType" label="Вид работ" width="500" />
+        <el-table-column prop="smeta.date" label="Дата сметы" width="100" />
         <el-table-column prop="numSmeta" label="№ Сметы / Файл" width="140">
           <template #default="scope">
             <div style="display: flex; align-items: center">
@@ -12,6 +13,7 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column prop="akt.date" label="Дата акта" width="100" />
         <el-table-column prop="akt" label="№ Акта / Файл" width="140">
           <template #default="scope">
             <div style="display: flex; align-items: center">
@@ -62,22 +64,22 @@ const tableData = ref([
   {
     numOrder: 1,
     worksType: 'Tom',
-    smeta: {num:'12/123', fileUrl: 'urlFile'},
-    akt: {num:'12/123', fileUrl: 'urlFile'},
+    smeta: {num:'12/123', fileUrl: 'urlFile', date: '01.01.2024'},
+    akt: {num:'12/123', fileUrl: 'urlFile', date: '01.02.2024'},
     sumNow: 'Los Angeles',
   },
   {
     numOrder: 2,
     worksType: 'Tom',
-    smeta: {num:'12/123', fileUrl: 'urlFile'},
-    akt: {num:'12/123', fileUrl: 'urlFile'},
+    smeta: {num:'12/123', fileUrl: 'urlFile', date: '01.01.2024'},
+    akt: {num:'12/123', fileUrl: 'urlFile', date: '01.02.2024'},
     sumNow: 'Los Angeles',
   },
   {
     numOrder: 3,
     worksType: 'Tom',
-    smeta: {num:'12/123', fileUrl: 'urlFile'},
-    akt: {num:'12/123', fileUrl: 'urlFile'},
+    smeta: {num:'12/123', fileUrl: 'urlFile', date: '01.01.2024'},
+    akt: {num:'12/123', fileUrl: 'urlFile', date: '01.02.2024'},
     sumNow: 'Los Angeles',
   },
 ])

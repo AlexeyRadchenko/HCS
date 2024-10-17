@@ -34,11 +34,29 @@
               <el-main>
                   <el-row>
                     <el-col :span="24">
-                      <WorksRegester
-                       :selected-house-id="selectedHouseId"
-                       :selected-company-id="selectedCompanyId"
-                       :selected-house-name="getSelectedHouse"
-                        />
+                      <el-tabs type="border-card">
+                        <el-tab-pane label="Акты выполненных работ">
+                          <WorksRegester
+                          :selected-house-id="selectedHouseId"
+                          :selected-company-id="selectedCompanyId"
+                          :selected-house-name="getSelectedHouse"
+                            />
+                        </el-tab-pane>
+                        <el-tab-pane label="Годовые акты выполенных работ">
+                          <MKDYearWorksActs
+                          :selected-house-id="selectedHouseId"
+                          :selected-company-id="selectedCompanyId"
+                          :selected-house-name="getSelectedHouse"
+                            />
+                        </el-tab-pane>
+                        <el-tab-pane label="Тех. Документация">
+                          <MKDTechnicDocs
+                          :selected-house-id="selectedHouseId"
+                          :selected-company-id="selectedCompanyId"
+                          :selected-house-name="getSelectedHouse"
+                            />
+                        </el-tab-pane>
+                      </el-tabs>     
                     </el-col>
                   </el-row>
                   <el-row></el-row>
@@ -56,7 +74,9 @@ import { ref, reactive, computed, onMounted } from 'vue';
 import WorkTypesModal from './modal/WorkTypesModal.vue';
 import WorksRegester from './WorksRegester.vue';
 import MKDAllWorksRegestry from './modal/MKDAllWorksRegestry.vue';
-
+import MKDYearWorksActs from './MKDYearWorksActs.vue';
+import MKDTechnicDocs from './MKDTechnicDocs.vue';
+import { get_mkd_works_all_data } from '../../http/mkd-works-http-common';
 // Создайте реактивные переменные
 const message = ref('Привет, Vue 3!');
 const serviceTitle = ref('Оказанные услуги (работы по МКД)')
@@ -112,6 +132,12 @@ const handleMenuItemClick = (item) => {
 }
 onMounted(() => {
   console.log('Компонент был смонтирован!');
+  get_mkd_works_all_data().then((response) => {
+    console.log('Data:', response.data);
+  }).catch((error) => {
+    console.error('Error:', error);
+  });
+
 });
 </script>
 
@@ -122,6 +148,7 @@ onMounted(() => {
   /*padding-top: 0.8em;*/
   /*background-color: burlywood;*/
   margin: 1em 2em;
+  min-height: 53em;
 }
 .service-title {
   padding-top: 0.8em;

@@ -4,7 +4,7 @@
         <el-dialog v-model="dialogMKDWorksAddVisibleSub" :title="'Добавление/Редактирование сведений о работах по МКД '+ props.houseName" width="1250">
           <el-container>
             <main style="width: 100%;">
-                <el-row>   
+                <el-row :gutter="20">   
                     <el-col :span="12">
                         <el-text class="mx-1" size="large">Приложить файл сметы</el-text>
                     </el-col>
@@ -12,16 +12,26 @@
                         <el-text class="mx-1" size="large">Сведения для составления акта</el-text>
                     </el-col>
                 </el-row>
-                <el-row class="file-inout-row-cl">
-                    <el-col :span="4">
+                <el-row class="file-inout-row-cl" :gutter="20">
+                    <el-col :span="3">
                       <el-input
                         v-model="inputSmetaNum"
-                        style="width: 12em"
-                        placeholder="Введите номер сметы"
+                        style="width: 100%"
+                        placeholder="Номер сметы"
                         clearable
                       />
                     </el-col>
-                    <el-col :span="7">
+                    <el-col :span="3">
+                      <el-date-picker
+                        v-model="actInputData.actDate"
+                        type="date"
+                        format="DD.MM.YYYY"
+                        placeholder="Дата сметы"
+                        :size="size"
+                        style="width: 100%"
+                      />
+                    </el-col>
+                    <el-col :span="5">
                         <el-upload
                             ref="uploadSmeta"
                             action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
@@ -33,7 +43,7 @@
                             <el-button type="primary">select file</el-button>
                             </template>
                             <el-button style="margin-left: 1em;" type="success" @click="submitUploadSmeta">
-                            upload to server
+                            Загрузить
                             </el-button>
                             <template #tip>
                             <div class="el-upload__tip text-red">
@@ -50,7 +60,7 @@
                         clearable
                       />
                     </el-col>
-                    <el-col :span="3" class="mkd-works-left-margin-col">
+                    <el-col :span="3">
                       <el-input
                         v-model="actInputData.directorAppartNum"
                         style="width: 100%"
@@ -59,7 +69,7 @@
                       />
                     </el-col>
                 </el-row>
-                <el-row>   
+                <el-row :gutter="20">   
                     <el-col :span="11">
                         <el-text class="mx-1" size="large">Приложить файл акта</el-text>
                     </el-col>
@@ -73,7 +83,7 @@
                         style="width: 100%"
                       />
                     </el-col>
-                    <el-col :span="7" class="mkd-works-left-margin-col">
+                    <el-col :span="7">
                       <el-date-picker
                         v-model="actInputData.actPeriod"
                         type="daterange"
@@ -85,47 +95,57 @@
                       />
                     </el-col>
                 </el-row>
-                <el-row class="file-inout-row-cl">
-                  <el-col :span="4">
-                      <el-input
-                        v-model="inputActNum"
-                        style="width: 12em"
-                        placeholder="Введите номер Акта"
-                        clearable
+                <el-row class="file-inout-row-cl" :gutter="20">
+                  <el-col :span="3">
+                    <el-input
+                      v-model="inputActNum"
+                      style="width: 100%"
+                      placeholder="Номер Акта"
+                      clearable
+                    />
+                  </el-col>
+                  <el-col :span="3">
+                    <el-date-picker
+                        v-model="actInputData.actDate"
+                        type="date"
+                        format="DD.MM.YYYY"
+                        placeholder="Дата Акта"
+                        :size="size"
+                        style="width: 100%"
                       />
-                    </el-col>
-                    <el-col :span="7">
-                        <el-upload
-                            ref="uploadSmeta"
-                            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-                            :limit="1"
-                            :on-exceed="handleExceedAct"
-                            :auto-upload="false"
-                        >
-                            <template #trigger>
-                            <el-button type="primary">select file</el-button>
-                            </template>
-                            <el-button style="margin-left: 1em;" type="success" @click="submitUploadAct">
-                            upload to server
-                            </el-button>
-                            <template #tip>
-                            <div class="el-upload__tip text-red">
-                                ограничение 1 файл, файл можно перезаписать новым
-                            </div>
-                            </template>
-                        </el-upload>
-                    </el-col>
-                    <el-col :span="5">
-                      <el-input
-                        v-model="actInputData.actAllSumHandle"
-                        style="width: 100%; margin-top: 1em;"
-                        placeholder="Общая сумма"
-                        clearable
-                      />
-                    </el-col>
-                    <el-col :span="3" class="mkd-works-left-margin-col">
-                      <el-button type="primary" style="width: 100%; margin-top: 1em;">Сохранить</el-button>
-                    </el-col>
+                  </el-col>
+                  <el-col :span="5">
+                      <el-upload
+                          ref="uploadSmeta"
+                          action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                          :limit="1"
+                          :on-exceed="handleExceedAct"
+                          :auto-upload="false"
+                      >
+                          <template #trigger>
+                          <el-button type="primary">select file</el-button>
+                          </template>
+                          <el-button style="margin-left: 1em;" type="success" @click="submitUploadAct">
+                          Загрузить
+                          </el-button>
+                          <template #tip>
+                          <div class="el-upload__tip text-red">
+                              ограничение 1 файл, файл можно перезаписать новым
+                          </div>
+                          </template>
+                      </el-upload>
+                  </el-col>
+                  <el-col :span="5">
+                    <el-input
+                      v-model="actInputData.actAllSumHandle"
+                      style="width: 100%; margin-top: 1em;"
+                      placeholder="Общая сумма"
+                      clearable
+                    />
+                  </el-col>
+                  <el-col :span="3" class="mkd-works-left-margin-col">
+                    <el-button type="primary" style="width: 100%; margin-top: 1em;">Сохранить</el-button>
+                  </el-col>
                 </el-row>
                 <el-row>
                   <el-col :span="24">
