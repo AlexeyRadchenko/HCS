@@ -9,7 +9,7 @@
                     <el-col :span="2"><div class="all-works-btn-wrapper"><el-button type="primary" @click="dialogTypeOfWorksTableVisibleMain = true">Виды работ</el-button></div></el-col>
                 </el-row>  
             </el-header>
-            <el-container>
+            <el-container style="height: 49em">
               <el-aside width="300px">
                 <el-scrollbar>
                   <el-menu :default-openeds="['1', '2']" @open="handleOpen">
@@ -25,8 +25,9 @@
                       <template #title>
                         <font-awesome-icon :icon="['fas', 'house']" /><span class="mkd-services-asaide-menu-title">ЖКС - Трехгорный</span>
                       </template>
-                        <el-menu-item index="2-1" @click="handleMenuItemClick">Option 1</el-menu-item>
-                        <el-menu-item index="2-2">Option 2</el-menu-item>
+                      <template v-for="house in houses_jks" :key="house.id">
+                        <el-menu-item :index="'1-' + house.id" @click="handleMenuItemClick">{{  house.house }}</el-menu-item>
+                      </template>
                     </el-sub-menu>
                   </el-menu>
                 </el-scrollbar>
@@ -35,7 +36,7 @@
                   <el-row>
                     <el-col :span="24">
                       <el-tabs type="border-card">
-                        <el-tab-pane label="Акты выполненных работ">
+                        <el-tab-pane label="Выполненные работы">
                           <WorksRegester
                           :selected-house-id="selectedHouseId"
                           :selected-company-id="selectedCompanyId"
@@ -56,6 +57,8 @@
                           :selected-house-name="getSelectedHouse"
                             />
                         </el-tab-pane>
+                        <el-tab-pane label="Фотофиксация работ"></el-tab-pane>
+                        <el-tab-pane label="Фотофиксация аварий"></el-tab-pane>
                       </el-tabs>     
                     </el-col>
                   </el-row>
@@ -76,7 +79,7 @@ import WorksRegester from './WorksRegester.vue';
 import MKDAllWorksRegestry from './modal/MKDAllWorksRegestry.vue';
 import MKDYearWorksActs from './MKDYearWorksActs.vue';
 import MKDTechnicDocs from './MKDTechnicDocs.vue';
-import { get_mkd_works_all_data } from '../../http/mkd-works-http-common';
+import { get_mkd_works_get_all_houses } from '../../http/mkd-works-http-common';
 // Создайте реактивные переменные
 const message = ref('Привет, Vue 3!');
 const serviceTitle = ref('Оказанные услуги (работы по МКД)')
@@ -87,11 +90,8 @@ const selectedCompanyId = ref('1')
 
 // Логика для компонента
 const count = ref(0);
-const houses_komf = ref([
-  {id: '1', house: '50 лет Победы - 22'},
-  {id: '2', house: '60 лет Октября - 10'},
-  {id: '3', house: 'Володина -12'}
-])
+const houses_komf = ref([])
+const houses_jks = ref([])
 const getSelectedHouse = computed(() => {
   return houses_komf.value.find(house => house.id === selectedHouseId.value)?.house
 })
@@ -132,8 +132,26 @@ const handleMenuItemClick = (item) => {
 }
 onMounted(() => {
   console.log('Компонент был смонтирован!');
-  get_mkd_works_all_data().then((response) => {
-    console.log('Data:', response.data);
+  get_mkd_works_get_all_houses().then((response) => {
+    //console.log('Data:', response.data);
+    response.data.forEach(element => {
+      if (element.company_id === 1) {
+          houses_komf.value.push({
+          id: element.id,
+          house: element.street + ' - ' + element.number,
+        })
+      }
+
+      if (element.company_id === 2) {
+          houses_jks.value.push({
+          id: element.id,
+          house: element.street + ' - ' + element.number,
+        })
+      }
+      
+    });
+    houses_komf.value.sort((a, b ) => a.house > b.house ? 1: -1)
+    houses_jks.value.sort((a, b ) => a.house > b.house ? 1: -1)
   }).catch((error) => {
     console.error('Error:', error);
   });

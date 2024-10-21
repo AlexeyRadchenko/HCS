@@ -15,9 +15,9 @@ var setHeaders = function (axios_instance) {
 
 }
 
-export var get_mkd_works_all_data = async function () {
+export var get_mkd_works_get_all_houses = async function () {
     setHeaders(http)
-    return await http.get('http://localhost:8050/api/v1/mkd_works_service/data/all')
+    return await http.get('http://localhost:8050/api/v1/mkd_works_service/houses/all')
     .then(response => {
       if (response.status == 200)
         console.log(response)

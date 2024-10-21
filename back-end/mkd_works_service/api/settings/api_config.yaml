@@ -13,8 +13,7 @@ TOKEN_URL: token
 
 # Database settings
 # for Alembic use alembic.ini in root
-DATABASE_URL: postgresql+asyncpg://pgmain_dbuser:thOxk3whURJOaM2yMOchDAGc1QICQ88@localhost/debt_il_db
-
+DATABASE_URL: postgresql+asyncpg://pgmain_dbuser:thOxk3whURJOaM2yMOchDAGc1QICQ88@localhost/mkd_works_serv_db
 #Security scope settings
 SELF_USER_SCOPE: me
 ADMIN_SCOPE: admin
