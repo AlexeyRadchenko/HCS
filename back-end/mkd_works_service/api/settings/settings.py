@@ -19,6 +19,10 @@ class Settings(BaseModel):
     SELF_USER_SCOPE: str
     ADMIN_SCOPE: str
     MANAGEMENT_MKD_WORKS_SCOPE: str
+    FILE_SERVER: str
+    FILE_SERVER_PORT: int
+    ACT_FILES_STORE_PATH: str
+    SMETA_FILES_STORE_PATH: str
 
 with open(f"{PATH}/{API_CONFIG_FILE}", "r") as stream:
     try:

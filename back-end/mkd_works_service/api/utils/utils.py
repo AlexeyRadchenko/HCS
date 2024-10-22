@@ -5,6 +5,8 @@ from ..database.mkd_works.models import Houses, Companies
 from ..database.database import async_session
 
 
+CHUNK_SIZE = 2 ** 20  # 1MB
+
 async def init_mkd_works_db_data(obj_list, org):
     async with async_session() as db_session:
 
@@ -41,3 +43,14 @@ async def init_mkd_works_db_data(obj_list, org):
             house = await create_mkd_works_db_object(db_session, house_obj)
             print("insert to db ", house.street, house.number)
     print("data upload to db")
+
+async def chunked_copy(src, dst):
+    await src.seek(0)
+    with open(dst, "wb") as buffer:
+        while True:
+            contents = await src.read(CHUNK_SIZE)
+            if not contents:
+                print(f"Src completely consumed\n")
+                break
+            print(f"Consumed {len(contents)} bytes from Src file\n")
+            buffer.write(contents)

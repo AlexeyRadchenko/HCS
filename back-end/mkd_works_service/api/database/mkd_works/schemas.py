@@ -14,19 +14,107 @@ class HousesMKDSchema(BaseModel):
     company_id: Optional[int]
 
     class Config:
-        orm_mode = True
-"""
-class AccountILSchema(BaseModel):
-    uuid: UUID
-    account_number: str
-    name: str
-    second_name: str
-    surname: str
-    passport_il: Optional[PassportILSchema]
+        from_attributes = True
+
+class MainWorksSchema(BaseModel):
+    id: Optional[int]
+    work: str
+    workType: Optional[str]
+    companyWorkType: Optional[str]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
+class SubWorksSchema(BaseModel):
+    id: Optional[int]
+    work: str
+    workType: Optional[str]
+    companyWorkType: Optional[str]
+    period: Optional[str]
+    base: Optional[str]
+    mainwork_id: Optional[int]
+
+    class Config:
+        from_attributes = True
+
+class FixWorksSchema(BaseModel):
+    id: Optional[int]
+    work: str
+    workType: Optional[str]
+    companyWorkType: Optional[str]
+    period: Optional[str]
+    base: Optional[str]
+    mainwork_id: Optional[int]
+
+    class Config:
+        from_attributes = True
+
+class ActFilesSchema(BaseModel):
+    uuid: Optional[UUID]
+    name: Optional[str]
+    date: Optional[datetime]
+    num: Optional[str]
+    extention: Optional[str]
+    url: Optional[str]
+    path: Optional[str]
+    size: Optional[str]
+    filetype: Optional[str]
+    house_id: Optional[int]
+
+    class Config:
+        from_attributes = True
+
+class SmetaFilesSchema(BaseModel):
+    uuid: Optional[UUID]
+    name: Optional[str]
+    date: Optional[datetime]
+    num: Optional[str]
+    extention: Optional[str]
+    url: Optional[str]
+    path: Optional[str]
+    size: Optional[str]
+    filetype: Optional[str]
+    house_id: Optional[int]
+
+    class Config:
+        from_attributes = True
+
+class TechFilesSchema(BaseModel):
+    uuid: Optional[UUID]
+    name: Optional[str]
+    date: Optional[datetime]
+    num: Optional[str]
+    extention: Optional[str]
+    url: Optional[str]
+    path: Optional[str]
+    size: Optional[str]
+    filetype: Optional[str]
+    house_id: Optional[int]
+
+    class Config:
+        from_attributes = True    
+
+class DoneWorksSchema(BaseModel):
+    id: Optional[int]
+    date: Optional[datetime]
+    start_date: Optional[datetime]
+    end_date: Optional[datetime]
+    num: Optional[datetime]
+    house_id: Optional[int]
+    all_sum: Optional[str]
+    month_year_works: Optional[datetime]
+    houses:Optional[HousesMKDSchema]
+    mainworks: Optional[MainWorksSchema]
+    subworks: Optional[SubWorksSchema]
+    fixworks: Optional[FixWorksSchema]
+    actfiles: Optional[ActFilesSchema]
+    smetafiles: Optional[SmetaFilesSchema]
+
+    class Config:
+        from_attributes = True
+
+
+"""
 class PaymentsILSchema(BaseModel):
     id: int
     date: datetime

@@ -43,7 +43,9 @@
         v-model:dialogMKDWorksAddVisibleSub="showMKDWorkAddModal"
         :house-id="props.selectedHouseId" 
         :company="props.selectedCompanyId"
-        :house-name="props.selectedHouseName"/>
+        :house-name="props.selectedHouseName"
+        :work-id="workID"
+        />
     </div>
 </template>
 
@@ -59,6 +61,7 @@ const props = defineProps({
   selectedHouseName: String,
 })
 const showMKDWorkAddModal = ref(false)
+const workID =ref('')
 
 const tableData = ref([
   {

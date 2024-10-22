@@ -186,6 +186,7 @@ class Acts(Base):
     end_date = Column(DateTime, nullable=True)
     num = Column(String, nullable=True)
     all_sum = Column(String, nullable=True)
+    month_year_works = Column(DateTime, nullable=True)
     house_id = Column(Integer, ForeignKey("houses.id"), nullable=False)
 
     houses = relationship('Houses', back_populates='acts', lazy='joined')

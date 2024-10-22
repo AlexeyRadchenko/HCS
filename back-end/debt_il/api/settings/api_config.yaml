@@ -19,3 +19,4 @@ DATABASE_URL: postgresql+asyncpg://pgmain_dbuser:thOxk3whURJOaM2yMOchDAGc1QICQ88
 SELF_USER_SCOPE: me
 ADMIN_SCOPE: admin
 MANAGEMENT_DEBT_IL_SCOPE: management_debt_il
+

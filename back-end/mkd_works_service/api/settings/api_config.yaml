@@ -18,3 +18,9 @@ DATABASE_URL: postgresql+asyncpg://pgmain_dbuser:thOxk3whURJOaM2yMOchDAGc1QICQ88
 SELF_USER_SCOPE: me
 ADMIN_SCOPE: admin
 MANAGEMENT_MKD_WORKS_SCOPE: management_mkd_works
+
+# Service settings
+FILE_SERVER: localhost
+FILE_SERVER_PORT: 8050
+ACT_FILES_STORE_PATH: /mnt/d/Projects/hcs_media/acts
+SMETA_FILES_STORE_PATH: /mnt/d/Projects/hcs_media/acts

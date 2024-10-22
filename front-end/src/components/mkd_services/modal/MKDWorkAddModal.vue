@@ -15,7 +15,7 @@
                 <el-row class="file-inout-row-cl" :gutter="20">
                     <el-col :span="3">
                       <el-input
-                        v-model="inputSmetaNum"
+                        v-model="smetaInputFileData.smetanum"
                         style="width: 100%"
                         placeholder="Номер сметы"
                         clearable
@@ -23,21 +23,22 @@
                     </el-col>
                     <el-col :span="3">
                       <el-date-picker
-                        v-model="actInputData.actDate"
+                        v-model="smetaInputFileData.smetadate"
                         type="date"
                         format="DD.MM.YYYY"
                         placeholder="Дата сметы"
-                        :size="size"
                         style="width: 100%"
                       />
                     </el-col>
                     <el-col :span="5">
                         <el-upload
                             ref="uploadSmeta"
+                            :data="smetaInputFileData"
                             action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
                             :limit="1"
                             :on-exceed="handleExceedSmeta"
                             :auto-upload="false"
+                            :headers="uploadHeaders"
                         >
                             <template #trigger>
                             <el-button type="primary">select file</el-button>
@@ -79,8 +80,8 @@
                         type="date"
                         format="DD.MM.YYYY"
                         placeholder="Дата составления акта"
-                        :size="size"
                         style="width: 100%"
+                        value-format="YYYY-MM-DD"
                       />
                     </el-col>
                     <el-col :span="7">
@@ -98,7 +99,7 @@
                 <el-row class="file-inout-row-cl" :gutter="20">
                   <el-col :span="3">
                     <el-input
-                      v-model="inputActNum"
+                      v-model="actInputFileData.actnum"
                       style="width: 100%"
                       placeholder="Номер Акта"
                       clearable
@@ -106,21 +107,24 @@
                   </el-col>
                   <el-col :span="3">
                     <el-date-picker
-                        v-model="actInputData.actDate"
+                        v-model="actInputFileData.actdate"
                         type="date"
                         format="DD.MM.YYYY"
-                        placeholder="Дата Акта"
-                        :size="size"
                         style="width: 100%"
+                        placeholder="Дата акта"
+                        value-format="YYYY-MM-DD"
                       />
                   </el-col>
                   <el-col :span="5">
                       <el-upload
-                          ref="uploadSmeta"
-                          action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                          ref="uploadAct"
+                          :data="getDataActFile"
+                          action="http://localhost:8050/api/v1/mkd_works_service/uploadfile/act"
                           :limit="1"
                           :on-exceed="handleExceedAct"
                           :auto-upload="false"
+                          :headers="uploadHeaders"
+                          :on-success="uploadActSuccess"
                       >
                           <template #trigger>
                           <el-button type="primary">select file</el-button>
@@ -146,6 +150,11 @@
                   <el-col :span="3" class="mkd-works-left-margin-col">
                     <el-button type="primary" style="width: 100%; margin-top: 1em;">Сохранить</el-button>
                   </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                  <el-col :span="12">
+                    {{ actDowmloadFile.date }} {{ actDowmloadFile.filename }}
+                  </el-col>    
                 </el-row>
                 <el-row>
                   <el-col :span="24">
@@ -220,8 +229,10 @@
 
 <script setup>
 // Импортируйте необходимые функции, если нужно
-import { ref, reactive, computed, onMounted, watch, defineModel, toRaw, defineProps } from 'vue';
+import { ref, reactive, computed, onMounted, watch, toRaw } from 'vue';
 import { genFileId } from 'element-plus'
+import secureStorage from '../../../storage/secStorage'
+import { get_future_work_id_by_house_id } from '../../../http/mkd-works-http-common'
 import dayjs from 'dayjs'
 
 
@@ -229,21 +240,62 @@ const props = defineProps({
     houseId: String,
     company: String,
     houseName: String,
+    workID: String,
 })
+
+const uploadHeaders = {
+  'Authorization': 'Bearer ' + secureStorage.getItem('token')
+}
 
 const dialogMKDWorksAddVisibleSub = defineModel('dialogMKDWorksAddVisibleSub')
 const uploadSmeta = ref(null)
 const uploadAct = ref(null)
+const tempWorkId = ref(null)
 const actInputData = ref({
-  actNum: '',
-  actDate: '',
   actPeriod: '',
   actAllSumHandle: '',
   directorSovietFIO: '',
   directorAppartNum: '',
 })
-const inputSmetaNum = ref('')
-const inputActNum = ref('')
+const actInputFileData = ref({
+  actnum: null,
+  actdate: null,
+  actfutureid: null,
+  workid: null,
+})
+
+const actDowmloadFile = ref({
+  filename: '',
+  url: '',
+  date: '',
+  num: '',
+  uuid: '',
+  workid: ''
+})
+
+const smetaInputFileData = ref({
+  smetadate: '',
+  smetanum: ''
+})
+
+const getDataActFile = () => {
+      console.log("sibdataloading", actInputFileData.value)
+      return {
+        actnum: actInputFileData.value.actnum, // любые ваши данные
+        actdate: actInputFileData.value.actdate,
+        workid: props.workID
+      };
+    };
+const uploadActSuccess = (response) => {
+    console.log(response)
+    actDowmloadFile.value.filename = response.filename
+    actDowmloadFile.value.date = response.actdate
+    actDowmloadFile.value.num = response.actNum
+    actDowmloadFile.value.workid = response.workid
+    if (!tempWorkId.value) {
+      tempWorkId.value = response.workid
+    }
+}    
 const worksNames = ['JDkjfglasfld', 'adsasdasdads', 'KGFgkl;ldskfgldkfgdfgsdfsdfsdfgsfgdfgdlbkjdlbgkjdlkhbgjdlkfjgldkfjg', 'fsjkgvlskgjldsfk', 'e', 'f', 'g', 'h', 'i', 'j']
 const periodsNames = ['постоянно', '6 месяцев', 'согласно санитарным нормам',]
 
@@ -259,6 +311,7 @@ const periods = Array.from({ length: periodsNames.length}).map((_, idx) => ({
 
 
 const handleExceedSmeta = (files) => { 
+  console.log("!smeta")
   if (uploadSmeta.value) {
     uploadSmeta.value.clearFiles()
   }
@@ -278,10 +331,12 @@ const submitUploadSmeta = () => {
 }
 
 const handleExceedAct = (files) => { 
+  console.log("!act", uploadAct.value)
   if (uploadAct.value) {
     uploadAct.value.clearFiles()
   }
   const file = files[0]
+  console.log(file)
   file.uid = genFileId()
   if (uploadAct.value) {
     uploadAct.value.handleStart(file)
@@ -319,6 +374,24 @@ const onAddItem = () => {
     Sum: 'CA 90036',
   })
 }
+
+/*const work_id_from_db = (houseID) => {
+  get_future_work_id_by_house_id(houseID).then((response) => {
+    tempWorkFutureId.value = response.data.future_work_id
+    actInputFileData.value.actfutureid = response.data.future_work_id
+    console.log("work id future", tempWorkFutureId.value)
+  }).catch((error) => {
+    console.error('Error:', error);
+  });
+}
+
+watch(dialogMKDWorksAddVisibleSub, (dialogMKDWorksAddVisibleSub) => {
+  if (dialogMKDWorksAddVisibleSub && !props.workID) {
+    work_id_from_db(props.houseId)
+  }else if (props.workID) {
+    actInputFileData.value.actfutureid = props.workID
+  }
+})*/ 
 
 onMounted(() => {
   console.log('Компонент был смонтирован!');
