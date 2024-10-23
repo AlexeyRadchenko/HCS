@@ -92,7 +92,7 @@ class Mainworks(Base):
 
     subworks = relationship('Subworks', back_populates='mainworks', lazy='joined')
     fixworks = relationship('Fixworks', back_populates='mainworks', lazy='joined')
-    acts = relationship('Acts', secondary='acthasmainworks', back_populates='mainworks', lazy='dynamic')
+    acts = relationship('Acts', secondary='acthasmainworks', back_populates='mainworks', lazy='joined')
     
 
 
@@ -108,7 +108,7 @@ class Subworks(Base):
     mainwork_id = Column(Integer, ForeignKey('mainworks.id'), nullable=True)
 
     mainworks = relationship('Mainworks', back_populates='subworks', lazy='joined')
-    acts = relationship('Acts', secondary='acthassubworks', back_populates='subworks', lazy='dynamic')
+    acts = relationship('Acts', secondary='acthassubworks', back_populates='subworks', lazy='joined')
 
 
 class Fixworks(Base):
@@ -123,7 +123,7 @@ class Fixworks(Base):
     mainwork_id = Column(Integer, ForeignKey('mainworks.id'), nullable=True)
 
     mainworks = relationship('Mainworks', back_populates='fixworks', lazy='joined')
-    acts = relationship('Acts', secondary='acthasfixworks', back_populates='fixworks', lazy='dynamic')
+    acts = relationship('Acts', secondary='acthasfixworks', back_populates='fixworks', lazy='joined')
 
 
 class Actfiles(Base):
@@ -134,13 +134,14 @@ class Actfiles(Base):
     num = Column(String, nullable=True)
     date = Column(DateTime, nullable=True)
     extention = Column(String, nullable=False)
+    url = Column(String, nullable=False)
     path = Column(String, nullable=False)
     size = Column(String, nullable=False)
     filetype = Column(String, nullable=True)
     house_id = Column(Integer, ForeignKey("houses.id"), nullable=False)
 
     houses = relationship('Houses', back_populates='actfiles', lazy='joined')
-    acts = relationship('Acts', secondary='actshasactfiles', back_populates='actfiles', lazy='dynamic')
+    acts = relationship('Acts', secondary='actshasactfiles', back_populates='actfiles', lazy='joined')
 
 
 class Smetafiles(Base):
@@ -157,7 +158,7 @@ class Smetafiles(Base):
     house_id = Column(Integer, ForeignKey("houses.id"), nullable=False)
 
     houses = relationship('Houses', back_populates='smetafiles', lazy='joined')
-    acts = relationship('Acts', secondary='actshassmetafiles', back_populates='smetafiles', lazy='dynamic')
+    acts = relationship('Acts', secondary='actshassmetafiles', back_populates='smetafiles', lazy='joined')
 
 
 class Techfiles(Base):
@@ -185,30 +186,30 @@ class Acts(Base):
     start_date = Column(DateTime, nullable=True)
     end_date = Column(DateTime, nullable=True)
     num = Column(String, nullable=True)
-    all_sum = Column(String, nullable=True)
+    all_sum = Column(String, nullable=False)
     month_year_works = Column(DateTime, nullable=True)
     house_id = Column(Integer, ForeignKey("houses.id"), nullable=False)
 
     houses = relationship('Houses', back_populates='acts', lazy='joined')
     mainworks = relationship(
-        'Mainworks', secondary='acthasmainworks', back_populates='acts', lazy='dynamic'
+        'Mainworks', secondary='acthasmainworks', back_populates='acts', lazy='joined'
     )
 
     subworks = relationship(
-        'Subworks', secondary='acthassubworks', back_populates='acts', lazy='dynamic'
+        'Subworks', secondary='acthassubworks', back_populates='acts', lazy='joined'
     )
 
 
     fixworks = relationship(
-        'Fixworks', secondary='acthasfixworks', back_populates='acts', lazy='dynamic'
+        'Fixworks', secondary='acthasfixworks', back_populates='acts', lazy='joined'
     )
 
     actfiles = relationship(
-        'Actfiles', secondary='actshasactfiles', back_populates='acts', lazy='dynamic'
+        'Actfiles', secondary='actshasactfiles', back_populates='acts', lazy='joined'
     )
 
     smetafiles = relationship(
-        'Smetafiles', secondary='actshassmetafiles', back_populates='acts', lazy='dynamic'
+        'Smetafiles', secondary='actshassmetafiles', back_populates='acts', lazy='joined'
     )
 
    

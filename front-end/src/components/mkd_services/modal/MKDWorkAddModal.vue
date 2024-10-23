@@ -250,7 +250,7 @@ const uploadHeaders = {
 const dialogMKDWorksAddVisibleSub = defineModel('dialogMKDWorksAddVisibleSub')
 const uploadSmeta = ref(null)
 const uploadAct = ref(null)
-const tempWorkId = ref(null)
+const tempWorkId = ref(parseInt(props.workID))
 const actInputData = ref({
   actPeriod: '',
   actAllSumHandle: '',
@@ -262,6 +262,7 @@ const actInputFileData = ref({
   actdate: null,
   actfutureid: null,
   workid: null,
+  houseid: null,
 })
 
 const actDowmloadFile = ref({
@@ -283,7 +284,8 @@ const getDataActFile = () => {
       return {
         actnum: actInputFileData.value.actnum, // любые ваши данные
         actdate: actInputFileData.value.actdate,
-        workid: props.workID
+        workid: props.workID,
+        houseid: props.houseId
       };
     };
 const uploadActSuccess = (response) => {
@@ -292,9 +294,7 @@ const uploadActSuccess = (response) => {
     actDowmloadFile.value.date = response.actdate
     actDowmloadFile.value.num = response.actNum
     actDowmloadFile.value.workid = response.workid
-    if (!tempWorkId.value) {
-      tempWorkId.value = response.workid
-    }
+    tempWorkId.value = response.workid
 }    
 const worksNames = ['JDkjfglasfld', 'adsasdasdads', 'KGFgkl;ldskfgldkfgdfgsdfsdfsdfgsfgdfgdlbkjdlbgkjdlkhbgjdlkfjgldkfjg', 'fsjkgvlskgjldsfk', 'e', 'f', 'g', 'h', 'i', 'j']
 const periodsNames = ['постоянно', '6 месяцев', 'согласно санитарным нормам',]

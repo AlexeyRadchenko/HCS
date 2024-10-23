@@ -53,7 +53,7 @@
 // Импортируйте необходимые функции, если нужно
 import { ref, reactive, computed, onMounted, watch, defineModel, toRaw } from 'vue';
 import MKDWorkAddModal from './modal/MKDWorkAddModal.vue';
-import dayjs from 'dayjs'
+import { get_mkd_works_get_all_works_by_house_id } from '../../http/mkd-works-http-common'
 
 const props = defineProps({
   selectedHouseId: String,
@@ -106,9 +106,24 @@ const onAddItem = () => {
   })
 }
 
+watch(() => props.selectedHouseId, (oldSelectedHouseId, newSelectedHouseId) => {
+  console.log("newProps", newSelectedHouseId)
+  get_mkd_works_get_all_works_by_house_id(newSelectedHouseId).then((response) => {
+    console.log(response)
+  }).catch((error) => {
+    console.error('Error:', error);
+  });
+})
+
 
 onMounted(() => {
   console.log('Компонент был смонтирован!');
+  console.log('props!', props.selectedHouseId);
+  get_mkd_works_get_all_works_by_house_id(props.selectedHouseId).then((response) => {
+    console.log(response)
+  }).catch((error) => {
+    console.error('Error:', error);
+  });
   //console.log('selectedCompanyId:', selectedCompanyId);
   //console.log('selectedHouseId:', selectedHouseId);
 });

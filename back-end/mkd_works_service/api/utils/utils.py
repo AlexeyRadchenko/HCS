@@ -54,3 +54,6 @@ async def chunked_copy(src, dst):
                 break
             print(f"Consumed {len(contents)} bytes from Src file\n")
             buffer.write(contents)
+
+def get_file_extension(filname):
+    return filname.split('.')[-1]

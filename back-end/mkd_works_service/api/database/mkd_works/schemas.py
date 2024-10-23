@@ -18,7 +18,7 @@ class HousesMKDSchema(BaseModel):
 
 class MainWorksSchema(BaseModel):
     id: Optional[int]
-    work: str
+    work: Optional[str]
     workType: Optional[str]
     companyWorkType: Optional[str]
 
@@ -27,7 +27,7 @@ class MainWorksSchema(BaseModel):
 
 class SubWorksSchema(BaseModel):
     id: Optional[int]
-    work: str
+    work: Optional[str]
     workType: Optional[str]
     companyWorkType: Optional[str]
     period: Optional[str]
@@ -39,7 +39,7 @@ class SubWorksSchema(BaseModel):
 
 class FixWorksSchema(BaseModel):
     id: Optional[int]
-    work: str
+    work: Optional[str]
     workType: Optional[str]
     companyWorkType: Optional[str]
     period: Optional[str]
@@ -104,11 +104,11 @@ class DoneWorksSchema(BaseModel):
     all_sum: Optional[str]
     month_year_works: Optional[datetime]
     houses:Optional[HousesMKDSchema]
-    mainworks: Optional[MainWorksSchema]
-    subworks: Optional[SubWorksSchema]
-    fixworks: Optional[FixWorksSchema]
-    actfiles: Optional[ActFilesSchema]
-    smetafiles: Optional[SmetaFilesSchema]
+    mainworks: List[MainWorksSchema]
+    subworks: List[SubWorksSchema]
+    fixworks: List[FixWorksSchema]
+    actfiles: List[ActFilesSchema]
+    smetafiles: List[SmetaFilesSchema]
 
     class Config:
         from_attributes = True
