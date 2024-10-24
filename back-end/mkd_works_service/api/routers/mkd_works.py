@@ -33,7 +33,7 @@ async def get_mkd_works_all_by_house_id(
     db_session: AsyncSession = Depends(get_async_session)
     ):
     all_works_by_house_id = await get_all_mkd_works_by_house_id(db_session, house_id)
-    print(">>>>>>>>>>>>>>>>>>>>>>", all_works_by_house_id[0].mainworks)
+    #print(">>>>>>>>>>>>>>>>>>>>>>", all_works_by_house_id[0].mainworks)
     return all_works_by_house_id
 
 @router.get("/houses/works/future_id/{house_id}")

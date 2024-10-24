@@ -89,6 +89,7 @@ class Mainworks(Base):
     work = Column(String, nullable=False)
     workType = Column(String, nullable=False)
     companyWorkType= Column(String, nullable=False)
+    numsprav = Column(String, nullable=True)
 
     subworks = relationship('Subworks', back_populates='mainworks', lazy='joined')
     fixworks = relationship('Fixworks', back_populates='mainworks', lazy='joined')
@@ -101,10 +102,12 @@ class Subworks(Base):
 
     id = Column(Integer, primary_key=True, index=True, nullable=False, autoincrement=True)
     work = Column(String, nullable=False)
+    ext_works = Column(String, nullable=True)
     workType = Column(String, nullable=False)
     companyWorkType= Column(String, nullable=False)
     period = Column(String, nullable=False)
     base = Column(String, nullable=False)
+    numsprav = Column(String, nullable=True)
     mainwork_id = Column(Integer, ForeignKey('mainworks.id'), nullable=True)
 
     mainworks = relationship('Mainworks', back_populates='subworks', lazy='joined')
@@ -116,10 +119,12 @@ class Fixworks(Base):
 
     id = Column(Integer, primary_key=True, index=True, nullable=False, autoincrement=True)
     work = Column(String, nullable=False)
+    ext_works = Column(String, nullable=True)
     workType = Column(String, nullable=False)
     companyWorkType= Column(String, nullable=False)
     period = Column(String, nullable=False)
     base = Column(String, nullable=False)
+    numsprav = Column(String, nullable=True)
     mainwork_id = Column(Integer, ForeignKey('mainworks.id'), nullable=True)
 
     mainworks = relationship('Mainworks', back_populates='fixworks', lazy='joined')

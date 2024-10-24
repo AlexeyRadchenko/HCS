@@ -44,6 +44,12 @@ async def init_mkd_works_db_data(obj_list, org):
             print("insert to db ", house.street, house.number)
     print("data upload to db")
 
+
+async def init_mkd_works_db_works_reference_book(mainworks_lst, subworks_lst, fixworks_lst):
+    async with async_session() as db_session:
+        pass
+    print("data upload to db")    
+
 async def chunked_copy(src, dst):
     await src.seek(0)
     with open(dst, "wb") as buffer:

@@ -10,9 +10,9 @@
                 </el-row>  
             </el-header>
             <el-container style="height: 49em">
-              <el-aside width="300px">
+              <el-aside width="250px">
                 <el-scrollbar>
-                  <el-menu :default-openeds="['1', '2']" @open="handleOpen">
+                  <el-menu :default-openeds="['1', '2']" @open="handleOpen" default-active="1-50">
                     <el-sub-menu index="1">
                       <template #title>
                         <font-awesome-icon :icon="['fas', 'house']" /><span class="mkd-services-asaide-menu-title">Комфортный дом</span>
@@ -85,7 +85,7 @@ const message = ref('Привет, Vue 3!');
 const serviceTitle = ref('Оказанные услуги (работы по МКД)')
 const dialogTypeOfWorksTableVisibleMain = ref(false)
 const dialogWorksRegistryMain = ref(false)
-const selectedHouseId = ref('1')
+const selectedHouseId = ref('50')
 const selectedCompanyId = ref('1')
 
 // Логика для компонента

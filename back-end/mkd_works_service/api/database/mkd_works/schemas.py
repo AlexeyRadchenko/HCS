@@ -28,6 +28,7 @@ class MainWorksSchema(BaseModel):
 class SubWorksSchema(BaseModel):
     id: Optional[int]
     work: Optional[str]
+    ext_works: Optional[str]
     workType: Optional[str]
     companyWorkType: Optional[str]
     period: Optional[str]
@@ -40,6 +41,7 @@ class SubWorksSchema(BaseModel):
 class FixWorksSchema(BaseModel):
     id: Optional[int]
     work: Optional[str]
+    ext_works: Optional[str]
     workType: Optional[str]
     companyWorkType: Optional[str]
     period: Optional[str]
