@@ -1,7 +1,7 @@
 from datetime import datetime
 from ..database.mkd_works.crud import create_mkd_works_db_object
 from ..database.database import get_async_session
-from ..database.mkd_works.models import Houses, Companies
+from ..database.mkd_works.models import Houses, Companies, Mainworks, Subworks, Fixworks
 from ..database.database import async_session
 
 
@@ -47,7 +47,36 @@ async def init_mkd_works_db_data(obj_list, org):
 
 async def init_mkd_works_db_works_reference_book(mainworks_lst, subworks_lst, fixworks_lst):
     async with async_session() as db_session:
-        pass
+        for mainwork in mainworks_lst:
+            mainwork_obj = Mainworks(
+                work=f'{mainwork[0]} {mainwork[1]}',
+                workType='main'
+            )
+            mainwork_from_db = await create_mkd_works_db_object(db_session, mainwork_obj)
+            for subwork in subworks_lst:
+                if mainwork[0] == subwork[0][:-2]:
+                    subwork_obj = Subworks(
+                        work=f'{subwork[0]} {subwork[1]}',
+                        ext_works=subwork[2],
+                        workType='subwork',
+                        period=subwork[3],
+                        base=subwork[4],
+                        mainwork_id=mainwork_from_db.id,
+                        numsprav=subwork[0]
+                    )
+                    await create_mkd_works_db_object(db_session, subwork_obj)
+            for fixwork in fixworks_lst:
+                if mainwork[0] == fixwork[0][:-2]:
+                    fixwork_obj = Fixworks(
+                        work=f'{fixwork[0]} {fixwork[1]}',
+                        ext_works=fixwork[2],
+                        workType='fixwork',
+                        period=fixwork[3],
+                        base=fixwork[4],
+                        mainwork_id=mainwork_from_db.id,
+                        numsprav=fixwork[0]
+                    )
+                    await create_mkd_works_db_object(db_session, fixwork_obj)
     print("data upload to db")    
 
 async def chunked_copy(src, dst):

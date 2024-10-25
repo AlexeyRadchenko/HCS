@@ -1,11 +1,15 @@
 from fastapi import APIRouter, Depends, Security, UploadFile, Form
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from typing import List, Annotated
 from datetime import datetime
 from os import path
 
-from ..database.mkd_works.schemas import HousesMKDSchema, DoneWorksSchema
-from ..database.mkd_works.crud import get_all_houses, get_all_mkd_works_by_house_id, get_furure_work_id_from_db, create_mkd_works_db_object
+from ..database.mkd_works.schemas import HousesMKDSchema, DoneWorksSchema, ReferenceBookSchema
+from ..database.mkd_works.crud import (
+    get_all_houses, get_all_mkd_works_by_house_id, get_furure_work_id_from_db, create_mkd_works_db_object, get_all_mainworks,
+    get_all_subworks, get_all_fixworks
+    )
 from ..database.mkd_works.models import Acts, Actfiles, Actshasactfiles
 from api.security.acess_depends import user_scope_authorize
 from ..database.database import get_async_session
@@ -112,4 +116,19 @@ async def create_upload_act_file(
             "url": url,
             "workid": int(workid), #send work id from db object
             }
+
+@router.get("/get_reference_book_data/all")
+async def get_reference_book_data_all(
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    mainworks = await get_all_mainworks(db_session)
+    subworks = await get_all_subworks(db_session)
+    fixworks = await get_all_fixworks(db_session)
+    reference_book_schema_obj = ReferenceBookSchema(
+        mainworks=mainworks,
+        subworks=subworks,
+        fixworks=fixworks
+    )
     
+    return JSONResponse(content=reference_book_schema_obj.model_dump())

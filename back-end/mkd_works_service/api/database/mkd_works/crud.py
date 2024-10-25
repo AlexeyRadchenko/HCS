@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload
 from datetime import datetime
 
 from ..database import row2dict
-from .models import Houses, Acts
+from .models import Houses, Acts, Mainworks, Subworks, Fixworks
 
 
 async def create_mkd_works_db_object(db: AsyncSession, obj: Any):
@@ -40,5 +40,29 @@ async def get_all_mkd_works_by_house_id(db: AsyncSession, id: int):
         )
         .where(Acts.house_id == id)
         #.order_by(desc(ContactsAddresses.street), desc(ContactsAddresses.house_number))
+    )
+    return result.scalars().unique().all()
+
+async def get_all_mainworks(db: AsyncSession):
+    result = await db.execute(
+        select(
+            Mainworks
+        )
+    )
+    return result.scalars().unique().all()
+
+async def get_all_subworks(db: AsyncSession):
+    result = await db.execute(
+        select(
+            Subworks
+        )
+    )
+    return result.scalars().unique().all()
+
+async def get_all_fixworks(db: AsyncSession):
+    result = await db.execute(
+        select(
+            Fixworks
+        )
     )
     return result.scalars().unique().all()

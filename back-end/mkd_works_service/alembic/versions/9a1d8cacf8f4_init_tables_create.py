@@ -45,7 +45,7 @@ def upgrade() -> None:
         'mainworks',
         sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
         sa.Column('work', sa.String(), nullable=False),
-        sa.Column('workType', sa.String(50), nullable=False),
+        sa.Column('workType', sa.String(50), nullable=True),
         sa.Column('companyWorkType', sa.String(50), nullable=False),
     )
 
@@ -54,9 +54,9 @@ def upgrade() -> None:
         sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
         sa.Column('work', sa.String(), nullable=False),
         sa.Column('workType', sa.String(50), nullable=False),
-        sa.Column('period', sa.String(100), nullable=False),
-        sa.Column('base', sa.String(500), nullable=False),
-        sa.Column('companyWorkType', sa.String(50), nullable=False),
+        sa.Column('period', sa.String(500), nullable=True),
+        sa.Column('base', sa.String(500), nullable=True),
+        sa.Column('companyWorkType', sa.String(50), nullable=True),
         sa.Column('mainwork_id', sa.Integer(), sa.ForeignKey("mainworks.id"), nullable=False),
     )
 
@@ -65,9 +65,9 @@ def upgrade() -> None:
         sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
         sa.Column('work', sa.String(), nullable=False),
         sa.Column('workType', sa.String(50), nullable=False),
-        sa.Column('period', sa.String(100), nullable=False),
-        sa.Column('base', sa.String(500), nullable=False),
-        sa.Column('companyWorkType', sa.String(50), nullable=False),
+        sa.Column('period', sa.String(500), nullable=True),
+        sa.Column('base', sa.String(500), nullable=True),
+        sa.Column('companyWorkType', sa.String(50), nullable=True),
         sa.Column('mainwork_id', sa.Integer(), sa.ForeignKey("mainworks.id"), nullable=False),
     )
 

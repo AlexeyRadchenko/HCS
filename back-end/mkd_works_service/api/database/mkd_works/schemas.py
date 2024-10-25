@@ -33,6 +33,7 @@ class SubWorksSchema(BaseModel):
     companyWorkType: Optional[str]
     period: Optional[str]
     base: Optional[str]
+    numsprav: Optional[str]
     mainwork_id: Optional[int]
 
     class Config:
@@ -46,6 +47,7 @@ class FixWorksSchema(BaseModel):
     companyWorkType: Optional[str]
     period: Optional[str]
     base: Optional[str]
+    numsprav: Optional[str]
     mainwork_id: Optional[int]
 
     class Config:
@@ -111,6 +113,14 @@ class DoneWorksSchema(BaseModel):
     fixworks: List[FixWorksSchema]
     actfiles: List[ActFilesSchema]
     smetafiles: List[SmetaFilesSchema]
+
+    class Config:
+        from_attributes = True
+
+class ReferenceBookSchema(BaseModel):
+    mainworks: List[MainWorksSchema]
+    fixworks: List[SubWorksSchema]
+    subworks: List[FixWorksSchema]
 
     class Config:
         from_attributes = True

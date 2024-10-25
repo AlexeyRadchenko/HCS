@@ -35,7 +35,7 @@ def load_data_from_sprav_xlsx(filename):
             fix_work_num = ''
             continue
         if row[0].value and len(row[0].value) > 3 and row[0].value[-2] == '1':
-            subworks_list.append((row[0].value, row[1].value, row[3].value, row[4].value))
+            subworks_list.append((row[0].value, row[1].value, row[2].value, row[3].value, row[4].value))
             sub_work_num = row[0].value
             continue
         if row[0].value and len(row[0].value) > 3 and row[0].value[-2] == '2':
@@ -51,16 +51,18 @@ def load_data_from_sprav_xlsx(filename):
     return mainworks_list, subworks_list, fixworks_list   
 
 if __name__ == '__main__':
-    mainwork_data, subwork_data, fixwork_data = load_data_from_sprav_xlsx('works_init_sprav.xlsx')
-    """print("DON'T FORGET DEL DATE_CREATE FOR SQLITE IN INIT_CONTACTS_DB_DATA")
+    
+    print("DON'T FORGET DEL DATE_CREATE FOR SQLITE IN INIT_CONTACTS_DB_DATA")
     data_komf = load_data_from_xlsx('komf_houses.xlsx')
     data_jks = load_data_from_xlsx('jks_houses.xlsx')
+    mainwork_data, subwork_data, fixwork_data = load_data_from_sprav_xlsx('works_init_sprav.xlsx')
     print(len(data_komf), data_komf[0])
-    print(len(data_jks), data_jks[0])"""
+    print(len(data_jks), data_jks[0])
+    print(len(mainwork_data), len(subwork_data), len(fixwork_data))
     loop = get_event_loop()
-    """
+
     loop.run_until_complete(init_mkd_works_db_data(data_komf, 1))
-    loop.run_until_complete(init_mkd_works_db_data(data_jks, 2))"""
+    loop.run_until_complete(init_mkd_works_db_data(data_jks, 2))
     loop.run_until_complete(init_mkd_works_db_works_reference_book(mainwork_data, subwork_data, fixwork_data))
             
 

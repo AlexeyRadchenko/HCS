@@ -41,6 +41,7 @@
                           :selected-house-id="selectedHouseId"
                           :selected-company-id="selectedCompanyId"
                           :selected-house-name="getSelectedHouse"
+                          :all-works-ref="works_refrenece_book_list"
                             />
                         </el-tab-pane>
                         <el-tab-pane label="Годовые акты выполенных работ">
@@ -67,19 +68,24 @@
             </el-container>
         </el-container>
         <MKDAllWorksRegestry v-model:dialogAllWorksRegisterVisibleSub="dialogWorksRegistryMain" />
-        <WorkTypesModal v-model:dialogTypeOfWorksTableVisibleSub="dialogTypeOfWorksTableVisibleMain" />
+        <WorkTypesModal
+         v-model:dialogTypeOfWorksTableVisibleSub="dialogTypeOfWorksTableVisibleMain"
+         :works-main-ref-book="works_ref_from_db.mainworks"
+         :works-sub-ref-book="works_ref_from_db.subworks"
+         :works-fix-ref-book="works_ref_from_db.fixworks"
+          />
     </div>
   </template>
   
 <script setup>
 // Импортируйте необходимые функции, если нужно
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, watchPostEffect } from 'vue';
 import WorkTypesModal from './modal/WorkTypesModal.vue';
 import WorksRegester from './WorksRegester.vue';
 import MKDAllWorksRegestry from './modal/MKDAllWorksRegestry.vue';
 import MKDYearWorksActs from './MKDYearWorksActs.vue';
 import MKDTechnicDocs from './MKDTechnicDocs.vue';
-import { get_mkd_works_get_all_houses } from '../../http/mkd-works-http-common';
+import { get_mkd_works_get_all_houses, get_works_reference_book } from '../../http/mkd-works-http-common';
 // Создайте реактивные переменные
 const message = ref('Привет, Vue 3!');
 const serviceTitle = ref('Оказанные услуги (работы по МКД)')
@@ -92,6 +98,12 @@ const selectedCompanyId = ref('1')
 const count = ref(0);
 const houses_komf = ref([])
 const houses_jks = ref([])
+const works_refrenece_book_list = ref([])
+const works_ref_from_db = ref({
+  mainworks: [],
+  subworks: [],
+  fixworks: [],
+})
 const getSelectedHouse = computed(() => {
   return houses_komf.value.find(house => house.id === selectedHouseId.value)?.house
 })
@@ -152,6 +164,41 @@ onMounted(() => {
     });
     houses_komf.value.sort((a, b ) => a.house > b.house ? 1: -1)
     houses_jks.value.sort((a, b ) => a.house > b.house ? 1: -1)
+  }).catch((error) => {
+    console.error('Error:', error);
+  });
+
+  get_works_reference_book().then((response) => {
+    //console.log('Data:', response.data);
+    Object.assign(works_ref_from_db.value, response.data)
+    for (const element of response.data.mainworks) {
+      works_refrenece_book_list.value.push(
+        {
+          id: String(element.id),
+          work: element.work,
+        }
+      )
+      for (const subworks of response.data.subworks) {
+        if (subworks.mainwork_id === element.id) {
+          works_refrenece_book_list.value.push(
+            {
+              id: element.id+'_1_'+subworks.id,
+              work: subworks.work,
+            }
+          )
+        }
+      }
+      for (const fixwork of response.data.fixworks) {
+        if (fixwork.mainwork_id === element.id) {
+          works_refrenece_book_list.value.push(
+            {
+              id: element.id+'_2_'+fixwork.id,
+              work: fixwork.work,
+            }
+          )
+        }
+      }
+    }
   }).catch((error) => {
     console.error('Error:', error);
   });

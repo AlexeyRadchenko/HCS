@@ -62,6 +62,7 @@ const props = defineProps({
   selectedHouseId: String,
   selectedCompanyId: String,
   selectedHouseName: String,
+  allWorksRef: Array,
 })
 const showMKDWorkAddModal = ref(false)
 const workID =ref('')
