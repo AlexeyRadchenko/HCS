@@ -42,6 +42,7 @@
                           :selected-company-id="selectedCompanyId"
                           :selected-house-name="getSelectedHouse"
                           :all-works-ref="works_refrenece_book_list"
+                          :works-periods-ref="periodsNames"
                             />
                         </el-tab-pane>
                         <el-tab-pane label="Годовые акты выполенных работ">
@@ -99,14 +100,28 @@ const count = ref(0);
 const houses_komf = ref([])
 const houses_jks = ref([])
 const works_refrenece_book_list = ref([])
+const works_periods = ref([])
 const works_ref_from_db = ref({
   mainworks: [],
   subworks: [],
   fixworks: [],
 })
 const getSelectedHouse = computed(() => {
-  return houses_komf.value.find(house => house.id === selectedHouseId.value)?.house
+  //console.log("houses", houses_komf.value, )
+  return houses_komf.value.find(house => String(house.id) === selectedHouseId.value)?.house
 })
+
+const periodsNames = computed(() => { 
+    let options = works_periods.value.map((item, idx) => {
+    return {
+      value: idx,
+      label: item
+    }
+  })
+  //console.log('Options', options)
+  return options
+})
+
 const gridData = [
 {
   date: '2016-05-02',
@@ -174,28 +189,36 @@ onMounted(() => {
     for (const element of response.data.mainworks) {
       works_refrenece_book_list.value.push(
         {
-          id: String(element.id),
-          work: element.work,
+          value: String(element.id),
+          label: element.work,
         }
       )
+
       for (const subworks of response.data.subworks) {
         if (subworks.mainwork_id === element.id) {
           works_refrenece_book_list.value.push(
             {
-              id: element.id+'_1_'+subworks.id,
-              work: subworks.work,
+              value: element.id+'_1_'+subworks.id,
+              label: subworks.work,
             }
           )
         }
+      if(!works_periods.value.includes(subworks.period) && subworks.period != '') {
+          works_periods.value.push(subworks.period)
+        }
       }
+
       for (const fixwork of response.data.fixworks) {
         if (fixwork.mainwork_id === element.id) {
           works_refrenece_book_list.value.push(
             {
-              id: element.id+'_2_'+fixwork.id,
-              work: fixwork.work,
+              value: element.id+'_2_'+fixwork.id,
+              label: fixwork.work,
             }
           )
+        }
+        if(!works_periods.value.includes(fixwork.period) && fixwork.period != '') {
+          works_periods.value.push(fixwork.period)
         }
       }
     }

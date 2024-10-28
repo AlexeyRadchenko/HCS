@@ -1,25 +1,25 @@
 <template>
     <div class="mkd-services-works-regester-wrapper-conteiner">
       <el-text class="mx-1" size="large">{{ selectedCompanyId }} - {{ selectedHouseId }}</el-text>
-      <el-table :data="tableData" style="width: 100%" max-height="900">
+      <el-table :data="tableData" style="width: 100%" max-height="900" v-loading="loading">
         <el-table-column fixed prop="numOrder" label="№" width="50" />
         <el-table-column fixed prop="numSprav" label="Разд. Справ." width="69" />
         <el-table-column prop="work" label="Наименование работы" width="500" />
-        <el-table-column prop="smeta.date" label="Дата сметы" width="100" />
+        <el-table-column prop="smeta.date" label="Дата сметы" width="100" :formatter="dateFromDB" />
         <el-table-column prop="numSmeta" label="№ Сметы / Файл" width="140">
           <template #default="scope">
             <div style="display: flex; align-items: center">
               <span>{{ scope.row.smeta.num }}</span>
-              <span style="margin-left: 10px"><a :href="scope.row.smeta.fileUrl">Документ</a></span>
+              <span style="margin-left: 10px"><a :href="scope.row.smeta.url + scope.row.smeta.uuid" v-if="scope.row.smeta.url">Файл</a></span>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="act.date" label="Дата акта" width="100" />
+        <el-table-column prop="act.date" label="Дата акта" width="100" :formatter="dateFromDB" />
         <el-table-column prop="act.num" label="№ Акта / Файл" width="140">
           <template #default="scope">
             <div style="display: flex; align-items: center">
               <span>{{ scope.row.act.num }}</span>
-              <span style="margin-left: 10px"><a :href="scope.row.act.fileUrl">Документ</a></span>
+              <span style="margin-left: 10px"><a :href="scope.row.act.url + scope.row.act.uuid" v-if="scope.row.act.url">Файл</a></span>
             </div>
           </template>
         </el-table-column>
@@ -32,9 +32,9 @@
               link
               type="primary"
               size="small"
-              @click.prevent="deleteRow(scope.$index)"
+              @click.prevent="EditRow(scope.$index)"
             >
-              Remove
+              редактировать
             </el-button>
           </template>
         </el-table-column>
@@ -44,10 +44,15 @@
       </el-button>
       <MKDWorkAddModal 
         v-model:dialogMKDWorksAddVisibleSub="showMKDWorkAddModal"
+        v-model:workFromDBdata="workFromDBdataMain"
         :house-id="props.selectedHouseId" 
         :company="props.selectedCompanyId"
         :house-name="props.selectedHouseName"
         :work-id="workID"
+        :all-works-options="props.allWorksRef"
+        :all-periods-options="props.worksPeriodsRef"
+        :modal-call-type="modalCallType"
+        :edit-row-index="editRowIndex"
         />
     </div>
 </template>
@@ -57,52 +62,30 @@
 import { ref, reactive, computed, onMounted, watch, defineModel, toRaw } from 'vue';
 import MKDWorkAddModal from './modal/MKDWorkAddModal.vue';
 import { get_mkd_works_get_all_works_by_house_id } from '../../http/mkd-works-http-common'
+import { mkd_works_works_to_string, get_mkd_works_sprav_name } from '../../utils/utils'
+import dayjs from 'dayjs';
 
 const props = defineProps({
   selectedHouseId: String,
   selectedCompanyId: String,
   selectedHouseName: String,
   allWorksRef: Array,
+  worksPeriodsRef: Array,
 })
 const showMKDWorkAddModal = ref(false)
 const workID =ref('')
+const workFromDBdataMain = ref(null)
+const loading = ref(true)
+const modalCallType=ref('add')
+const editRowIndex = ref(null)
+const tableData = ref([])
 
-const tableData = ref([
-  {
-    numOrder: 1,
-    numSprav: '2.2',
-    work: 'Tom',
-    smeta: {num:'12/123', fileUrl: 'urlFile', date: '01.01.2024'},
-    act: {num:'12/123', fileUrl: 'urlFile', date: '01.02.2024'},
-    monthWork: 'сентябрь',
-    yearWork: '2024',
-    sumWork: '54654.45'
-
-  },
-  {
-    numOrder: 2,
-    numSprav: '2.2',
-    work: 'Tom',
-    smeta: {num:'12/123', fileUrl: 'urlFile', date: '01.01.2024'},
-    act: {num:'12/123', fileUrl: 'urlFile', date: '01.02.2024'},
-    monthWork: 'сентябрь',
-    yearWork: '2024',
-    sumWork: '54654.45'
-  },
-  {
-    numOrder: 3,
-    numSprav: '2.2',
-    work: 'Tom',
-    smeta: {num:'12/123', fileUrl: 'urlFile', date: '01.01.2024'},
-    act: {num:'12/123', fileUrl: 'urlFile', date: '01.02.2024'},
-    monthWork: 'сентябрь',
-    yearWork: '2024',
-    sumWork: '54654.45'
-  },
-])
-
-const deleteRow = (index) => {
-  tableData.value.splice(index, 1)
+const EditRow = (index) => {
+  //tableData.value.splice(index, 1)
+  modalCallType.value = 'edit'
+  showMKDWorkAddModal.value = true
+  editRowIndex.value = index
+  workFromDBdataMain.value = tableData.value[index]
 }
 
 const onAddItem = () => {
@@ -111,29 +94,62 @@ const onAddItem = () => {
   }
   showMKDWorkAddModal.value = true
   workID.value = ''
+  modalCallType.value = 'add'
+  editRowIndex.value = null
+  workFromDBdataMain.value = initEmptyRowData()
 }
 
-watch(() => props.selectedHouseId, (oldSelectedHouseId, newSelectedHouseId) => {
-  console.log("newProps", newSelectedHouseId)
-  get_mkd_works_get_all_works_by_house_id(newSelectedHouseId).then((response) => {
-    console.log(response)
-  }).catch((error) => {
-    console.error('Error:', error);
-  });
-})
+const dateFromDB = function (row, column, cellValue, index) {
+  console.log('DATE', cellValue)
+  if (cellValue)
+    return dayjs(cellValue).format('DD.MM.YYYY')
+  else
+    return ''
+}
 
 const worksDataFromDBtoTableView = (worksData) => {
   for (let [index, element] of worksData.entries()) {
     tableData.value.push({
       numOrder: index + 1,
-      numSprav: element.numsprav,
-      work: element.work,
-      smeta: {num:element.smeta.num, fileUrl: element.smeta.fileUrl, date: element.smeta.date},
-      act: {num:element.act.num, fileUrl: element.act.fileUrl, date: element.act.date},
+      numSprav: element.num ? element.num : get_mkd_works_sprav_name(element.mainworks, element.subworks, element.fixworks),
+      work: mkd_works_works_to_string(element.mainworks, element.subworks, element.fixworks),
+      smeta: element.smetafiles.length > 0 ? element.smetafiles[0]: {num: '', url: '', date: '', uuid: '', name: ''},
+      act: element.actfiles.length  > 0 ? element.actfiles[0]: {num: '', url: '', date: '', uuid: '', name: ''},
       monthWork: element.monthWork,
       yearWork: element.yearWork,
       sumWork: element.sumWork,
+      workId: element.id,
+      dirFIO: element.houses.director,
+      dirAppart: element.houses.director_appartment,
     })
+  }
+  //console.log("asddddddddddddd", tableData.value)
+}  
+
+watch(() => props.selectedHouseId, (newSelectedHouseId, oldSelectedHouseId) => {
+  console.log("newProps", newSelectedHouseId, oldSelectedHouseId)
+  console.log(props.selectedHouseName)
+  loading.value = true
+  get_mkd_works_get_all_works_by_house_id(newSelectedHouseId).then((response) => {
+    tableData.value = []
+    worksDataFromDBtoTableView(response.data)
+    loading.value = false
+  }).catch((error) => {
+    console.error('Error:', error);
+  });
+})
+
+const initEmptyRowData = () => {
+  return {
+    numOrder: null,
+    numSprav: '',
+    work: '',
+    smeta: {num: '', url: '', date: '', uuid: '', name: ''},
+    act: {num: '', url: '', date: '', uuid: '', name: ''},
+    monthWork: '',
+    yearWork: '',
+    sumWork: '',
+    workId: '',
   }
 }
 
@@ -142,7 +158,9 @@ onMounted(() => {
   console.log('Компонент был смонтирован!');
   console.log('props!', props.selectedHouseId);
   get_mkd_works_get_all_works_by_house_id(props.selectedHouseId).then((response) => {
-    console.log(response)
+    worksDataFromDBtoTableView(response.data)
+    workFromDBdataMain.value = initEmptyRowData()
+    loading.value = false
   }).catch((error) => {
     console.error('Error:', error);
   });

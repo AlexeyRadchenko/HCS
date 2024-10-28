@@ -74,3 +74,23 @@ export var ContactDataObjectToTableObject = async function (fData) {
     contactData['note'] = fData['note']
     return contactData
 }
+
+export var mkd_works_works_to_string = function(main, sub, fix) {
+    let works = ''
+    for (let [index, element] of main.entries()) {works = works + element.work + '/n'}
+    for (let [index, element] of sub.entries()) {works = works + element.work + '/n'}
+    for (let [index, element] of fix.entries()) {works = works + element.work + '/n'}
+    return works
+}
+
+export var get_mkd_works_sprav_name = function(main, sub, fix) {
+    if (main.length > 0)
+        return main[0].numsprav
+    else if (sub.length > 0)
+        return sub[0].numsprav
+    else if (fix.length > 0)
+        return fix[0].numsprav
+    else return
+}
+
+export var string_from_db_date

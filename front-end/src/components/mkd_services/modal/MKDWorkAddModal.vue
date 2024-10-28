@@ -1,7 +1,7 @@
 
 <template>
     <div class="mkd-works-add-modal-wrapper-conteiner">
-        <el-dialog v-model="dialogMKDWorksAddVisibleSub" :title="'Добавление/Редактирование сведений о работах по МКД '+ props.houseName" width="1250">
+        <el-dialog v-model="dialogMKDWorksAddVisibleSub" :title="'Добавление/Редактирование сведений о работах по МКД '+ houseName" width="1250">
           <el-container>
             <main style="width: 100%;">
                 <el-row :gutter="20">   
@@ -55,7 +55,7 @@
                     </el-col>
                     <el-col :span="9">
                       <el-input
-                        v-model="actInputData.directorSovietFIO"
+                        v-model="workInputData.directorSovietFIO"
                         style="width: 100%"
                         placeholder="ФИО председателя совета дома, например Иванов И.И."
                         clearable
@@ -63,7 +63,7 @@
                     </el-col>
                     <el-col :span="3">
                       <el-input
-                        v-model="actInputData.directorAppartNum"
+                        v-model="workInputData.directorAppartNum"
                         style="width: 100%"
                         placeholder="Номер квартиры"
                         clearable
@@ -74,25 +74,22 @@
                     <el-col :span="11">
                         <el-text class="mx-1" size="large">Приложить файл акта</el-text>
                     </el-col>
-                    <el-col :span="5">
+                    <el-col :span="6">
                       <el-date-picker
-                        v-model="actInputData.actDate"
-                        type="date"
-                        format="DD.MM.YYYY"
-                        placeholder="Дата составления акта"
+                        v-model="workInputData.workMonthAndYear"
+                        type="month"
+                        format="MM.YYYY"
+                        placeholder="Месяц и год проведения работ"
                         style="width: 100%"
                         value-format="YYYY-MM-DD"
                       />
                     </el-col>
-                    <el-col :span="7">
-                      <el-date-picker
-                        v-model="actInputData.actPeriod"
-                        type="daterange"
-                        range-separator="до"
-                        start-placeholder="Дата нач. работ"
-                        end-placeholder="Дата окон. работ"
-                        forma="DD.MM.YYYY"
+                    <el-col :span="6">
+                      <el-input
+                        v-model="workInputData.actAllSumHandle"
                         style="width: 100%"
+                        placeholder="Общая сумма"
+                        clearable
                       />
                     </el-col>
                 </el-row>
@@ -140,15 +137,10 @@
                       </el-upload>
                   </el-col>
                   <el-col :span="5">
-                    <el-input
-                      v-model="actInputData.actAllSumHandle"
-                      style="width: 100%; margin-top: 1em;"
-                      placeholder="Общая сумма"
-                      clearable
-                    />
+                    <el-button type="primary" style="width: 100%" @click="onSaveBtnClick">Сохранить</el-button>
                   </el-col>
                   <el-col :span="3" class="mkd-works-left-margin-col">
-                    <el-button type="primary" style="width: 100%; margin-top: 1em;">Сохранить</el-button>
+                    <el-button type="info" style="width: 100%">Отменить</el-button>
                   </el-col>
                 </el-row>
                 <el-row :gutter="20">
@@ -159,16 +151,21 @@
                 <el-row>
                   <el-col :span="24">
                     <el-table :data="tableData" style="width: 100%" max-height="450">
-                      <el-table-column label="№ П/П" width="90">
+                      <el-table-column label="№ П/П" width="65">
                         <template #default="scope">
                           <el-input v-model="scope.row.orderNum" style="width: 100%"/>
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="Разд. справ." width="80">
+                        <template #default="scope">
+                          <el-input v-model="scope.row.numsprav" style="width: 100%"/>
                         </template>
                       </el-table-column>
                       <el-table-column  label="Наименование вида работы (услуги)" width="420">
                         <template #default="scope">
                           <el-select-v2
                             v-model="scope.row.nameWorkOrService"
-                            :options="works"
+                            :options="allWorksOptions"
                             placeholder="Выберите работу услугу"
                             style="width: 100%"
                             filterable
@@ -180,7 +177,7 @@
                         <template #default="scope">
                           <el-select-v2
                             v-model="scope.row.period"
-                            :options="periods"
+                            :options="allPeriodsOptions"
                             placeholder="Периодичность"
                             style="width: 100%"
                             filterable
@@ -188,17 +185,17 @@
                           />
                         </template>
                       </el-table-column>
-                      <el-table-column label="Кол-во единиц измерений" width="120">
+                      <el-table-column label="Кол-во единиц измерений" width="80">
                         <template #default="scope">
                           <el-input v-model="scope.row.quantity" style="width: 100%"/>
                         </template>
                       </el-table-column>
-                      <el-table-column label="Стоимость оказанной услуги за единицу, руб/м2" width="130">
+                      <el-table-column label="Стоимость оказанной услуги за единицу, руб/м2" width="120">
                         <template #default="scope">
                           <el-input v-model="scope.row.costOfPart" style="width: 100%"/>
                         </template>
                       </el-table-column>
-                      <el-table-column label="Цена выполненной работы (оказанной услуги) в рублях" width="170">
+                      <el-table-column label="Цена выполненной работы (оказанной услуги) в рублях" width="120">
                         <template #default="scope">
                           <el-input v-model="scope.row.Sum" style="width: 100%"/>
                         </template>
@@ -211,13 +208,13 @@
                             size="small"
                             @click.prevent="deleteRow(scope.$index)"
                           >
-                            Remove
+                            Удалить
                           </el-button>
                         </template>
                       </el-table-column>
                     </el-table>
                     <el-button class="mt-4" style="width: 100%" @click="onAddItem">
-                      Add Item
+                      Добавить строку
                     </el-button>
                   </el-col>
                 </el-row>
@@ -234,6 +231,7 @@ import { genFileId } from 'element-plus'
 import secureStorage from '../../../storage/secStorage'
 import { get_future_work_id_by_house_id } from '../../../http/mkd-works-http-common'
 import dayjs from 'dayjs'
+import { all } from 'axios';
 
 
 const props = defineProps({
@@ -241,6 +239,10 @@ const props = defineProps({
     company: String,
     houseName: String,
     workID: String,
+    modalCallType: String,
+    allWorksOptions: Array,
+    allPeriodsOptions: Array,
+    editRowIndex: Number,
 })
 
 const uploadHeaders = {
@@ -248,11 +250,12 @@ const uploadHeaders = {
 }
 
 const dialogMKDWorksAddVisibleSub = defineModel('dialogMKDWorksAddVisibleSub')
+const workFromDBdata = defineModel('workFromDBdata')
 const uploadSmeta = ref(null)
 const uploadAct = ref(null)
 const tempWorkId = ref(parseInt(props.workID))
-const actInputData = ref({
-  actPeriod: '',
+const workInputData = ref({
+  workMonthAndYear: '',
   actAllSumHandle: '',
   directorSovietFIO: '',
   directorAppartNum: '',
@@ -296,20 +299,29 @@ const uploadActSuccess = (response) => {
     actDowmloadFile.value.workid = response.workid
     tempWorkId.value = response.workid
 }    
-const worksNames = ['JDkjfglasfld', 'adsasdasdads', 'KGFgkl;ldskfgldkfgdfgsdfsdfsdfgsfgdfgdlbkjdlbgkjdlkhbgjdlkfjgldkfjg', 'fsjkgvlskgjldsfk', 'e', 'f', 'g', 'h', 'i', 'j']
-const periodsNames = ['постоянно', '6 месяцев', 'согласно санитарным нормам',]
 
-const works = Array.from({ length: worksNames.length}).map((_, idx) => ({
-  value: `Option ${idx + 1}`,
-  label: worksNames[idx],
-}))
+watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
+  console.log(show, oldStatus)
+  if (show && props.modalCallType == 'edit') {
+    console.log(props.modalCallType, props.editRowIndex)
+    console.log(workFromDBdata.value)
+    workInputData.value.workMonthAndYear = dayjs(workFromDBdata.value.date).format('MM.YYYY')
+    workInputData.value.directorSovietFIO = workFromDBdata.value.dirFIO
+    workInputData.value.directorAppartNum = workFromDBdata.value.dirAppart
+    workInputData.value.actAllSumHandle = workFromDBdata.value.all_sum
+    actDowmloadFile.value.actnum = workFromDBdata.value.act.num
+    actDowmloadFile.value.date = dayjs(workFromDBdata.value.act.date).format('DD.MM.YYYY')
+    actDowmloadFile.value.url = workFromDBdata.value.act.url
+    actDowmloadFile.value.uuid = workFromDBdata.value.act.uuid
+    actDowmloadFile.value.workid = workFromDBdata.value.workId
+    actDowmloadFile.value.filename= workFromDBdata.value.act.name
+  }
+  //console.log(workInputData.value.workMonthAndYear, dayjs(workFromDBdata.value.date).format('MM.YYYY'))
+})
 
-const periods = Array.from({ length: periodsNames.length}).map((_, idx) => ({
-  value: `Option ${idx + 1}`,
-  label: periodsNames[idx],
-}))
 
 
+//upload files methods
 const handleExceedSmeta = (files) => { 
   console.log("!smeta")
   if (uploadSmeta.value) {
@@ -351,12 +363,13 @@ const submitUploadAct = () => {
 
 const tableData = ref([
   {
-    orderNum: '1',
-    nameWorkOrService: 'Tom',
-    period: 'California',
-    quantity: 'Los Angeles',
-    costOfPart: 'No. 189, Grove St, Los Angeles',
-    Sum: 'CA 90036',
+    orderNum: 1,
+    numsprav: '',
+    nameWorkOrService: '',
+    period: '',
+    quantity: '',
+    costOfPart: '',
+    Sum: '0.00',
   },
 ])
 
@@ -366,13 +379,17 @@ const deleteRow = (index) => {
 
 const onAddItem = () => {
   tableData.value.push({
-    orderNum: '1',
-    nameWorkOrService: 'Tom',
-    period: 'California',
-    quantity: 'Los Angeles',
-    costOfPart: 'No. 189, Grove St, Los Angeles',
-    Sum: 'CA 90036',
+    orderNum: tableData.value.length + 1,
+    nameWorkOrService: '',
+    period: '',
+    quantity: '',
+    costOfPart: '',
+    Sum: '0.00',
   })
+}
+
+const onSaveBtnClick = () => {
+  console.log(props.modalCallType)
 }
 
 /*const work_id_from_db = (houseID) => {
@@ -392,6 +409,8 @@ watch(dialogMKDWorksAddVisibleSub, (dialogMKDWorksAddVisibleSub) => {
     actInputFileData.value.actfutureid = props.workID
   }
 })*/ 
+
+//watch(() => props.selectedHouseId, (newSelectedHouseId, oldSelectedHouseId) => {
 
 onMounted(() => {
   console.log('Компонент был смонтирован!');
