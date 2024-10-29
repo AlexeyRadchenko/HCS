@@ -4,7 +4,11 @@
       <el-table :data="tableData" style="width: 100%" max-height="900" v-loading="loading">
         <el-table-column fixed prop="numOrder" label="№" width="50" />
         <el-table-column fixed prop="numSprav" label="Разд. Справ." width="69" />
-        <el-table-column prop="work" label="Наименование работы" width="500" />
+        <el-table-column label="Наименование работы" width="500">
+          <template #default="scope">
+            <span class="mkd-service-cell_text " :title="scope.row.work">{{ scope.row.work }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="smeta.date" label="Дата сметы" width="100" :formatter="dateFromDB" />
         <el-table-column prop="numSmeta" label="№ Сметы / Файл" width="140">
           <template #default="scope">
@@ -23,8 +27,8 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="monthWork" label="Месяц пров. работ" width="100" />
-        <el-table-column prop="yearWork" label="Год пров. работ" width="100" />
+        <el-table-column prop="monthWork" label="Месяц пров. работ" width="100" :formatter="monthWorkFromDB" />
+        <el-table-column prop="yearWork" label="Год пров. работ" width="100" :formatter="yearWorkFromDB"/>
         <el-table-column prop="sumWork" label="Стоимость работ" width="100" />
         <el-table-column fixed="right" label="Редактирование" min-width="120">
           <template #default="scope">
@@ -64,6 +68,7 @@ import MKDWorkAddModal from './modal/MKDWorkAddModal.vue';
 import { get_mkd_works_get_all_works_by_house_id } from '../../http/mkd-works-http-common'
 import { mkd_works_works_to_string, get_mkd_works_sprav_name } from '../../utils/utils'
 import dayjs from 'dayjs';
+import { configProviderContextKey } from 'element-plus';
 
 const props = defineProps({
   selectedHouseId: String,
@@ -72,6 +77,9 @@ const props = defineProps({
   allWorksRef: Array,
   worksPeriodsRef: Array,
 })
+const months =["Январь", "Февраль", "Март", "Апрель", "Mай", "Июнь", "Июль",
+    "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+  ]
 const showMKDWorkAddModal = ref(false)
 const workID =ref('')
 const workFromDBdataMain = ref(null)
@@ -107,6 +115,21 @@ const dateFromDB = function (row, column, cellValue, index) {
     return ''
 }
 
+const monthWorkFromDB = function (row, column, cellValue, index) {
+  if (cellValue)
+    return months[dayjs(cellValue).month()]
+  else
+    return ''
+}
+
+const yearWorkFromDB = function (row, column, cellValue, index) {
+  if (cellValue)
+    return dayjs(cellValue).year()
+  else
+    return ''
+}
+
+
 const worksDataFromDBtoTableView = (worksData) => {
   for (let [index, element] of worksData.entries()) {
     tableData.value.push({
@@ -115,10 +138,13 @@ const worksDataFromDBtoTableView = (worksData) => {
       work: mkd_works_works_to_string(element.mainworks, element.subworks, element.fixworks),
       smeta: element.smetafiles.length > 0 ? element.smetafiles[0]: {num: '', url: '', date: '', uuid: '', name: ''},
       act: element.actfiles.length  > 0 ? element.actfiles[0]: {num: '', url: '', date: '', uuid: '', name: ''},
-      monthWork: element.monthWork,
-      yearWork: element.yearWork,
-      sumWork: element.sumWork,
+      monthWork: element.month_year_works,
+      yearWork: element.month_year_works,
+      sumWork: element.all_sum,
       workId: element.id,
+      mainWorkId: '',
+      subWorkId: '',
+      fixWorkId: '',
       dirFIO: element.houses.director,
       dirAppart: element.houses.director_appartment,
     })
@@ -150,6 +176,9 @@ const initEmptyRowData = () => {
     yearWork: '',
     sumWork: '',
     workId: '',
+    mainWorkId: '',
+    subWorkId: '',
+    fixWorkId: '',
   }
 }
 
@@ -170,6 +199,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
-
+.mkd-service-cell_text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 </style>
   

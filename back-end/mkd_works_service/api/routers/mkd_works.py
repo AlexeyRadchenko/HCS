@@ -10,7 +10,7 @@ from ..database.mkd_works.crud import (
     get_all_houses, get_all_mkd_works_by_house_id, get_furure_work_id_from_db, create_mkd_works_db_object, get_all_mainworks,
     get_all_subworks, get_all_fixworks
     )
-from ..database.mkd_works.models import Acts, Actfiles, Actshasactfiles
+from ..database.mkd_works.models import Acts, Actfiles, Actshasactfiles, Smetafiles, Actshassmetafiles
 from api.security.acess_depends import user_scope_authorize
 from ..database.database import get_async_session
 from api.settings.settings import settings
@@ -116,6 +116,67 @@ async def create_upload_act_file(
             "url": url,
             "workid": int(workid), #send work id from db object
             }
+    
+@router.post("/uploadfile/smeta")
+async def create_upload_smeta_file(
+    smetanum: Annotated[str, Form()],
+    smetadate: Annotated[datetime, Form()],
+    houseid: Annotated[int, Form()],
+    workid: Annotated[str, Form()],
+    file: UploadFile | None = None,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    if not file:
+        return {"message": "No file sent"}
+    else:
+        if settings.FILE_SERVER == 'localhost':
+            url = '/download/smeta/'
+        else:
+            url = f'https://{settings.FILE_SERVER}:{settings.FILE_SERVER_PORT}/download/smeta/'
+
+        fullpath = path.join(settings.SMETA_FILES_STORE_PATH, file.filename)
+        smetafile = Smetafiles(
+                name=file.filename,
+                date=smetadate,
+                num=smetanum,
+                extention=get_file_extension(file.filename),
+                url=url,
+                path=fullpath,
+                size=str(file.size),
+                filetype=file.content_type,  # assuming the file type is correct in this case
+                house_id=houseid,
+            )
+        cr_smeta_doc = await create_mkd_works_db_object(db_session, smetafile)
+        
+        if workid == 'undefined':
+            #print("not exist", workid)
+            act = Acts(
+                house_id=houseid,
+                all_sum='0',
+            )
+            cr_work = await create_mkd_works_db_object(db_session, act)
+            acthassmetafiles = Actshassmetafiles(
+                act_id=cr_work.id,
+                actfile_uuid=cr_smeta_doc.uuid
+            )
+            workid=cr_work.id
+        else:
+            #print("exist", workid)
+            #create act document with ref to act.id=workid
+            acthassmetafiles = Actshassmetafiles(
+                act_id=int(workid),
+                actfile_uuid=cr_smeta_doc.uuid
+            )    
+        await chunked_copy(file, fullpath)
+        ref_obj = await create_mkd_works_db_object(db_session, acthassmetafiles)
+        return {
+            "filename": file.filename,
+            "actdate": smetadate,
+            "actnum": smetanum,
+            "url": url,
+            "workid": int(workid), #send work id from db object
+            }    
 
 @router.get("/get_reference_book_data/all")
 async def get_reference_book_data_all(

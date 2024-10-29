@@ -103,7 +103,7 @@ class DoneWorksSchema(BaseModel):
     date: Optional[datetime]
     start_date: Optional[datetime]
     end_date: Optional[datetime]
-    num: Optional[datetime]
+    num: Optional[str]
     house_id: Optional[int]
     all_sum: Optional[str]
     month_year_works: Optional[datetime]

@@ -33,12 +33,13 @@
                     <el-col :span="5">
                         <el-upload
                             ref="uploadSmeta"
-                            :data="smetaInputFileData"
-                            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                            :data="getDataSmetaFile"
+                            action="http://localhost:8050/api/v1/mkd_works_service/uploadfile/smeta"
                             :limit="1"
                             :on-exceed="handleExceedSmeta"
                             :auto-upload="false"
                             :headers="uploadHeaders"
+                            :on-success="uploadSmetaSuccess"
                         >
                             <template #trigger>
                             <el-button type="primary">select file</el-button>
@@ -145,7 +146,7 @@
                 </el-row>
                 <el-row :gutter="20">
                   <el-col :span="12">
-                    {{ actDowmloadFile.date }} {{ actDowmloadFile.filename }}
+                    <span>{{ actDowmloadFile.date }}</span><span>{{ actDowmloadFile.filename }}</span> 
                   </el-col>    
                 </el-row>
                 <el-row>
@@ -244,7 +245,7 @@ const props = defineProps({
     allPeriodsOptions: Array,
     editRowIndex: Number,
 })
-
+//{1}_2_{2} или {1}_1_{2} перваое это mainworkid, один или два -> тип работы sub илил fix, последнее id работы
 const uploadHeaders = {
   'Authorization': 'Bearer ' + secureStorage.getItem('token')
 }
@@ -253,7 +254,6 @@ const dialogMKDWorksAddVisibleSub = defineModel('dialogMKDWorksAddVisibleSub')
 const workFromDBdata = defineModel('workFromDBdata')
 const uploadSmeta = ref(null)
 const uploadAct = ref(null)
-const tempWorkId = ref(parseInt(props.workID))
 const workInputData = ref({
   workMonthAndYear: '',
   actAllSumHandle: '',
@@ -278,37 +278,67 @@ const actDowmloadFile = ref({
 })
 
 const smetaInputFileData = ref({
-  smetadate: '',
-  smetanum: ''
+  smetanum: null,
+  smetadate: null,
+  actfutureid: null,
+  workid: null,
+  houseid: null,
+})
+
+const smetaDowmloadFile = ref({
+  filename: '',
+  url: '',
+  date: '',
+  num: '',
+  uuid: '',
+  workid: ''
 })
 
 const getDataActFile = () => {
-      console.log("sibdataloading", actInputFileData.value)
-      return {
-        actnum: actInputFileData.value.actnum, // любые ваши данные
-        actdate: actInputFileData.value.actdate,
-        workid: props.workID,
-        houseid: props.houseId
-      };
-    };
+  console.log("sibdataloading", actInputFileData.value)
+  return {
+    actnum: actInputFileData.value.actnum, // любые ваши данные
+    actdate: actInputFileData.value.actdate,
+    workid: props.workID,
+    houseid: props.houseId
+  };
+};
+
+const getDataSmetaFile = () => {
+  return {
+    smetanum: smetaInputFileData.value.smetanum, // любые ваши данные
+    smetadate: smetaInputFileData.value.smetadate,
+    workid: props.workID,
+    houseid: props.houseId
+  };
+}    
 const uploadActSuccess = (response) => {
     console.log(response)
     actDowmloadFile.value.filename = response.filename
     actDowmloadFile.value.date = response.actdate
     actDowmloadFile.value.num = response.actNum
     actDowmloadFile.value.workid = response.workid
-    tempWorkId.value = response.workid
-}    
+    props.workID = response.workid
+}
+
+const uploadSmetaSuccess = (response) => {
+    console.log(response)
+    smetaDowmloadFile.value.filename = response.filename
+    smetaDowmloadFile.value.date = response.actdate
+    smetaDowmloadFile.value.num = response.actNum
+    smetaDowmloadFile.value.workid = response.workid
+    props.workID = response.workid
+}
 
 watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
   console.log(show, oldStatus)
   if (show && props.modalCallType == 'edit') {
     console.log(props.modalCallType, props.editRowIndex)
     console.log(workFromDBdata.value)
-    workInputData.value.workMonthAndYear = dayjs(workFromDBdata.value.date).format('MM.YYYY')
+    workInputData.value.workMonthAndYear = dayjs(workFromDBdata.value.date).format('YYYY-MM-DD')
     workInputData.value.directorSovietFIO = workFromDBdata.value.dirFIO
     workInputData.value.directorAppartNum = workFromDBdata.value.dirAppart
-    workInputData.value.actAllSumHandle = workFromDBdata.value.all_sum
+    workInputData.value.actAllSumHandle = workFromDBdata.value.sumWork
     actDowmloadFile.value.actnum = workFromDBdata.value.act.num
     actDowmloadFile.value.date = dayjs(workFromDBdata.value.act.date).format('DD.MM.YYYY')
     actDowmloadFile.value.url = workFromDBdata.value.act.url
