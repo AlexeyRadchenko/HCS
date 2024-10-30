@@ -144,6 +144,7 @@ class Actfiles(Base):
     size = Column(String, nullable=False)
     filetype = Column(String, nullable=True)
     house_id = Column(Integer, ForeignKey("houses.id"), nullable=False)
+    date_upload = Column(DateTime(timezone=True), server_defalut=func.now())
 
     houses = relationship('Houses', back_populates='actfiles', lazy='joined')
     acts = relationship('Acts', secondary='actshasactfiles', back_populates='actfiles', lazy='joined')
@@ -157,10 +158,12 @@ class Smetafiles(Base):
     num = Column(String, nullable=True)
     date = Column(DateTime, nullable=True)
     extention = Column(String, nullable=False)
+    url = Column(String, nullable=False)
     path = Column(String, nullable=False)
     size = Column(String, nullable=False)
     filetype = Column(String, nullable=True)
     house_id = Column(Integer, ForeignKey("houses.id"), nullable=False)
+    date_upload = Column(DateTime(timezone=True), server_defalut=func.now())
 
     houses = relationship('Houses', back_populates='smetafiles', lazy='joined')
     acts = relationship('Acts', secondary='actshassmetafiles', back_populates='smetafiles', lazy='joined')
@@ -194,6 +197,8 @@ class Acts(Base):
     all_sum = Column(String, nullable=False)
     month_year_works = Column(DateTime, nullable=True)
     house_id = Column(Integer, ForeignKey("houses.id"), nullable=False)
+    unit_cost = Column(String, nullable=True)
+    work_square = Column(String, nullable=True)
 
     houses = relationship('Houses', back_populates='acts', lazy='joined')
     mainworks = relationship(

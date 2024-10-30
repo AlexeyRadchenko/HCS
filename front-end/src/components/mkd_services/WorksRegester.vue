@@ -52,7 +52,7 @@
         :house-id="props.selectedHouseId" 
         :company="props.selectedCompanyId"
         :house-name="props.selectedHouseName"
-        :work-id="workID"
+        :work-ID="workID"
         :all-works-options="props.allWorksRef"
         :all-periods-options="props.worksPeriodsRef"
         :modal-call-type="modalCallType"
@@ -66,7 +66,7 @@
 import { ref, reactive, computed, onMounted, watch, defineModel, toRaw } from 'vue';
 import MKDWorkAddModal from './modal/MKDWorkAddModal.vue';
 import { get_mkd_works_get_all_works_by_house_id } from '../../http/mkd-works-http-common'
-import { mkd_works_works_to_string, get_mkd_works_sprav_name } from '../../utils/utils'
+import { mkd_works_works_to_string, get_mkd_works_sprav_name, get_period } from '../../utils/utils'
 import dayjs from 'dayjs';
 import { configProviderContextKey } from 'element-plus';
 
@@ -94,6 +94,8 @@ const EditRow = (index) => {
   showMKDWorkAddModal.value = true
   editRowIndex.value = index
   workFromDBdataMain.value = tableData.value[index]
+  console.log("dddddddddddddddddddddddddddddddddd", tableData.value[index].workId)
+  workID.value = String(tableData.value[index].workId)
 }
 
 const onAddItem = () => {
@@ -138,9 +140,12 @@ const worksDataFromDBtoTableView = (worksData) => {
       work: mkd_works_works_to_string(element.mainworks, element.subworks, element.fixworks),
       smeta: element.smetafiles.length > 0 ? element.smetafiles[0]: {num: '', url: '', date: '', uuid: '', name: ''},
       act: element.actfiles.length  > 0 ? element.actfiles[0]: {num: '', url: '', date: '', uuid: '', name: ''},
+      period: get_period(element.subworks, element.fixworks),
       monthWork: element.month_year_works,
       yearWork: element.month_year_works,
       sumWork: element.all_sum,
+      quantSum: element.unit_cost,
+      squareWork: element.work_square,
       workId: element.id,
       mainWorkId: '',
       subWorkId: '',

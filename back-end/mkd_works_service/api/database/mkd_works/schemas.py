@@ -64,6 +64,7 @@ class ActFilesSchema(BaseModel):
     size: Optional[str]
     filetype: Optional[str]
     house_id: Optional[int]
+    date_upload: Optional[datetime]
 
     class Config:
         from_attributes = True
@@ -79,6 +80,7 @@ class SmetaFilesSchema(BaseModel):
     size: Optional[str]
     filetype: Optional[str]
     house_id: Optional[int]
+    date_upload: Optional[datetime]
 
     class Config:
         from_attributes = True
@@ -106,6 +108,8 @@ class DoneWorksSchema(BaseModel):
     num: Optional[str]
     house_id: Optional[int]
     all_sum: Optional[str]
+    unit_cost: Optional[str]
+    work_square: Optional[str]
     month_year_works: Optional[datetime]
     houses:Optional[HousesMKDSchema]
     mainworks: List[MainWorksSchema]

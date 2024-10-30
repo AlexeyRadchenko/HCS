@@ -93,4 +93,20 @@ export var get_mkd_works_sprav_name = function(main, sub, fix) {
     else return
 }
 
-export var string_from_db_date
+
+export var get_period = function(sub, fix) {
+    let mp = ''
+    let sp = ''
+    let fp = ''
+    console.log("---------->",sub, fix)
+    if (sub.length > 0)
+        sp = sub[0].period
+    if (fix.length > 0)
+        fp = ' ' + fix[0].period
+    console.log('-------', mp, sp, fp, mp + fp + sp )
+    return mp + fp + sp
+}
+
+export var get_quantity_works = function (sub, fix) {
+    
+}

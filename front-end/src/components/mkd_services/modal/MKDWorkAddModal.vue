@@ -28,6 +28,7 @@
                         format="DD.MM.YYYY"
                         placeholder="Дата сметы"
                         style="width: 100%"
+                        value-format="YYYY-MM-DD"
                       />
                     </el-col>
                     <el-col :span="5">
@@ -137,17 +138,21 @@
                           </template>
                       </el-upload>
                   </el-col>
-                  <el-col :span="5">
-                    <el-button type="primary" style="width: 100%" @click="onSaveBtnClick">Сохранить</el-button>
-                  </el-col>
-                  <el-col :span="3" class="mkd-works-left-margin-col">
-                    <el-button type="info" style="width: 100%">Отменить</el-button>
-                  </el-col>
-                </el-row>
-                <el-row :gutter="20">
                   <el-col :span="12">
-                    <span>{{ actDowmloadFile.date }}</span><span>{{ actDowmloadFile.filename }}</span> 
-                  </el-col>    
+                    <el-text size="large">Прикрепленные документы:</el-text>
+                    <el-row :gutter="20" class="mkd-works-apply-docs-margin">
+                    <el-col :span="24">
+                      <el-row :gutter="20">
+                        <el-col :span="5">{{ actDownloadFile.date }}</el-col>
+                        <el-col :span="19"><el-link :href="actDownloadFile.url + actDownloadFile.uuid">{{ actDownloadFile.filename }}</el-link></el-col>
+                      </el-row>
+                      <el-row :gutter="20" class="mkd-works-apply-docs-margin">
+                        <el-col :span="5">{{ smetaDowmloadFile.date }}</el-col>
+                        <el-col :span="19"><el-link :href="smetaDowmloadFile.url + smetaDowmloadFile.uuid">{{ smetaDowmloadFile.filename }}</el-link></el-col>
+                      </el-row>
+                    </el-col>     
+                </el-row>
+                  </el-col>
                 </el-row>
                 <el-row>
                   <el-col :span="24">
@@ -198,7 +203,7 @@
                       </el-table-column>
                       <el-table-column label="Цена выполненной работы (оказанной услуги) в рублях" width="120">
                         <template #default="scope">
-                          <el-input v-model="scope.row.Sum" style="width: 100%"/>
+                          <el-input v-model="scope.row.sum" style="width: 100%"/>
                         </template>
                       </el-table-column>
                       <el-table-column fixed="right" label="Строка" min-width="35">
@@ -217,6 +222,14 @@
                     <el-button class="mt-4" style="width: 100%" @click="onAddItem">
                       Добавить строку
                     </el-button>
+                  </el-col>
+                </el-row>
+                <el-row>
+                  <el-col :span="5">
+                    <el-button type="primary" style="width: 100%" @click="onSaveBtnClick">Сохранить</el-button>
+                  </el-col>
+                  <el-col :span="3" class="mkd-works-left-margin-col">
+                    <el-button type="info" style="width: 100%">Отменить</el-button>
                   </el-col>
                 </el-row>
             </main>  
@@ -261,14 +274,14 @@ const workInputData = ref({
   directorAppartNum: '',
 })
 const actInputFileData = ref({
-  actnum: null,
-  actdate: null,
+  actnum: '',
+  actdate: '',
   actfutureid: null,
   workid: null,
-  houseid: null,
+  houseid: props.houseId,
 })
 
-const actDowmloadFile = ref({
+const actDownloadFile = ref({
   filename: '',
   url: '',
   date: '',
@@ -278,11 +291,11 @@ const actDowmloadFile = ref({
 })
 
 const smetaInputFileData = ref({
-  smetanum: null,
-  smetadate: null,
+  smetanum: '',
+  smetadate: '',
   actfutureid: null,
   workid: null,
-  houseid: null,
+  houseid: props.houseId,
 })
 
 const smetaDowmloadFile = ref({
@@ -314,20 +327,24 @@ const getDataSmetaFile = () => {
 }    
 const uploadActSuccess = (response) => {
     console.log(response)
-    actDowmloadFile.value.filename = response.filename
-    actDowmloadFile.value.date = response.actdate
-    actDowmloadFile.value.num = response.actNum
-    actDowmloadFile.value.workid = response.workid
-    props.workID = response.workid
+    actDownloadFile.value.filename = response.filename
+    actDownloadFile.value.date = response.actdate ? dayjs(response.actdate).format('DD.MM.YYYY') : ''
+    actDownloadFile.value.num = response.actnum
+    actDownloadFile.value.workid = response.workid
+    if (!workFromDBdata.value.workId) {
+      workFromDBdata.value.workId = response.workid
+    }
 }
 
 const uploadSmetaSuccess = (response) => {
     console.log(response)
     smetaDowmloadFile.value.filename = response.filename
-    smetaDowmloadFile.value.date = response.actdate
-    smetaDowmloadFile.value.num = response.actNum
+    smetaDowmloadFile.value.date = response.smetadate ? dayjs(response.smetadate).format('DD.MM.YYYY') : ''
+    smetaDowmloadFile.value.num = response.smetanum,
     smetaDowmloadFile.value.workid = response.workid
-    props.workID = response.workid
+    if (!workFromDBdata.value.workId) {
+      workFromDBdata.value.workId = response.workid
+    }
 }
 
 watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
@@ -335,16 +352,31 @@ watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
   if (show && props.modalCallType == 'edit') {
     console.log(props.modalCallType, props.editRowIndex)
     console.log(workFromDBdata.value)
+    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!",props.houseId, props.workID)
+    actInputFileData.value.workid = workFromDBdata.value.workId
+    smetaInputFileData.value.workid = workFromDBdata.value.workId
     workInputData.value.workMonthAndYear = dayjs(workFromDBdata.value.date).format('YYYY-MM-DD')
     workInputData.value.directorSovietFIO = workFromDBdata.value.dirFIO
     workInputData.value.directorAppartNum = workFromDBdata.value.dirAppart
     workInputData.value.actAllSumHandle = workFromDBdata.value.sumWork
-    actDowmloadFile.value.actnum = workFromDBdata.value.act.num
-    actDowmloadFile.value.date = dayjs(workFromDBdata.value.act.date).format('DD.MM.YYYY')
-    actDowmloadFile.value.url = workFromDBdata.value.act.url
-    actDowmloadFile.value.uuid = workFromDBdata.value.act.uuid
-    actDowmloadFile.value.workid = workFromDBdata.value.workId
-    actDowmloadFile.value.filename= workFromDBdata.value.act.name
+    actDownloadFile.value.num = workFromDBdata.value.act.num
+    actDownloadFile.value.date = workFromDBdata.value.act.date ? dayjs(workFromDBdata.value.act.date).format('DD.MM.YYYY') : ''
+    actDownloadFile.value.url = workFromDBdata.value.act.url
+    actDownloadFile.value.uuid = workFromDBdata.value.act.uuid
+    actDownloadFile.value.workid = workFromDBdata.value.workId
+    actDownloadFile.value.filename= workFromDBdata.value.act.name
+    smetaDowmloadFile.value.num = workFromDBdata.value.smeta.num
+    smetaDowmloadFile.value.date = workFromDBdata.value.smeta.date ? dayjs(workFromDBdata.value.smeta.date).format('DD.MM.YYYY') : ''
+    smetaDowmloadFile.value.url = workFromDBdata.value.smeta.url
+    smetaDowmloadFile.value.uuid = workFromDBdata.value.smeta.uuid
+    smetaDowmloadFile.value.workid = workFromDBdata.value.smeta.workId
+    smetaDowmloadFile.value.filename = workFromDBdata.value.smeta.name
+    tableData.value[0].numsprav = workFromDBdata.value.numSprav
+    tableData.value[0].nameWorkOrService = workFromDBdata.value.work
+    tableData.value[0].period = workFromDBdata.value.period
+    tableData.value[0].quantity = workFromDBdata.value.quaquantSum
+    tableData.value[0].costOfPart = workFromDBdata.value.squareWork
+    tableData.value[0].sum = workFromDBdata.value.sumWork
   }
   //console.log(workInputData.value.workMonthAndYear, dayjs(workFromDBdata.value.date).format('MM.YYYY'))
 })
@@ -399,7 +431,7 @@ const tableData = ref([
     period: '',
     quantity: '',
     costOfPart: '',
-    Sum: '0.00',
+    sum: '0.00',
   },
 ])
 
@@ -414,7 +446,7 @@ const onAddItem = () => {
     period: '',
     quantity: '',
     costOfPart: '',
-    Sum: '0.00',
+    sum: '0.00',
   })
 }
 
@@ -453,5 +485,8 @@ onMounted(() => {
 }
 .mkd-works-left-margin-col {
   margin-left: 1em;
+}
+.mkd-works-apply-docs-margin {
+  margin-top: 1em
 }
 </style>

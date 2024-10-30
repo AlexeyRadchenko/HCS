@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Security, UploadFile, Form
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from typing import List, Annotated
-from datetime import datetime
+from datetime import datetime, timezone
 from os import path
 
 from ..database.mkd_works.schemas import HousesMKDSchema, DoneWorksSchema, ReferenceBookSchema
@@ -58,10 +58,10 @@ async def get_future_work_id(
 
 @router.post("/uploadfile/act")
 async def create_upload_act_file(
-    actnum: Annotated[str, Form()],
-    actdate: Annotated[datetime, Form()],
     houseid: Annotated[int, Form()],
     workid: Annotated[str, Form()],
+    actnum: Annotated[str | None, Form()] = None,
+    actdate: Annotated[datetime | None, Form()] = None,
     file: UploadFile | None = None,
     user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
@@ -73,8 +73,8 @@ async def create_upload_act_file(
             url = '/download/act/'
         else:
             url = f'https://{settings.FILE_SERVER}:{settings.FILE_SERVER_PORT}/download/act/'
-
-        fullpath = path.join(settings.ACT_FILES_STORE_PATH, file.filename)
+        timstamp1 =int(datetime.now(tz=timezone.utc).timestamp() * 1000)  
+        fullpath = path.join(settings.ACT_FILES_STORE_PATH, f'{str(timstamp1)}_{file.filename}')
         actfile = Actfiles(
                 name=file.filename,
                 date=actdate,
@@ -106,7 +106,8 @@ async def create_upload_act_file(
             acthasactfiles = Actshasactfiles(
                 act_id=int(workid),
                 actfile_uuid=cr_act_doc.uuid
-            )    
+            )
+        print("==================================", fullpath)           
         await chunked_copy(file, fullpath)
         ref_obj = await create_mkd_works_db_object(db_session, acthasactfiles)
         return {
@@ -119,10 +120,10 @@ async def create_upload_act_file(
     
 @router.post("/uploadfile/smeta")
 async def create_upload_smeta_file(
-    smetanum: Annotated[str, Form()],
-    smetadate: Annotated[datetime, Form()],
     houseid: Annotated[int, Form()],
     workid: Annotated[str, Form()],
+    smetanum: Annotated[str | None, Form()] = None,
+    smetadate: Annotated[datetime | None, Form()] = None,
     file: UploadFile | None = None,
     user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
@@ -133,22 +134,22 @@ async def create_upload_smeta_file(
         if settings.FILE_SERVER == 'localhost':
             url = '/download/smeta/'
         else:
-            url = f'https://{settings.FILE_SERVER}:{settings.FILE_SERVER_PORT}/download/smeta/'
-
-        fullpath = path.join(settings.SMETA_FILES_STORE_PATH, file.filename)
+            url = f'https://{settings.FILE_SERVER}:{settings.FILE_SERVER_PORT}/download/smeta/'   
+        timstamp2 =int(datetime.now(tz=timezone.utc).timestamp() * 1000)  
+        fullpathsmeta = path.join(settings.SMETA_FILES_STORE_PATH, f'{str(timstamp2)}_{file.filename}')
         smetafile = Smetafiles(
                 name=file.filename,
                 date=smetadate,
                 num=smetanum,
                 extention=get_file_extension(file.filename),
                 url=url,
-                path=fullpath,
+                path=fullpathsmeta,
                 size=str(file.size),
                 filetype=file.content_type,  # assuming the file type is correct in this case
                 house_id=houseid,
             )
         cr_smeta_doc = await create_mkd_works_db_object(db_session, smetafile)
-        
+
         if workid == 'undefined':
             #print("not exist", workid)
             act = Acts(
@@ -158,7 +159,7 @@ async def create_upload_smeta_file(
             cr_work = await create_mkd_works_db_object(db_session, act)
             acthassmetafiles = Actshassmetafiles(
                 act_id=cr_work.id,
-                actfile_uuid=cr_smeta_doc.uuid
+                smetafile_uuid=cr_smeta_doc.uuid
             )
             workid=cr_work.id
         else:
@@ -166,14 +167,14 @@ async def create_upload_smeta_file(
             #create act document with ref to act.id=workid
             acthassmetafiles = Actshassmetafiles(
                 act_id=int(workid),
-                actfile_uuid=cr_smeta_doc.uuid
-            )    
-        await chunked_copy(file, fullpath)
+                smetafile_uuid=cr_smeta_doc.uuid
+            )            
+        await chunked_copy(file, fullpathsmeta)
         ref_obj = await create_mkd_works_db_object(db_session, acthassmetafiles)
         return {
             "filename": file.filename,
-            "actdate": smetadate,
-            "actnum": smetanum,
+            "smetadate": smetadate,
+            "smetanum": smetanum,
             "url": url,
             "workid": int(workid), #send work id from db object
             }    
