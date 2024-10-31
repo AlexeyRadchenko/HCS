@@ -152,6 +152,9 @@ const worksDataFromDBtoTableView = (worksData) => {
       fixWorkId: '',
       dirFIO: element.houses.director,
       dirAppart: element.houses.director_appartment,
+      mainworks: element.mainworks,
+      subworks: element.subworks,
+      fixworks: element.fixworks,
     })
   }
   //console.log("asddddddddddddd", tableData.value)

@@ -19,8 +19,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.add_column('actfiles', sa.Column('date_upload', sa.DateTime))
-    op.add_column('smetafiles', sa.Column('date_upload', sa.DateTime))
+    op.add_column('actfiles', sa.Column('date_upload', sa.DateTime, server_default=sa.func.current_timestamp()))
+    op.add_column('smetafiles', sa.Column('date_upload', sa.DateTime, server_default=sa.func.current_timestamp()))
 
 
 def downgrade() -> None:

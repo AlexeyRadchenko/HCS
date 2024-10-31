@@ -110,3 +110,32 @@ export var get_period = function(sub, fix) {
 export var get_quantity_works = function (sub, fix) {
     
 }
+
+export var generate_data_object_to_post = function (workData, tableRowData, workID, houseID) {
+    let postdata = {
+        id: workID,
+        house_id: houseID,
+        num: '',
+        all_sum: workData.actAllSumHandle,
+        directorSovietFIO: workData.directorSovietFIO,
+        directorAppartNum: workData.directorAppartNum,
+        all_sum: workData.actAllSumHandle,
+        month_year_works: workData.workMonthAndYear,
+        works: [],
+        mainworks: workData.mainworks.map(element => ({id: element.id, workType: element.workType})),
+        subworks: workData.subworks.map(element => ({id: element.id, workType: element.workType})),
+        fixworks: workData.fixworks.map(element => ({id: element.id, workType: element.workType})),
+    }
+    for (let [index, element] of tableRowData.entries()) {
+        postdata.num = element.numsprav
+        postdata.works.push({
+            numsprav: element.numsprav,
+            namework: element.nameWorkOrService,
+            period: element.period,
+            quantity: element.quantity,
+            costofpart: element.costOfPart,
+            sum: element.sum
+        })
+    }
+    return postdata
+}

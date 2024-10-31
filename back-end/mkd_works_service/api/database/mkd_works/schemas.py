@@ -130,6 +130,32 @@ class ReferenceBookSchema(BaseModel):
         from_attributes = True
 
 
+
+class TableWorkRowEditSchema(BaseModel):
+    numsprav: Optional[str]
+    namework: Optional[str]
+    period: Optional[str]
+    quantity: Optional[str]
+    costofpart: Optional[str]
+    sum: Optional[str]
+
+class EditWorksListSchema(BaseModel):
+    id: Optional[int]
+    workType: Optional[str]
+
+class WorkEditSchema(BaseModel):
+    id: Optional[str]
+    num: Optional[str]
+    house_id: Optional[int]
+    all_sum: Optional[str]
+    directorSovietFIO: Optional[str]
+    directorAppartNum: Optional[str]  
+    month_year_works: Optional[datetime]
+    works: List[TableWorkRowEditSchema]
+    mainworks:List[EditWorksListSchema]
+    subworks:List[EditWorksListSchema]
+    fixworks:List[EditWorksListSchema]
+
 """
 class PaymentsILSchema(BaseModel):
     id: int

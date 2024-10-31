@@ -144,7 +144,7 @@ class Actfiles(Base):
     size = Column(String, nullable=False)
     filetype = Column(String, nullable=True)
     house_id = Column(Integer, ForeignKey("houses.id"), nullable=False)
-    date_upload = Column(DateTime(timezone=True), server_defalut=func.now())
+    date_upload = Column(DateTime(timezone=True), server_default=func.now())
 
     houses = relationship('Houses', back_populates='actfiles', lazy='joined')
     acts = relationship('Acts', secondary='actshasactfiles', back_populates='actfiles', lazy='joined')
@@ -163,7 +163,7 @@ class Smetafiles(Base):
     size = Column(String, nullable=False)
     filetype = Column(String, nullable=True)
     house_id = Column(Integer, ForeignKey("houses.id"), nullable=False)
-    date_upload = Column(DateTime(timezone=True), server_defalut=func.now())
+    date_upload = Column(DateTime(timezone=True), server_default=func.now())
 
     houses = relationship('Houses', back_populates='smetafiles', lazy='joined')
     acts = relationship('Acts', secondary='actshassmetafiles', back_populates='smetafiles', lazy='joined')
@@ -215,11 +215,11 @@ class Acts(Base):
     )
 
     actfiles = relationship(
-        'Actfiles', secondary='actshasactfiles', back_populates='acts', lazy='joined'
+        'Actfiles', secondary='actshasactfiles', back_populates='acts', lazy='joined', order_by="desc(Actfiles.date_upload)",
     )
 
     smetafiles = relationship(
-        'Smetafiles', secondary='actshassmetafiles', back_populates='acts', lazy='joined'
+        'Smetafiles', secondary='actshassmetafiles', back_populates='acts', lazy='joined', order_by="desc(Smetafiles.date_upload)",
     )
 
    

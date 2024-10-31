@@ -5,7 +5,7 @@ from typing import List, Annotated
 from datetime import datetime, timezone
 from os import path
 
-from ..database.mkd_works.schemas import HousesMKDSchema, DoneWorksSchema, ReferenceBookSchema
+from ..database.mkd_works.schemas import HousesMKDSchema, DoneWorksSchema, ReferenceBookSchema, WorkEditSchema
 from ..database.mkd_works.crud import (
     get_all_houses, get_all_mkd_works_by_house_id, get_furure_work_id_from_db, create_mkd_works_db_object, get_all_mainworks,
     get_all_subworks, get_all_fixworks
@@ -106,8 +106,7 @@ async def create_upload_act_file(
             acthasactfiles = Actshasactfiles(
                 act_id=int(workid),
                 actfile_uuid=cr_act_doc.uuid
-            )
-        print("==================================", fullpath)           
+            )          
         await chunked_copy(file, fullpath)
         ref_obj = await create_mkd_works_db_object(db_session, acthasactfiles)
         return {
@@ -194,3 +193,21 @@ async def get_reference_book_data_all(
     )
     
     return JSONResponse(content=reference_book_schema_obj.model_dump())
+
+@router.post("/houses/works/edit/")
+async def update_act_model(
+    work: WorkEditSchema,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    act_edit_model_object = Acts(
+        id=int(work.id),
+        num=work.num,
+        all_sum=work.all_sum,
+        month_year_works=work.month_year_works,
+        house_id=work.house_id,
+    )
+    print("----------------->", work.works)
+    print("----------------->", work.mainworks)
+    print("----------------->", work.subworks)
+    return

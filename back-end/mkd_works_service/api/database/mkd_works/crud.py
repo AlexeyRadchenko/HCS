@@ -39,15 +39,6 @@ async def get_all_mkd_works_by_house_id(db: AsyncSession, id: int):
             Acts
         )
         .where(Acts.house_id == id)
-        .options(
-            joinedload(Acts.actfiles)  # Используем joinedload для подгрузки связанных объектов
-            .order_by(Actfiles.date_upload)  # Указываем сортировку для подгруженных объектов
-        )
-        .options(
-            joinedload(Acts.smetafiles)  # Используем joinedload для подгрузки связанных объектов
-            .order_by(Smetafiles.date_upload)  # Указываем сортировку для подгруженных объектов
-        )
-        #.order_by(desc(ContactsAddresses.street), desc(ContactsAddresses.house_number))
     )
     return result.scalars().unique().all()
 

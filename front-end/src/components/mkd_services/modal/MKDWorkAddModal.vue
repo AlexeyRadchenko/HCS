@@ -224,12 +224,13 @@
                     </el-button>
                   </el-col>
                 </el-row>
-                <el-row>
+                <el-row :gutter="20" style="margin-top: 3em;">
+                  <el-col :span="15"></el-col>
                   <el-col :span="5">
                     <el-button type="primary" style="width: 100%" @click="onSaveBtnClick">Сохранить</el-button>
                   </el-col>
-                  <el-col :span="3" class="mkd-works-left-margin-col">
-                    <el-button type="info" style="width: 100%">Отменить</el-button>
+                  <el-col :span="4">
+                    <el-button type="info" style="width: 100%" @click="onCancleBtnClick">Отменить</el-button>
                   </el-col>
                 </el-row>
             </main>  
@@ -243,9 +244,9 @@
 import { ref, reactive, computed, onMounted, watch, toRaw } from 'vue';
 import { genFileId } from 'element-plus'
 import secureStorage from '../../../storage/secStorage'
-import { get_future_work_id_by_house_id } from '../../../http/mkd-works-http-common'
+import { get_future_work_id_by_house_id, edit_mkd_works } from '../../../http/mkd-works-http-common'
 import dayjs from 'dayjs'
-import { all } from 'axios';
+import { generate_data_object_to_post } from '../../../utils/utils';
 
 
 const props = defineProps({
@@ -272,6 +273,9 @@ const workInputData = ref({
   actAllSumHandle: '',
   directorSovietFIO: '',
   directorAppartNum: '',
+  mainworks: null,
+  subworks: null,
+  fixworks: null,
 })
 const actInputFileData = ref({
   actnum: '',
@@ -359,6 +363,9 @@ watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
     workInputData.value.directorSovietFIO = workFromDBdata.value.dirFIO
     workInputData.value.directorAppartNum = workFromDBdata.value.dirAppart
     workInputData.value.actAllSumHandle = workFromDBdata.value.sumWork
+    workInputData.value.mainworks = workFromDBdata.value.mainworks
+    workInputData.value.subworks= workFromDBdata.value.subworks
+    workInputData.value.fixworks = workFromDBdata.value.fixworks
     actDownloadFile.value.num = workFromDBdata.value.act.num
     actDownloadFile.value.date = workFromDBdata.value.act.date ? dayjs(workFromDBdata.value.act.date).format('DD.MM.YYYY') : ''
     actDownloadFile.value.url = workFromDBdata.value.act.url
@@ -374,7 +381,7 @@ watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
     tableData.value[0].numsprav = workFromDBdata.value.numSprav
     tableData.value[0].nameWorkOrService = workFromDBdata.value.work
     tableData.value[0].period = workFromDBdata.value.period
-    tableData.value[0].quantity = workFromDBdata.value.quaquantSum
+    tableData.value[0].quantity = workFromDBdata.value.quantSum
     tableData.value[0].costOfPart = workFromDBdata.value.squareWork
     tableData.value[0].sum = workFromDBdata.value.sumWork
   }
@@ -432,7 +439,7 @@ const tableData = ref([
     quantity: '',
     costOfPart: '',
     sum: '0.00',
-  },
+  }
 ])
 
 const deleteRow = (index) => {
@@ -450,8 +457,25 @@ const onAddItem = () => {
   })
 }
 
+const onCancleBtnClick = () => {
+  dialogMKDWorksAddVisibleSub.value = false
+}
+
 const onSaveBtnClick = () => {
   console.log(props.modalCallType)
+  if (props.modalCallType === 'edit') {
+    //console.log("call edit func")
+    let data = generate_data_object_to_post(workInputData.value, tableData.value, props.workID, props.houseId)
+    edit_mkd_works(data).then((response) => {
+      if (response.status === 200 && response.statusText === 'OK') {
+        dialogMKDWorksAddVisibleSub.value = false
+      }
+  }).catch((error) => {
+    console.error('Error:', error);
+  });
+  }else if (props.modalCallType === 'add') {
+    console.log("call add func")
+  }
 }
 
 /*const work_id_from_db = (houseID) => {
@@ -483,9 +507,7 @@ onMounted(() => {
 .file-inout-row-cl {
   margin-top: 1em;
 }
-.mkd-works-left-margin-col {
-  margin-left: 1em;
-}
+
 .mkd-works-apply-docs-margin {
   margin-top: 1em
 }
