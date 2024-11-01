@@ -3,6 +3,7 @@ from sqlalchemy import BigInteger, Boolean, Column, ForeignKey, Integer, String,
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.associationproxy import AssociationProxy
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 
@@ -71,6 +72,9 @@ class Acthassubworks(Base):
     quantity = Column(String, nullable=True)
     unitcost = Column(String, nullable=True)
 
+    acts = relationship("Acts", back_populates="subworks_details", lazy='joined')
+    subworks = relationship('Subworks', back_populates='acts_details', lazy='joined')
+
 
 class Acthasfixworks(Base):
     __tablename__ = "acthasfixworks"
@@ -80,6 +84,9 @@ class Acthasfixworks(Base):
     sum = Column(String, nullable=True)
     quantity = Column(String, nullable=True)
     unitcost = Column(String, nullable=True)
+
+    acts = relationship("Acts", back_populates="fixworks_details", lazy='joined')
+    fixworks = relationship('Fixworks', back_populates='acts_details', lazy='joined')
 
 
 class Mainworks(Base):
@@ -112,7 +119,21 @@ class Subworks(Base):
 
     mainworks = relationship('Mainworks', back_populates='subworks', lazy='joined')
     acts = relationship('Acts', secondary='acthassubworks', back_populates='subworks', lazy='joined')
+    acts_details = relationship("Acthassubworks", back_populates="subworks", lazy='joined')
+    """sum = AssociationProxy('acts_details', 'sum', creator=lambda values: values[0] if values else None)
+    quantity = AssociationProxy('acts_details', 'quantity', creator=lambda values: values[0] if values else None)
+    unitcost = AssociationProxy('acts_details', 'unitcost', creator=lambda values: values[0] if values else None)"""
+    @property
+    def sum(self):
+        return self.acts_details[0].sum if self.acts_details else None
 
+    @property
+    def quantity(self):
+        return self.acts_details[0].quantity if self.acts_details else None
+
+    @property
+    def unitcost(self):
+        return self.acts_details[0].unitcost if self.acts_details else None
 
 class Fixworks(Base):
     __tablename__ = "fixworks"
@@ -129,6 +150,19 @@ class Fixworks(Base):
 
     mainworks = relationship('Mainworks', back_populates='fixworks', lazy='joined')
     acts = relationship('Acts', secondary='acthasfixworks', back_populates='fixworks', lazy='joined')
+    acts_details = relationship("Acthasfixworks", back_populates="fixworks", lazy='joined')
+
+    @property
+    def sum(self):
+        return self.acts_details[0].sum if self.acts_details else None
+
+    @property
+    def quantity(self):
+        return self.acts_details[0].quantity if self.acts_details else None
+
+    @property
+    def unitcost(self):
+        return self.acts_details[0].unitcost if self.acts_details else None
 
 
 class Actfiles(Base):
@@ -209,10 +243,14 @@ class Acts(Base):
         'Subworks', secondary='acthassubworks', back_populates='acts', lazy='joined'
     )
 
+    subworks_details = relationship("Acthassubworks", back_populates="acts", lazy='joined')
+
 
     fixworks = relationship(
         'Fixworks', secondary='acthasfixworks', back_populates='acts', lazy='joined'
     )
+
+    fixworks_details = relationship("Acthasfixworks", back_populates="acts", lazy='joined')
 
     actfiles = relationship(
         'Actfiles', secondary='actshasactfiles', back_populates='acts', lazy='joined', order_by="desc(Actfiles.date_upload)",

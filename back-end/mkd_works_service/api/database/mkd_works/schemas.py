@@ -15,6 +15,7 @@ class HousesMKDSchema(BaseModel):
 
     class Config:
         from_attributes = True
+        
 
 class MainWorksSchema(BaseModel):
     id: Optional[int]
@@ -24,6 +25,16 @@ class MainWorksSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+class ActHasSubworksScheme(BaseModel):
+    act_id: Optional[int]
+    subwork_id: Optional[int]
+    sum: Optional[str]
+    quantity: Optional[str]
+    unitcost: Optional[str]
+
+    class Config:
+        from_attributes = True   
 
 class SubWorksSchema(BaseModel):
     id: Optional[int]
@@ -35,6 +46,9 @@ class SubWorksSchema(BaseModel):
     base: Optional[str]
     numsprav: Optional[str]
     mainwork_id: Optional[int]
+    sum: Optional[str]
+    quantity: Optional[str]
+    unitcost: Optional[str]
 
     class Config:
         from_attributes = True
@@ -49,6 +63,9 @@ class FixWorksSchema(BaseModel):
     base: Optional[str]
     numsprav: Optional[str]
     mainwork_id: Optional[int]
+    sum: Optional[str]
+    quantity: Optional[str]
+    unitcost: Optional[str]
 
     class Config:
         from_attributes = True
