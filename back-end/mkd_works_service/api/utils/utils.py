@@ -3,6 +3,7 @@ from ..database.mkd_works.crud import create_mkd_works_db_object
 from ..database.database import get_async_session
 from ..database.mkd_works.models import Houses, Companies, Mainworks, Subworks, Fixworks
 from ..database.database import async_session
+from decimal import Decimal
 
 
 CHUNK_SIZE = 2 ** 20  # 1MB
@@ -92,3 +93,9 @@ async def chunked_copy(src, dst):
 
 def get_file_extension(filname):
     return filname.split('.')[-1]
+
+def calcSum(*args, **kwargs):
+    s = Decimal(kwargs.get('sum', 0))
+    for arg in args:
+        s += Decimal(arg)
+    return str(s)

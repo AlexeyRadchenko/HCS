@@ -155,6 +155,8 @@ class TableWorkRowEditSchema(BaseModel):
     quantity: Optional[str]
     costofpart: Optional[str]
     sum: Optional[str]
+    workType: Optional[str]
+    workSubId: Optional[int]
 
 class EditWorksListSchema(BaseModel):
     id: Optional[int]

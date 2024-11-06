@@ -68,3 +68,49 @@ async def get_all_fixworks(db: AsyncSession):
         )
     )
     return result.scalars().unique().all()
+
+async def update_act_db(db: AsyncSession, obj: Acts):
+    result = await db.execute(
+        update(
+            Acts
+        )
+        .values(
+            num=obj.num,
+            all_sum=obj.all_sum,
+            month_year_works=obj.month_year_works,
+            house_id=obj.house_id
+        )
+        .where(Acts.id == obj.id)
+    )
+    await db.commit()
+    return result.rowcount
+
+async def update_acthassubworks_db(db: AsyncSession, obj: Acthassubworks):
+    result = await db.execute(
+        update(
+            Acthassubworks
+        )
+        .values(
+            sum=obj.sum,
+            quantity=obj.quantity,
+            unitcost=obj.unitcost
+        )
+        .where(and_(Acthassubworks.act_id == obj.act_id, Acthassubworks.subwork_id == obj.subwork_id))
+    )
+    await db.commit()
+    return result.rowcount
+
+async def update_acthasfixworks_db(db: AsyncSession, obj: Acthasfixworks):
+    result = await db.execute(
+        update(
+            Acthasfixworks
+        )
+        .values(
+            sum=obj.sum,
+            quantity=obj.quantity,
+            unitcost=obj.unitcost
+        )
+        .where(and_(Acthasfixworks.act_id == obj.act_id, Acthasfixworks.subwork_id == obj.subwork_id))
+    )
+    await db.commit()
+    return result.rowcount

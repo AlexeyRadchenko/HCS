@@ -134,8 +134,14 @@ export var generate_data_object_to_post = function (workData, tableRowData, work
             period: element.period,
             quantity: element.quantity,
             costofpart: element.costOfPart,
-            sum: element.sum
+            sum: element.sum,
+            workSubId: element.workSubId,
+            workType: element.workType,
         })
     }
     return postdata
+}
+
+export var update_fromdb_data = function (dbData, newData) {
+    console.log(dbData.value)
 }

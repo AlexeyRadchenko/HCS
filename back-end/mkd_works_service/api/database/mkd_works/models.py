@@ -31,12 +31,12 @@ class Houses(Base):
     company_id = Column(Integer, ForeignKey('companies.id'), nullable=True)
     director = Column(String, nullable=True)
     director_appartment = Column(String, nullable=True)
-
-    companies = relationship('Companies', back_populates='houses', lazy='joined')
-    actfiles = relationship('Actfiles', back_populates='houses', lazy='joined')
-    smetafiles = relationship('Smetafiles', back_populates='houses', lazy='joined')
-    techfiles = relationship('Techfiles', back_populates='houses', lazy='joined')
-    acts = relationship('Acts', back_populates='houses', lazy='joined')
+    # заменено на select вешает запрос 
+    companies = relationship('Companies', back_populates='houses', lazy='select')
+    actfiles = relationship('Actfiles', back_populates='houses', lazy='select')
+    smetafiles = relationship('Smetafiles', back_populates='houses', lazy='select')
+    techfiles = relationship('Techfiles', back_populates='houses', lazy='select')
+    acts = relationship('Acts', back_populates='houses', lazy='select')
 
 
 class Actshasactfiles(Base):

@@ -57,6 +57,7 @@
         :all-periods-options="props.worksPeriodsRef"
         :modal-call-type="modalCallType"
         :edit-row-index="editRowIndex"
+        @update-data="updateTableData"
         />
     </div>
 </template>
@@ -158,7 +159,18 @@ const worksDataFromDBtoTableView = (worksData) => {
     })
   }
   //console.log("asddddddddddddd", tableData.value)
-}  
+}
+
+const updateTableData = () => {
+  loading.value = true
+  get_mkd_works_get_all_works_by_house_id(props.selectedHouseId).then((response) => {
+    tableData.value = []
+    worksDataFromDBtoTableView(response.data)
+    loading.value = false
+  }).catch((error) => {
+    console.error('Error:', error);
+  });
+}
 
 watch(() => props.selectedHouseId, (newSelectedHouseId, oldSelectedHouseId) => {
   console.log("newProps", newSelectedHouseId, oldSelectedHouseId)

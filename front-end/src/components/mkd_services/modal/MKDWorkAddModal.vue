@@ -241,13 +241,12 @@
 
 <script setup>
 // Импортируйте необходимые функции, если нужно
-import { ref, reactive, computed, onMounted, watch, toRaw } from 'vue';
+import { ref, reactive, computed, onMounted, watch, toRaw, defineEmits } from 'vue';
 import { genFileId } from 'element-plus'
 import secureStorage from '../../../storage/secStorage'
 import { get_future_work_id_by_house_id, edit_mkd_works } from '../../../http/mkd-works-http-common'
 import dayjs from 'dayjs'
-import { generate_data_object_to_post } from '../../../utils/utils';
-
+import { generate_data_object_to_post, update_fromdb_data } from '../../../utils/utils';
 
 const props = defineProps({
     houseId: String,
@@ -266,6 +265,7 @@ const uploadHeaders = {
 
 const dialogMKDWorksAddVisibleSub = defineModel('dialogMKDWorksAddVisibleSub')
 const workFromDBdata = defineModel('workFromDBdata')
+const emit = defineEmits(['update-data'])
 const uploadSmeta = ref(null)
 const uploadAct = ref(null)
 const workInputData = ref({
@@ -378,12 +378,32 @@ watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
     smetaDowmloadFile.value.uuid = workFromDBdata.value.smeta.uuid
     smetaDowmloadFile.value.workid = workFromDBdata.value.smeta.workId
     smetaDowmloadFile.value.filename = workFromDBdata.value.smeta.name
-    tableData.value[0].numsprav = workFromDBdata.value.numSprav
-    tableData.value[0].nameWorkOrService = workFromDBdata.value.work
-    tableData.value[0].period = workFromDBdata.value.period
-    tableData.value[0].quantity = workFromDBdata.value.quantSum
-    tableData.value[0].costOfPart = workFromDBdata.value.squareWork
-    tableData.value[0].sum = workFromDBdata.value.sumWork
+    let works = workFromDBdata.value.subworks.concat(workFromDBdata.value.fixworks)
+    if (works.length) {
+      for (let [index, element] of works.entries()) {
+        if (index === 0) {
+          tableData.value[0].numsprav = element.numsprav
+          tableData.value[0].nameWorkOrService = element.work
+          tableData.value[0].period = element.period
+          tableData.value[0].quantity = element.quantity
+          tableData.value[0].costOfPart = element.unitcost
+          tableData.value[0].sum = element.sum
+          tableData.value[0].workType = element.workType
+          tableData.value[0].workSubId = element.id
+          continue
+        }
+        tableData.push({
+          numsprav: element.numsprav,
+          nameWorkOrService: element.work,
+          period: element.period,
+          quantity: element.quantity,
+          costOfPart :element.unitcost,
+          sum: element.sum,
+          workType: element.workType,
+          workSubId: element.id,
+          })
+      }  
+    }
   }
   //console.log(workInputData.value.workMonthAndYear, dayjs(workFromDBdata.value.date).format('MM.YYYY'))
 })
@@ -439,6 +459,8 @@ const tableData = ref([
     quantity: '',
     costOfPart: '',
     sum: '0.00',
+    workType: '',
+    workSubId: '',
   }
 ])
 
@@ -454,6 +476,8 @@ const onAddItem = () => {
     quantity: '',
     costOfPart: '',
     sum: '0.00',
+    workType: '',
+    workSubId: '',
   })
 }
 
@@ -461,7 +485,7 @@ const onCancleBtnClick = () => {
   dialogMKDWorksAddVisibleSub.value = false
 }
 
-const onSaveBtnClick = () => {
+const onSaveBtnClick =  () => {
   console.log(props.modalCallType)
   if (props.modalCallType === 'edit') {
     //console.log("call edit func")
@@ -469,6 +493,7 @@ const onSaveBtnClick = () => {
     edit_mkd_works(data).then((response) => {
       if (response.status === 200 && response.statusText === 'OK') {
         dialogMKDWorksAddVisibleSub.value = false
+        emit('update-data');
       }
   }).catch((error) => {
     console.error('Error:', error);
