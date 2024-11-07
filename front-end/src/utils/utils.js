@@ -111,9 +111,21 @@ export var get_quantity_works = function (sub, fix) {
     
 }
 
-export var generate_data_object_to_post = function (workData, tableRowData, workID, houseID) {
+var getTypeWorkByName = function (nameW) {
+    let numType = nameW.split('_')[1]
+    if (numType === '1') {
+        return 'subwork'
+    } else if (numType === '2') {
+        return 'fixwork'
+    }
+    return
+}
+
+export var generate_data_object_to_post = function (workData, tableRowData, workID, houseID, periodOptions) {
+    console.log("wokrID", workID)
+    console.log("periodOptions", periodOptions)
     let postdata = {
-        id: workID,
+        id: workID != '' ? workID : '-1',
         house_id: houseID,
         num: '',
         all_sum: workData.actAllSumHandle,
@@ -122,26 +134,44 @@ export var generate_data_object_to_post = function (workData, tableRowData, work
         all_sum: workData.actAllSumHandle,
         month_year_works: workData.workMonthAndYear,
         works: [],
-        mainworks: workData.mainworks.map(element => ({id: element.id, workType: element.workType})),
-        subworks: workData.subworks.map(element => ({id: element.id, workType: element.workType})),
-        fixworks: workData.fixworks.map(element => ({id: element.id, workType: element.workType})),
+        mainworks: workData.mainworks ? workData.mainworks.map(element => ({id: element.id, workType: element.workType})) : [],
+        subworks: workData.subworks ? workData.subworks.map(element => ({id: element.id, workType: element.workType})) : [],
+        fixworks: workData.fixworks ? workData.fixworks.map(element => ({id: element.id, workType: element.workType})) : [],
     }
     for (let [index, element] of tableRowData.entries()) {
         postdata.num = element.numsprav
         postdata.works.push({
             numsprav: element.numsprav,
             namework: element.nameWorkOrService,
-            period: element.period,
+            period: typeof(element.period) === 'number' ? periodOptions[parseInt(element.period)].label : element.period,
             quantity: element.quantity,
             costofpart: element.costOfPart,
             sum: element.sum,
-            workSubId: element.workSubId,
-            workType: element.workType,
+            workSubId: element.workSubId != '' ? element.workSubId : -1,
+            workType: element.workType != '' ? element.workType : getTypeWorkByName(element.nameWorkOrService),
         })
     }
     return postdata
 }
 
-export var update_fromdb_data = function (dbData, newData) {
-    console.log(dbData.value)
+export var clear_input_data = function (inputData, tableRowData) {
+    inputData.value.workMonthAndYear = ''
+    inputData.value.directorSovietFIO = ''
+    inputData.value.directorAppartNum = ''
+    inputData.value.actAllSumHandle = ''
+    inputData.value.mainworks = []
+    inputData.value.subworks= []
+    inputData.value.fixworks = []
+    tableRowData.value = [
+        {
+            orderNum: '1',
+            nameWorkOrService: '',
+            period: '',
+            quantity: '',
+            costOfPart: '',
+            sum: '0.00',
+            workType: '',
+            workSubId: '',
+        }
+    ]
 }

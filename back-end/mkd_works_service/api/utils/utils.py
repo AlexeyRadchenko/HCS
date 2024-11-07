@@ -99,3 +99,9 @@ def calcSum(*args, **kwargs):
     for arg in args:
         s += Decimal(arg)
     return str(s)
+
+def getWorkSubId(id_str, needType):
+    main, w_type, w_id = id_str.split('_')
+    if needType == w_type:
+        return int(w_id)
+    return

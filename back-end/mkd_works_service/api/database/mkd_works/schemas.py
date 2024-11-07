@@ -8,9 +8,6 @@ class HousesMKDSchema(BaseModel):
     id: Optional[int]
     street: Optional[str]
     number: Optional[str]
-    company_id: Optional[str]
-    director: Optional[str]
-    director_appartment: Optional[str]
     company_id: Optional[int]
 
     class Config:
@@ -128,6 +125,8 @@ class DoneWorksSchema(BaseModel):
     unit_cost: Optional[str]
     work_square: Optional[str]
     month_year_works: Optional[datetime]
+    director: Optional[str]
+    director_appartment: Optional[str]
     houses:Optional[HousesMKDSchema]
     mainworks: List[MainWorksSchema]
     subworks: List[SubWorksSchema]
@@ -158,12 +157,22 @@ class TableWorkRowEditSchema(BaseModel):
     workType: Optional[str]
     workSubId: Optional[int]
 
+class TableWorkNewSchema(BaseModel):
+    numsprav: Optional[str] = None
+    namework: Optional[str] 
+    period: Optional[str] = None
+    quantity: Optional[str] = None
+    costofpart: Optional[str] = None
+    sum: Optional[str] = None
+    workType: Optional[str] = None
+    workSubId: Optional[int] = None    
+
 class EditWorksListSchema(BaseModel):
     id: Optional[int]
     workType: Optional[str]
 
 class WorkEditSchema(BaseModel):
-    id: Optional[str]
+    id: Optional[str] 
     num: Optional[str]
     house_id: Optional[int]
     all_sum: Optional[str]
@@ -174,6 +183,19 @@ class WorkEditSchema(BaseModel):
     mainworks:List[EditWorksListSchema]
     subworks:List[EditWorksListSchema]
     fixworks:List[EditWorksListSchema]
+
+class WorkNewSchema(BaseModel):
+    id: Optional[str]
+    num: Optional[str] = None
+    house_id: Optional[int]
+    all_sum: Optional[str] = None
+    directorSovietFIO: Optional[str] = None
+    directorAppartNum: Optional[str] = None
+    month_year_works: datetime | str = None
+    works: List[TableWorkNewSchema]
+    mainworks:List[EditWorksListSchema] | None = None
+    subworks:List[EditWorksListSchema] | None = None 
+    fixworks:List[EditWorksListSchema] | None = None   
 
 """
 class PaymentsILSchema(BaseModel):

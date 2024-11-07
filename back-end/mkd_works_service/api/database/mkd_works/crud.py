@@ -78,7 +78,9 @@ async def update_act_db(db: AsyncSession, obj: Acts):
             num=obj.num,
             all_sum=obj.all_sum,
             month_year_works=obj.month_year_works,
-            house_id=obj.house_id
+            house_id=obj.house_id,
+            director=obj.director,
+            director_appartment=obj.director_appartment
         )
         .where(Acts.id == obj.id)
     )

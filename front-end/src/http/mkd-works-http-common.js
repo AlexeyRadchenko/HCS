@@ -105,3 +105,21 @@ export var get_mkd_works_get_all_houses = async function () {
       }
     })
   }
+
+  export var create_new_mkd_works = async function (data) {
+    setHeaders(http)
+    return await http.post('http://localhost:8050/api/v1/mkd_works_service/houses/works/create/', data=data)
+    .then(response => {
+      if (response.status == 200)
+        console.log(response)
+        return response
+    })
+    .catch(e => {
+      if (!e.response) {
+        console.log('сервер не отвечает')
+        return null
+      } else {
+        return null
+      }
+    })
+  }

@@ -5,7 +5,7 @@ from typing import List, Annotated
 from datetime import datetime, timezone
 from os import path
 
-from ..database.mkd_works.schemas import HousesMKDSchema, DoneWorksSchema, ReferenceBookSchema, WorkEditSchema
+from ..database.mkd_works.schemas import HousesMKDSchema, DoneWorksSchema, ReferenceBookSchema, WorkEditSchema, WorkNewSchema
 from ..database.mkd_works.crud import (
     get_all_houses, get_all_mkd_works_by_house_id, get_furure_work_id_from_db, create_mkd_works_db_object, get_all_mainworks,
     get_all_subworks, get_all_fixworks, update_act_db, update_acthasfixworks_db, update_acthassubworks_db
@@ -14,7 +14,7 @@ from ..database.mkd_works.models import Acts, Actfiles, Actshasactfiles, Smetafi
 from api.security.acess_depends import user_scope_authorize
 from ..database.database import get_async_session
 from api.settings.settings import settings
-from ..utils.utils import chunked_copy, get_file_extension, calcSum
+from ..utils.utils import chunked_copy, get_file_extension, calcSum, getWorkSubId
 
 
 
@@ -201,12 +201,15 @@ async def update_act_model(
     user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WORKS", work.works)
     act_edit_model_object = Acts(
         id=int(work.id),
         num=work.num,
         all_sum=work.all_sum,
         month_year_works=work.month_year_works,
         house_id=int(work.house_id),
+        director=work.directorSovietFIO,
+        director_appartment=work.directorAppartNum
     )
     sum = 0
     if len(work.works) > 0:
@@ -215,12 +218,13 @@ async def update_act_model(
             if s.workType == 'subwork':
                 act_subwork = Acthassubworks(
                     act_id=int(work.id),
-                    subwork_id=s.workSubId,
+                    subwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '1'),
                     sum=s.sum,
                     quantity=s.quantity,
                     unitcost=s.costofpart
                 )
                 update_subworks_act_data = await update_acthassubworks_db(db_session, act_subwork)
+                print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", update_subworks_act_data)
                 if not update_subworks_act_data == 1:
                     create_subwork_act_data = await create_mkd_works_db_object(db_session, act_subwork)
                 continue
@@ -228,7 +232,7 @@ async def update_act_model(
             if s.workType == 'fixwork':
                 act_fixwork = Acthasfixworks(
                     act_id=int(work.id),
-                    subwork_id=s.workSubId,
+                    subwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '2'),
                     sum=s.sum,
                     quantity=s.quantity,
                     unitcost=s.costofpart
@@ -246,3 +250,108 @@ async def update_act_model(
         print("!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", acts_update)
         return             
     return {"error": "document not update"}
+
+@router.post("/houses/works/create/")
+async def create_act(
+    work: WorkNewSchema,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    # если -1, то работа новая несуществующая. Доки еще добавить
+    print("------------------------------------------------>>>>>>>>>>>", work.id)
+    if work.id and work.id == '-1':
+        print("------------------------------------------------>>>>>>>>>>>first if", work.id)
+        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WORKS", work.works)
+        act_create_model_object = Acts(
+            id=None,
+            num=work.num,
+            all_sum=work.all_sum,
+            month_year_works=datetime.strptime(work.month_year_works, '%Y-%m-%d') if work.month_year_works != '' else None,
+            house_id=int(work.house_id),
+            director=work.directorSovietFIO,
+            director_appartment=work.directorAppartNum
+        )
+        create_db_act_data = await create_mkd_works_db_object(db_session, act_create_model_object)
+        sum = 0
+        if len(work.works) > 0:
+            for s in work.works:
+                sum = calcSum(s.sum, sum=sum)
+                if s.workType == 'subwork':
+                    act_subwork = Acthassubworks(
+                        act_id=create_db_act_data.id,
+                        subwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '1'),
+                        sum=s.sum,
+                        quantity=s.quantity,
+                        unitcost=s.costofpart
+                    )
+                    create_subworks_act_data = await create_mkd_works_db_object(db_session, act_subwork)
+                    print("#######################################", create_subworks_act_data)
+                    continue
+
+                if s.workType == 'fixwork':
+                    act_fixwork = Acthasfixworks(
+                        act_id=create_db_act_data.id,
+                        subwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '2'),
+                        sum=s.sum,
+                        quantity=s.quantity,
+                        unitcost=s.costofpart
+                    )
+                    create_fixwork_act_data = await create_mkd_works_db_object(db_session, act_fixwork)
+
+        #print("-----------------", sum, act_edit_model_object.all_sum)
+        if sum != work.all_sum:
+            act_create_model_object.all_sum = sum
+            act_create_model_object.id = create_db_act_data.id
+            #print("-----------------", sum, act_edit_model_object.all_sum)
+        acts_create = await update_act_db(db_session, act_create_model_object)
+        if acts_create:
+            print("!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", acts_create)
+            return             
+        return {"error": "document not update", "status_code": 422}
+    elif work.id and work.id != '-1':
+        print("------------------------------------------------>>>>>>>>>>>second if", work.id)
+        act_edit_model_object = Acts(
+            id=int(work.id),
+            num=work.num,
+            all_sum=work.all_sum,
+            month_year_works=datetime.strptime(work.month_year_works, '%Y-%m-%d') if work.month_year_works != '' else None,
+            house_id=int(work.house_id),
+        )
+        sum = 0
+        if len(work.works) > 0:
+            for s in work.works:
+                sum = calcSum(s.sum, sum=sum)
+                if s.workType == 'subwork':
+                    act_subwork = Acthassubworks(
+                        act_id=int(work.id),
+                        subwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '1'),
+                        sum=s.sum,
+                        quantity=s.quantity,
+                        unitcost=s.costofpart
+                    )
+                    update_subworks_act_data = await update_acthassubworks_db(db_session, act_subwork)
+                    if not update_subworks_act_data == 1:
+                        create_subwork_act_data = await create_mkd_works_db_object(db_session, act_subwork)
+                    continue
+
+                if s.workType == 'fixwork':
+                    act_fixwork = Acthasfixworks(
+                        act_id=int(work.id),
+                        subwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '2'),
+                        sum=s.sum,
+                        quantity=s.quantity,
+                        unitcost=s.costofpart
+                    )
+                    update_fixworks_act_data = await update_acthasfixworks_db(db_session, act_fixwork)
+                    if not update_fixworks_act_data == 1:
+                        create_fixwork_act_data = await create_mkd_works_db_object(db_session, act_fixwork)
+
+        #print("-----------------", sum, act_edit_model_object.all_sum)
+        if sum != work.all_sum:
+            act_edit_model_object.all_sum = sum
+            print("-----------------", sum, act_edit_model_object.all_sum)
+        acts_update = await update_act_db(db_session, act_edit_model_object)
+        if acts_update == 1:
+            #print("!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", acts_update)
+            return             
+        return {"error": "document not update", "status_code": 422}

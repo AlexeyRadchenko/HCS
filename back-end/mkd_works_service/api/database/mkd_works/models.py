@@ -29,8 +29,7 @@ class Houses(Base):
     street = Column(String, nullable=False)
     number = Column(String, nullable=False)
     company_id = Column(Integer, ForeignKey('companies.id'), nullable=True)
-    director = Column(String, nullable=True)
-    director_appartment = Column(String, nullable=True)
+
     # заменено на select вешает запрос 
     companies = relationship('Companies', back_populates='houses', lazy='select')
     actfiles = relationship('Actfiles', back_populates='houses', lazy='select')
@@ -72,8 +71,8 @@ class Acthassubworks(Base):
     quantity = Column(String, nullable=True)
     unitcost = Column(String, nullable=True)
 
-    acts = relationship("Acts", back_populates="subworks_details", lazy='joined')
-    subworks = relationship('Subworks', back_populates='acts_details', lazy='joined')
+    acts = relationship("Acts", back_populates="subworks_details", lazy='joined', viewonly=True)
+    subworks = relationship('Subworks', back_populates='acts_details', lazy='joined', viewonly=True)
 
 
 class Acthasfixworks(Base):
@@ -85,8 +84,8 @@ class Acthasfixworks(Base):
     quantity = Column(String, nullable=True)
     unitcost = Column(String, nullable=True)
 
-    acts = relationship("Acts", back_populates="fixworks_details", lazy='joined')
-    fixworks = relationship('Fixworks', back_populates='acts_details', lazy='joined')
+    acts = relationship("Acts", back_populates="fixworks_details", lazy='joined', viewonly=True)
+    fixworks = relationship('Fixworks', back_populates='acts_details', lazy='joined', viewonly=True)
 
 
 class Mainworks(Base):
@@ -118,8 +117,8 @@ class Subworks(Base):
     mainwork_id = Column(Integer, ForeignKey('mainworks.id'), nullable=True)
 
     mainworks = relationship('Mainworks', back_populates='subworks', lazy='joined')
-    acts = relationship('Acts', secondary='acthassubworks', back_populates='subworks', lazy='joined')
-    acts_details = relationship("Acthassubworks", back_populates="subworks", lazy='joined')
+    acts = relationship('Acts', secondary='acthassubworks', back_populates='subworks', lazy='joined', viewonly=True)
+    acts_details = relationship("Acthassubworks", back_populates="subworks", lazy='joined', viewonly=True)
     """sum = AssociationProxy('acts_details', 'sum', creator=lambda values: values[0] if values else None)
     quantity = AssociationProxy('acts_details', 'quantity', creator=lambda values: values[0] if values else None)
     unitcost = AssociationProxy('acts_details', 'unitcost', creator=lambda values: values[0] if values else None)"""
@@ -149,8 +148,8 @@ class Fixworks(Base):
     mainwork_id = Column(Integer, ForeignKey('mainworks.id'), nullable=True)
 
     mainworks = relationship('Mainworks', back_populates='fixworks', lazy='joined')
-    acts = relationship('Acts', secondary='acthasfixworks', back_populates='fixworks', lazy='joined')
-    acts_details = relationship("Acthasfixworks", back_populates="fixworks", lazy='joined')
+    acts = relationship('Acts', secondary='acthasfixworks', back_populates='fixworks', lazy='joined', viewonly=True)
+    acts_details = relationship("Acthasfixworks", back_populates="fixworks", lazy='joined', viewonly=True)
 
     @property
     def sum(self):
@@ -181,7 +180,8 @@ class Actfiles(Base):
     date_upload = Column(DateTime(timezone=True), server_default=func.now())
 
     houses = relationship('Houses', back_populates='actfiles', lazy='joined')
-    acts = relationship('Acts', secondary='actshasactfiles', back_populates='actfiles', lazy='joined')
+    acts = relationship('Acts', secondary='actshasactfiles', primaryjoin="Acts.id == Actshasactfiles.act_id",
+    secondaryjoin="Actfiles.uuid == Actshasactfiles.actfile_uuid", back_populates='actfiles', lazy='joined')
 
 
 class Smetafiles(Base):
@@ -200,7 +200,8 @@ class Smetafiles(Base):
     date_upload = Column(DateTime(timezone=True), server_default=func.now())
 
     houses = relationship('Houses', back_populates='smetafiles', lazy='joined')
-    acts = relationship('Acts', secondary='actshassmetafiles', back_populates='smetafiles', lazy='joined')
+    acts = relationship('Acts', secondary='actshassmetafiles', back_populates='smetafiles', primaryjoin="Acts.id == Actshassmetafiles.act_id",
+    secondaryjoin="Smetafiles.uuid == Actshassmetafiles.smetafile_uuid", lazy='joined')
 
 
 class Techfiles(Base):
@@ -233,6 +234,8 @@ class Acts(Base):
     house_id = Column(Integer, ForeignKey("houses.id"), nullable=False)
     unit_cost = Column(String, nullable=True)
     work_square = Column(String, nullable=True)
+    director = Column(String, nullable=True)
+    director_appartment = Column(String, nullable=True)
 
     houses = relationship('Houses', back_populates='acts', lazy='joined')
     mainworks = relationship(
@@ -240,24 +243,26 @@ class Acts(Base):
     )
 
     subworks = relationship(
-        'Subworks', secondary='acthassubworks', back_populates='acts', lazy='joined'
+        'Subworks', secondary='acthassubworks', primaryjoin="Acts.id == Acthassubworks.act_id",  secondaryjoin="Subworks.id == Acthassubworks.subwork_id", 
+        back_populates='acts', lazy='joined', overlaps="acts"
     )
 
-    subworks_details = relationship("Acthassubworks", back_populates="acts", lazy='joined')
+    subworks_details = relationship("Acthassubworks", back_populates="acts", lazy='joined', viewonly=True)
 
 
     fixworks = relationship(
-        'Fixworks', secondary='acthasfixworks', back_populates='acts', lazy='joined'
+        'Fixworks', secondary='acthasfixworks', back_populates='acts', lazy='joined', primaryjoin="Acts.id == Acthasfixworks.act_id", 
+        secondaryjoin="Fixworks.id == Acthasfixworks.fixwork_id", overlaps='acts'
     )
 
-    fixworks_details = relationship("Acthasfixworks", back_populates="acts", lazy='joined')
+    fixworks_details = relationship("Acthasfixworks", back_populates="acts", lazy='joined', viewonly=True)
 
     actfiles = relationship(
-        'Actfiles', secondary='actshasactfiles', back_populates='acts', lazy='joined', order_by="desc(Actfiles.date_upload)",
+        'Actfiles', secondary='actshasactfiles', back_populates='acts', lazy='joined', order_by="desc(Actfiles.date_upload)"
     )
 
     smetafiles = relationship(
-        'Smetafiles', secondary='actshassmetafiles', back_populates='acts', lazy='joined', order_by="desc(Smetafiles.date_upload)",
+        'Smetafiles', secondary='actshassmetafiles', back_populates='acts', lazy='joined', order_by="desc(Smetafiles.date_upload)"
     )
 
    

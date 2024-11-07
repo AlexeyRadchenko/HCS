@@ -170,6 +170,7 @@ onMounted(() => {
         {
           value: String(element.id),
           label: element.work,
+          wtype: element.workType,
         }
       )
 

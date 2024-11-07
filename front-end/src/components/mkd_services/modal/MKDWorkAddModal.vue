@@ -41,6 +41,8 @@
                             :auto-upload="false"
                             :headers="uploadHeaders"
                             :on-success="uploadSmetaSuccess"
+                            :on-progress="uploadSmetaDisable"
+                            :disable="btnSmetaDisable"
                         >
                             <template #trigger>
                             <el-button type="primary">select file</el-button>
@@ -124,6 +126,8 @@
                           :auto-upload="false"
                           :headers="uploadHeaders"
                           :on-success="uploadActSuccess"
+                          :on-progress="uploadActDisable"
+                          :disable="btnActDisable"
                       >
                           <template #trigger>
                           <el-button type="primary">select file</el-button>
@@ -242,11 +246,11 @@
 <script setup>
 // Импортируйте необходимые функции, если нужно
 import { ref, reactive, computed, onMounted, watch, toRaw, defineEmits } from 'vue';
-import { genFileId } from 'element-plus'
+import { genFileId, ElMessage } from 'element-plus'
 import secureStorage from '../../../storage/secStorage'
-import { get_future_work_id_by_house_id, edit_mkd_works } from '../../../http/mkd-works-http-common'
+import { get_future_work_id_by_house_id, edit_mkd_works, create_new_mkd_works } from '../../../http/mkd-works-http-common'
 import dayjs from 'dayjs'
-import { generate_data_object_to_post, update_fromdb_data } from '../../../utils/utils';
+import { generate_data_object_to_post, clear_input_data } from '../../../utils/utils';
 
 const props = defineProps({
     houseId: String,
@@ -265,6 +269,8 @@ const uploadHeaders = {
 
 const dialogMKDWorksAddVisibleSub = defineModel('dialogMKDWorksAddVisibleSub')
 const workFromDBdata = defineModel('workFromDBdata')
+const btnSmetaDisable = ref(false)
+const btnActDisable = ref(false)
 const emit = defineEmits(['update-data'])
 const uploadSmeta = ref(null)
 const uploadAct = ref(null)
@@ -338,6 +344,12 @@ const uploadActSuccess = (response) => {
     if (!workFromDBdata.value.workId) {
       workFromDBdata.value.workId = response.workid
     }
+    btnActDisable.value = false
+    ElMessage({
+      showClose: true,
+      message: 'Файл акта успешно загружен',
+      type: 'success',
+    })
 }
 
 const uploadSmetaSuccess = (response) => {
@@ -349,14 +361,28 @@ const uploadSmetaSuccess = (response) => {
     if (!workFromDBdata.value.workId) {
       workFromDBdata.value.workId = response.workid
     }
+    btnSmetaDisable.value = false
+    ElMessage({
+      showClose: true,
+      message: 'Файл сметы успешно загружен',
+      type: 'success',
+    })
+}
+
+const uploadActDisable = () => {
+  btnActDisable.value = true
+}
+
+const uploadSmetaDisable = () => {
+  btnSmetaDisable.value = true
 }
 
 watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
   console.log(show, oldStatus)
   if (show && props.modalCallType == 'edit') {
-    console.log(props.modalCallType, props.editRowIndex)
+    /*console.log(props.modalCallType, props.editRowIndex)
     console.log(workFromDBdata.value)
-    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!",props.houseId, props.workID)
+    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!",props.houseId, props.workID)*/
     actInputFileData.value.workid = workFromDBdata.value.workId
     smetaInputFileData.value.workid = workFromDBdata.value.workId
     workInputData.value.workMonthAndYear = dayjs(workFromDBdata.value.date).format('YYYY-MM-DD')
@@ -404,6 +430,8 @@ watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
           })
       }  
     }
+  } else if (show && props.modalCallType == 'add') {
+    clear_input_data(workInputData, tableData)
   }
   //console.log(workInputData.value.workMonthAndYear, dayjs(workFromDBdata.value.date).format('MM.YYYY'))
 })
@@ -487,19 +515,62 @@ const onCancleBtnClick = () => {
 
 const onSaveBtnClick =  () => {
   console.log(props.modalCallType)
+  //console.log("periodOptions", props.allPeriodsOptions)
   if (props.modalCallType === 'edit') {
     //console.log("call edit func")
-    let data = generate_data_object_to_post(workInputData.value, tableData.value, props.workID, props.houseId)
+    let data = generate_data_object_to_post(workInputData.value, tableData.value, props.workID, props.houseId, props.allPeriodsOptions)
     edit_mkd_works(data).then((response) => {
       if (response.status === 200 && response.statusText === 'OK') {
+        ElMessage({
+          message: 'Данные успешно отредактированы',
+          type: 'success',
+          showClose: true,
+        })
         dialogMKDWorksAddVisibleSub.value = false
         emit('update-data');
       }
   }).catch((error) => {
     console.error('Error:', error);
+    ElMessage({
+          showClose: true,
+          message: 'Ошибка при сохранении',
+          type: 'error',
+    })
   });
   }else if (props.modalCallType === 'add') {
-    console.log("call add func")
+    let periods = props.allPeriodsOptions
+    //console.log("periodOptionsCreate", props.allPeriodsOptions)
+    let data = generate_data_object_to_post(workInputData.value, tableData.value, props.workID, props.houseId, props.allPeriodsOptions)
+    console.log(data.works.length, data.works)
+    if (data.works.length != 0 && data.works[0].namework == '') {
+      //console.log('message add work')
+      ElMessage({
+          showClose: true,
+          message: 'Укажите наименование работы!',
+          type: 'warning',
+      })
+    } else {
+      //console.log('call create handlrer')
+      let data = generate_data_object_to_post(workInputData.value, tableData.value, props.workID, props.houseId, props.allPeriodsOptions)
+      create_new_mkd_works(data).then((response) => {
+        if (response.status === 200 && response.statusText === 'OK') {
+          ElMessage({
+            message: 'Данные успешно сохранены',
+            type: 'success',
+            showClose: true,
+          })
+          dialogMKDWorksAddVisibleSub.value = false
+          emit('update-data');
+        }
+      }).catch((error) => {
+        console.error('Error:', error);
+        ElMessage({
+          showClose: true,
+          message: 'Ошибка при сохранении',
+          type: 'error',
+        })
+      });
+    }
   }
 }
 
