@@ -14,7 +14,9 @@
           <template #default="scope">
             <div style="display: flex; align-items: center">
               <span>{{ scope.row.smeta.num }}</span>
-              <span style="margin-left: 10px"><a :href="scope.row.smeta.url + scope.row.smeta.uuid" v-if="scope.row.smeta.url">Файл</a></span>
+              <span style="margin-left: 10px; margin-bottom: 0.2em;">
+                <el-link type="success" :underline="false" v-if="scope.row.smeta.url" @click.prevent="downloadFile(scope.row.smeta.url + scope.row.smeta.uuid, scope.row.smeta.name)">Файл Сметы</el-link>
+              </span>
             </div>
           </template>
         </el-table-column>
@@ -23,7 +25,9 @@
           <template #default="scope">
             <div style="display: flex; align-items: center">
               <span>{{ scope.row.act.num }}</span>
-              <span style="margin-left: 10px"><a :href="scope.row.act.url + scope.row.act.uuid" v-if="scope.row.act.url">Файл</a></span>
+              <span style="margin-left: 10px; margin-bottom: 0.2em;">
+                <el-link type="success" :underline="false" v-if="scope.row.act.url" @click.prevent="downloadFile(scope.row.smeta.url + scope.row.smeta.uuid, scope.row.smeta.name)">Файл Акта</el-link>
+              </span>
             </div>
           </template>
         </el-table-column>
@@ -66,9 +70,10 @@
 // Импортируйте необходимые функции, если нужно
 import { ref, reactive, computed, onMounted, watch, defineModel, toRaw } from 'vue';
 import MKDWorkAddModal from './modal/MKDWorkAddModal.vue';
-import { get_mkd_works_get_all_works_by_house_id } from '../../http/mkd-works-http-common'
+import { get_mkd_works_get_all_works_by_house_id, download_file_mkd_works } from '../../http/mkd-works-http-common'
 import { mkd_works_works_to_string, get_mkd_works_sprav_name, get_period } from '../../utils/utils'
 import dayjs from 'dayjs';
+import FileDownload from 'js-file-download'
 import { configProviderContextKey } from 'element-plus';
 
 const props = defineProps({
@@ -200,6 +205,14 @@ const initEmptyRowData = () => {
     subWorkId: '',
     fixWorkId: '',
   }
+}
+
+const downloadFile = (url, filename) => {
+  download_file_mkd_works(url).then((response) =>{
+    FileDownload(response.data, filename)
+  }).catch((error) =>{
+    console.error('Error:', error);
+  });
 }
 
 

@@ -116,3 +116,41 @@ async def update_acthasfixworks_db(db: AsyncSession, obj: Acthasfixworks):
     )
     await db.commit()
     return result.rowcount
+
+async def select_act_doc_by_uuid(db: AsyncSession, uuid: str):
+    result = await db.execute(
+        select(
+            Actfiles.uuid,
+            Actfiles.name,
+            Actfiles.num,
+            Actfiles.date,
+            Actfiles.extention,
+            Actfiles.url,
+            Actfiles.path,
+            Actfiles.size,
+            Actfiles.filetype,
+            Actfiles.house_id,
+            Actfiles.date_upload
+        )
+        .where(Actfiles.uuid == uuid)
+    )
+    return result.one_or_none()
+
+async def select_smeta_doc_by_uuid(db: AsyncSession, uuid: str):
+    result = await db.execute(
+        select(
+            Smetafiles.uuid,
+            Smetafiles.name,
+            Smetafiles.num,
+            Smetafiles.date,
+            Smetafiles.extention,
+            Smetafiles.url,
+            Smetafiles.path,
+            Smetafiles.size,
+            Smetafiles.filetype,
+            Smetafiles.house_id,
+            Smetafiles.date_upload
+        )
+        .where(Smetafiles.uuid == uuid)
+    )
+    return result.one_or_none()

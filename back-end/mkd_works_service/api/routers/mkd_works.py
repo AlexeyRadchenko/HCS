@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Security, UploadFile, Form
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from typing import List, Annotated
 from datetime import datetime, timezone
@@ -8,7 +8,8 @@ from os import path
 from ..database.mkd_works.schemas import HousesMKDSchema, DoneWorksSchema, ReferenceBookSchema, WorkEditSchema, WorkNewSchema
 from ..database.mkd_works.crud import (
     get_all_houses, get_all_mkd_works_by_house_id, get_furure_work_id_from_db, create_mkd_works_db_object, get_all_mainworks,
-    get_all_subworks, get_all_fixworks, update_act_db, update_acthasfixworks_db, update_acthassubworks_db
+    get_all_subworks, get_all_fixworks, update_act_db, update_acthasfixworks_db, update_acthassubworks_db, select_act_doc_by_uuid,
+    select_smeta_doc_by_uuid
     )
 from ..database.mkd_works.models import Acts, Actfiles, Actshasactfiles, Smetafiles, Actshassmetafiles, Acthassubworks, Acthasfixworks
 from api.security.acess_depends import user_scope_authorize
@@ -355,3 +356,43 @@ async def create_act(
             #print("!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", acts_update)
             return             
         return {"error": "document not update", "status_code": 422}
+
+@router.get("/download/act/{uuid}")
+async def download_act(
+    uuid: str,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    act = await select_act_doc_by_uuid(db_session, uuid)
+    print("!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",act)
+    if act:
+        return FileResponse(path=act.path, filename=act.name, media_type=act.filetype)
+
+
+@router.get("/download/smeta/{uuid}")
+async def download_act(
+    uuid: str,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    smeta = await select_smeta_doc_by_uuid(db_session, uuid)
+    print("!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", smeta)
+    if smeta:
+        return FileResponse(path=smeta.path, filename=smeta.name, media_type=smeta.filetype)
+    
+@router.get("/houses/yearacts/generate/{year}/{house_id}")
+async def get_all_year_acts_for_house(
+    house_id: int,
+    year: str,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    print("--------------------------------->", year, house_id)    
+    
+@router.get("/houses/yearacts/all/{house_id}")
+async def get_all_year_acts_for_house(
+    house_id: int,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    pass

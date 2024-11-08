@@ -11,7 +11,7 @@
             />
         </el-col>
         <el-col :span="5">
-            <el-button type="primary">Сформировать</el-button>
+            <el-button type="primary" @click="showTab">Сформировать</el-button>
         </el-col>
       </el-row>
       <el-row class="mkd-services-year-works-act-row">
@@ -42,6 +42,7 @@
 <script setup>
 // Импортируйте необходимые функции, если нужно
 import { ref, reactive, computed, onMounted, watch, defineModel, toRaw } from 'vue';
+import { get_year_files_list_by_house } from '../../http/mkd-works-http-common'
 
 const props = defineProps({
   selectedHouseId: String,
@@ -49,6 +50,7 @@ const props = defineProps({
   selectedHouseName: String,
 })
 
+const activeTabYear = defineModel('activeTabYear')
 const selectedActYear = ref('')
 const tableData = ref([
   {
@@ -77,10 +79,14 @@ const tableData = ref([
 const showActData = (numAct) =>{
     console.log(numAct)
 }
+
+const showTab = () => {
+  console.log(activeTabYear.value)
+}
+
+
 onMounted(() => {
   console.log('Компонент был смонтирован!');
-  //console.log('selectedCompanyId:', selectedCompanyId);
-  //console.log('selectedHouseId:', selectedHouseId);
 });
 </script>
 

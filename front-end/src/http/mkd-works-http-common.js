@@ -123,3 +123,39 @@ export var get_mkd_works_get_all_houses = async function () {
       }
     })
   }
+
+  export var download_file_mkd_works = async function (url) {
+    setHeaders(http)
+    return await http.get('http://localhost:8050/api/v1/mkd_works_service' + url, {responseType: 'blob'})
+    .then(response => {
+      if (response.status == 200)
+        //console.log(response)
+        return response
+    })
+    .catch(e => {
+      if (!e.response) {
+        console.log('сервер не отвечает')
+        return null
+      } else {
+        return null
+      }
+    })
+  }
+
+  export var get_year_files_list_by_house = async function (house_id) {
+    setHeaders(http)
+    return await http.get('http://localhost:8050/api/v1/mkd_works_service/houses/yearacts/all/' + house_id)
+    .then(response => {
+      if (response.status == 200)
+        //console.log(response)
+        return response
+    })
+    .catch(e => {
+      if (!e.response) {
+        console.log('сервер не отвечает')
+        return null
+      } else {
+        return null
+      }
+    })
+  }

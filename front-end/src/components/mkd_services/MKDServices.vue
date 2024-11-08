@@ -35,7 +35,7 @@
               <el-main>
                   <el-row>
                     <el-col :span="24">
-                      <el-tabs type="border-card">
+                      <el-tabs type="border-card" v-model="activeTabMain">
                         <el-tab-pane label="Выполненные работы">
                           <WorksRegester
                           :selected-house-id="selectedHouseId"
@@ -50,6 +50,7 @@
                           :selected-house-id="selectedHouseId"
                           :selected-company-id="selectedCompanyId"
                           :selected-house-name="getSelectedHouse"
+                          :active-tab-year="activeTabMain"
                             />
                         </el-tab-pane>
                         <el-tab-pane label="Тех. Документация">
@@ -106,6 +107,8 @@ const works_ref_from_db = ref({
   subworks: [],
   fixworks: [],
 })
+
+const activeTabMain = ref('0')
 const getSelectedHouse = computed(() => {
   //console.log("houses", houses_komf.value, )
   return houses_komf.value.find(house => String(house.id) === selectedHouseId.value)?.house

@@ -197,45 +197,18 @@ class WorkNewSchema(BaseModel):
     subworks:List[EditWorksListSchema] | None = None 
     fixworks:List[EditWorksListSchema] | None = None   
 
-"""
-class PaymentsILSchema(BaseModel):
-    id: int
-    date: datetime
-    type: str
-    sum: Decimal
+class YearActFilesSchema(BaseModel):
+    uuid: Optional[UUID]
+    name: Optional[str]
+    date: Optional[datetime]
+    num: Optional[str]
+    extention: Optional[str]
+    url: Optional[str]
+    path: Optional[str]
+    size: Optional[str]
+    filetype: Optional[str]
+    house_id: Optional[int]
+    date_upload: Optional[datetime]
 
     class Config:
-        orm_mode = True
-
-class EgrnILSchema(BaseModel):
-    id: int
-    date: datetime
-    number: str
-    file: str
-
-
-class AllILDataSchema(BaseModel):
-    id: int
-    street: str
-    house: str
-    appartment: str
-    accounts_il: Optional[List[AccountILSchema]]
-    egrn_il: Optional[List[EgrnILSchema]]
-    property_self: bool
-    one_or_parts: bool
-    il_number: Optional[str]
-    il_date: Optional[datetime]
-    ur_in_work: bool
-    gov_tax: Optional[Decimal]
-    order_cancel: bool
-    bailiff_forward_date: Optional[datetime]
-    start_exec_pross_date: Optional[datetime]
-    sum_all_get: Optional[Decimal]
-    sum_not_yet_get: Optional[Decimal]
-    payments: Optional[Decimal]
-    payments_il: Optional[List[PaymentsILSchema]]
-    debt_sum: Optional[Decimal]
-    notes: Optional[str]
-
-    class Config:
-        orm_mode = True"""
+        from_attributes = True

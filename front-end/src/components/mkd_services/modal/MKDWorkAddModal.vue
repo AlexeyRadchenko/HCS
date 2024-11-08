@@ -148,11 +148,11 @@
                     <el-col :span="24">
                       <el-row :gutter="20">
                         <el-col :span="5">{{ actDownloadFile.date }}</el-col>
-                        <el-col :span="19"><el-link :href="actDownloadFile.url + actDownloadFile.uuid">{{ actDownloadFile.filename }}</el-link></el-col>
+                        <el-col :span="19"><el-link @click.prevent="downloadFile(actDownloadFile.url + actDownloadFile.uuid, actDownloadFile.filename)">{{ actDownloadFile.filename }}</el-link></el-col>
                       </el-row>
                       <el-row :gutter="20" class="mkd-works-apply-docs-margin">
-                        <el-col :span="5">{{ smetaDowmloadFile.date }}</el-col>
-                        <el-col :span="19"><el-link :href="smetaDowmloadFile.url + smetaDowmloadFile.uuid">{{ smetaDowmloadFile.filename }}</el-link></el-col>
+                        <el-col :span="5">{{ smetaDownloadFile.date }}</el-col>
+                        <el-col :span="19"><el-link @click.prevent="downloadFile(smetaDownloadFile.url + smetaDownloadFile.uuid, smetaDownloadFile.filename)">{{ smetaDownloadFile.filename }}</el-link></el-col>
                       </el-row>
                     </el-col>     
                 </el-row>
@@ -248,8 +248,9 @@
 import { ref, reactive, computed, onMounted, watch, toRaw, defineEmits } from 'vue';
 import { genFileId, ElMessage } from 'element-plus'
 import secureStorage from '../../../storage/secStorage'
-import { get_future_work_id_by_house_id, edit_mkd_works, create_new_mkd_works } from '../../../http/mkd-works-http-common'
+import { edit_mkd_works, create_new_mkd_works, download_file_mkd_works } from '../../../http/mkd-works-http-common'
 import dayjs from 'dayjs'
+import FileDownload from 'js-file-download'
 import { generate_data_object_to_post, clear_input_data } from '../../../utils/utils';
 
 const props = defineProps({
@@ -308,7 +309,7 @@ const smetaInputFileData = ref({
   houseid: props.houseId,
 })
 
-const smetaDowmloadFile = ref({
+const smetaDownloadFile = ref({
   filename: '',
   url: '',
   date: '',
@@ -354,10 +355,10 @@ const uploadActSuccess = (response) => {
 
 const uploadSmetaSuccess = (response) => {
     console.log(response)
-    smetaDowmloadFile.value.filename = response.filename
-    smetaDowmloadFile.value.date = response.smetadate ? dayjs(response.smetadate).format('DD.MM.YYYY') : ''
-    smetaDowmloadFile.value.num = response.smetanum,
-    smetaDowmloadFile.value.workid = response.workid
+    smetaDownloadFile.value.filename = response.filename
+    smetaDownloadFile.value.date = response.smetadate ? dayjs(response.smetadate).format('DD.MM.YYYY') : ''
+    smetaDownloadFile.value.num = response.smetanum,
+    smetaDownloadFile.value.workid = response.workid
     if (!workFromDBdata.value.workId) {
       workFromDBdata.value.workId = response.workid
     }
@@ -398,12 +399,12 @@ watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
     actDownloadFile.value.uuid = workFromDBdata.value.act.uuid
     actDownloadFile.value.workid = workFromDBdata.value.workId
     actDownloadFile.value.filename= workFromDBdata.value.act.name
-    smetaDowmloadFile.value.num = workFromDBdata.value.smeta.num
-    smetaDowmloadFile.value.date = workFromDBdata.value.smeta.date ? dayjs(workFromDBdata.value.smeta.date).format('DD.MM.YYYY') : ''
-    smetaDowmloadFile.value.url = workFromDBdata.value.smeta.url
-    smetaDowmloadFile.value.uuid = workFromDBdata.value.smeta.uuid
-    smetaDowmloadFile.value.workid = workFromDBdata.value.smeta.workId
-    smetaDowmloadFile.value.filename = workFromDBdata.value.smeta.name
+    smetaDownloadFile.value.num = workFromDBdata.value.smeta.num
+    smetaDownloadFile.value.date = workFromDBdata.value.smeta.date ? dayjs(workFromDBdata.value.smeta.date).format('DD.MM.YYYY') : ''
+    smetaDownloadFile.value.url = workFromDBdata.value.smeta.url
+    smetaDownloadFile.value.uuid = workFromDBdata.value.smeta.uuid
+    smetaDownloadFile.value.workid = workFromDBdata.value.smeta.workId
+    smetaDownloadFile.value.filename = workFromDBdata.value.smeta.name
     let works = workFromDBdata.value.subworks.concat(workFromDBdata.value.fixworks)
     if (works.length) {
       for (let [index, element] of works.entries()) {
@@ -574,25 +575,13 @@ const onSaveBtnClick =  () => {
   }
 }
 
-/*const work_id_from_db = (houseID) => {
-  get_future_work_id_by_house_id(houseID).then((response) => {
-    tempWorkFutureId.value = response.data.future_work_id
-    actInputFileData.value.actfutureid = response.data.future_work_id
-    console.log("work id future", tempWorkFutureId.value)
-  }).catch((error) => {
+const downloadFile = (url, filename) => {
+  download_file_mkd_works(url).then((response) =>{
+    FileDownload(response.data, filename)
+  }).catch((error) =>{
     console.error('Error:', error);
   });
 }
-
-watch(dialogMKDWorksAddVisibleSub, (dialogMKDWorksAddVisibleSub) => {
-  if (dialogMKDWorksAddVisibleSub && !props.workID) {
-    work_id_from_db(props.houseId)
-  }else if (props.workID) {
-    actInputFileData.value.actfutureid = props.workID
-  }
-})*/ 
-
-//watch(() => props.selectedHouseId, (newSelectedHouseId, oldSelectedHouseId) => {
 
 onMounted(() => {
   console.log('Компонент был смонтирован!');
