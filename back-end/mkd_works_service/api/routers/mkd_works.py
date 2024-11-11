@@ -1,21 +1,22 @@
-from fastapi import APIRouter, Depends, Security, UploadFile, Form
+from fastapi import APIRouter, Depends, Security, UploadFile, Form, BackgroundTasks
 from fastapi.responses import JSONResponse, FileResponse
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from typing import List, Annotated
 from datetime import datetime, timezone
 from os import path
 
-from ..database.mkd_works.schemas import HousesMKDSchema, DoneWorksSchema, ReferenceBookSchema, WorkEditSchema, WorkNewSchema
+from ..database.mkd_works.schemas import HousesMKDSchema, DoneWorksSchema, ReferenceBookSchema, WorkEditSchema, WorkNewSchema, YearActFilesSchema
 from ..database.mkd_works.crud import (
     get_all_houses, get_all_mkd_works_by_house_id, get_furure_work_id_from_db, create_mkd_works_db_object, get_all_mainworks,
     get_all_subworks, get_all_fixworks, update_act_db, update_acthasfixworks_db, update_acthassubworks_db, select_act_doc_by_uuid,
-    select_smeta_doc_by_uuid
+    select_smeta_doc_by_uuid, get_year_acts_by_house_id, get_acts_by_year_and_house_id, get_year_acts_by_house_id_and_year
     )
-from ..database.mkd_works.models import Acts, Actfiles, Actshasactfiles, Smetafiles, Actshassmetafiles, Acthassubworks, Acthasfixworks
+from ..database.mkd_works.models import Acts, Actfiles, Actshasactfiles, Smetafiles, Actshassmetafiles, Acthassubworks, Acthasfixworks, YearActfiles
 from api.security.acess_depends import user_scope_authorize
 from ..database.database import get_async_session
 from api.settings.settings import settings
 from ..utils.utils import chunked_copy, get_file_extension, calcSum, getWorkSubId
+from ..tasks.tasks import genereate_year_act_xlsx_file
 
 
 
@@ -383,11 +384,24 @@ async def download_act(
 @router.get("/houses/yearacts/generate/{year}/{house_id}")
 async def get_all_year_acts_for_house(
     house_id: int,
-    year: str,
+    year: datetime,
+    background_tasks: BackgroundTasks,
     user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
-    print("--------------------------------->", year, house_id)    
+    #YearActFilesSchema, YearActfiles
+    print("--------------------------------->", year, house_id)
+    exist_year_act = await get_year_acts_by_house_id_and_year(db_session, year, house_id)
+    if not exist_year_act:
+        works_for_year_from_db = await get_acts_by_year_and_house_id(db_session, year, house_id)
+        data = []
+        for work in works_for_year_from_db:
+            workObj = DoneWorksSchema.model_validate(work).model_dump()
+            data.append(workObj)
+        background_tasks.add_task(genereate_year_act_xlsx_file, year, house_id, data)
+        return {"message": "task started"}
+    else:
+        return {"message": "year act exist", "year": year.year, "act_num": exist_year_act.num}
     
 @router.get("/houses/yearacts/all/{house_id}")
 async def get_all_year_acts_for_house(
@@ -396,3 +410,4 @@ async def get_all_year_acts_for_house(
     db_session: AsyncSession = Depends(get_async_session)
     ):
     pass
+    #selected_year_acts = aweait get_year_acts_by_house_id()

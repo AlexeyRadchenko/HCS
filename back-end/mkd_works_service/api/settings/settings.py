@@ -23,6 +23,8 @@ class Settings(BaseModel):
     FILE_SERVER_PORT: int
     ACT_FILES_STORE_PATH: str
     SMETA_FILES_STORE_PATH: str
+    YEAR_ACT_FILE_TEMPLATE_PATH: str
+    YEAR_ACT_FILE_TEMPLATE_NAME: str
 
 with open(f"{PATH}/{API_CONFIG_FILE}", "r") as stream:
     try:

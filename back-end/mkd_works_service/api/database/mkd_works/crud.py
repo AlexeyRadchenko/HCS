@@ -1,12 +1,13 @@
 from typing import Any, List, Optional
 from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import func
 from sqlalchemy import false, select, update, desc, cast, func, Integer, and_
 from sqlalchemy.orm import joinedload, aliased
 from datetime import datetime
 
 from ..database import row2dict
-from .models import Houses, Acts, Mainworks, Subworks, Fixworks, Actfiles, Smetafiles, Acthassubworks, Acthasfixworks
+from .models import Houses, Acts, Mainworks, Subworks, Fixworks, Actfiles, Smetafiles, Acthassubworks, Acthasfixworks, YearActfiles
 
 
 async def create_mkd_works_db_object(db: AsyncSession, obj: Any):
@@ -154,3 +155,29 @@ async def select_smeta_doc_by_uuid(db: AsyncSession, uuid: str):
         .where(Smetafiles.uuid == uuid)
     )
     return result.one_or_none()
+
+async def get_year_acts_by_house_id_and_year(db: AsyncSession, year: str, house_id:int):
+    result = await db.execute(
+        select(
+            YearActfiles
+        )
+        .where(and_(YearActfiles.house_id == house_id, func.extract("year", YearActfiles.date) == year.year))
+    )
+    return result.one_or_none()
+
+async def get_year_acts_by_house_id(db: AsyncSession, house_id:int):
+    result = await db.execute(
+        select(
+            YearActfiles
+        ).where(YearActfiles.house_id == house_id)
+    )
+    return result.scalars().unique().all()
+
+async def get_acts_by_year_and_house_id(db: AsyncSession, year: datetime, house_id: int):
+    result = await db.execute(
+        select(
+            Acts
+        )
+        .where(and_(Acts.house_id == house_id, func.extract("year", Acts.date) == year.year))
+    )
+    return result.scalars().unique().all()
