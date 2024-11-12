@@ -4,11 +4,24 @@ from typing import List, Optional, Any
 from pydantic import BaseModel
 from uuid import UUID
 
+
+class CompaniesMKDScheme(BaseModel):
+    id: int
+    full_name: Optional[str]
+    short_name: Optional[str]
+    dirname: Optional[str]
+    dirsurname: Optional[str]
+    dirsecondname: Optional[str]
+
+    class Config:
+        from_attributes = True
+
 class HousesMKDSchema(BaseModel):
     id: Optional[int]
     street: Optional[str]
     number: Optional[str]
     company_id: Optional[int]
+    companies: Optional[CompaniesMKDScheme]
 
     class Config:
         from_attributes = True

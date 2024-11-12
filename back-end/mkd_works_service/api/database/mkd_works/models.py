@@ -31,7 +31,7 @@ class Houses(Base):
     company_id = Column(Integer, ForeignKey('companies.id'), nullable=True)
 
     # заменено на select вешает запрос 
-    companies = relationship('Companies', back_populates='houses', lazy='select')
+    companies = relationship('Companies', back_populates='houses', lazy='joined')
     actfiles = relationship('Actfiles', back_populates='houses', lazy='select')
     smetafiles = relationship('Smetafiles', back_populates='houses', lazy='select')
     techfiles = relationship('Techfiles', back_populates='houses', lazy='select')
