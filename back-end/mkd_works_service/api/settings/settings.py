@@ -25,6 +25,7 @@ class Settings(BaseModel):
     SMETA_FILES_STORE_PATH: str
     YEAR_ACT_FILE_TEMPLATE_PATH: str
     YEAR_ACT_FILE_TEMPLATE_NAME: str
+    YEAR_ACT_FILE_READY_PATH: str
 
 with open(f"{PATH}/{API_CONFIG_FILE}", "r") as stream:
     try:

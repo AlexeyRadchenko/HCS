@@ -12,6 +12,10 @@ class CompaniesMKDScheme(BaseModel):
     dirname: Optional[str]
     dirsurname: Optional[str]
     dirsecondname: Optional[str]
+    dirname_who_what: Optional[str]
+    dirsurname_who_what: Optional[str]
+    dirsecondname_who_what: Optional[str]
+    
 
     class Config:
         from_attributes = True
@@ -22,6 +26,7 @@ class HousesMKDSchema(BaseModel):
     number: Optional[str]
     company_id: Optional[int]
     companies: Optional[CompaniesMKDScheme]
+    house_square: Optional[float]
 
     class Config:
         from_attributes = True
@@ -224,4 +229,15 @@ class YearActFilesSchema(BaseModel):
     date_upload: Optional[datetime]
 
     class Config:
-        from_attributes = True        
+        from_attributes = True
+
+class BGTaskSchema(BaseModel):
+    uuid: str
+    status: str
+    start_datetime: datetime
+    end_datetime: datetime
+    type: Optional[str]
+    percent: Optional[str]
+
+    class Config:
+        from_attributes = True     

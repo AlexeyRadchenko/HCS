@@ -7,7 +7,7 @@ from sqlalchemy.orm import joinedload, aliased
 from datetime import datetime
 
 from ..database import row2dict
-from .models import Houses, Acts, Mainworks, Subworks, Fixworks, Actfiles, Smetafiles, Acthassubworks, Acthasfixworks, YearActfiles
+from .models import Houses, Acts, Mainworks, Subworks, Fixworks, Actfiles, Smetafiles, Acthassubworks, Acthasfixworks, YearActfiles, BGTasks
 
 
 async def create_mkd_works_db_object(db: AsyncSession, obj: Any):
@@ -181,3 +181,26 @@ async def get_acts_by_year_and_house_id(db: AsyncSession, year: datetime, house_
         .where(and_(Acts.house_id == house_id, func.extract("year", Acts.date) == year.year))
     )
     return result.scalars().unique().all()
+
+async def update_bg_task_status(db: AsyncSession, uuid: str, status: str, end_task_time: datetime):
+    result = await db.execute(
+        update(
+            BGTasks
+        )
+        .values(
+            status=status,
+            end_datetime=end_task_time
+        )
+        .where(BGTasks.uuid == uuid)
+    )
+    await db.commit()
+    return result.rowcount
+
+async def get_bg_task_status(db: AsyncSession, uuid: str):
+    result = await db.execute(
+        select(
+            BGTasks
+        )
+        .where(BGTasks.uuid == uuid)
+    )
+    return result.one_or_none()

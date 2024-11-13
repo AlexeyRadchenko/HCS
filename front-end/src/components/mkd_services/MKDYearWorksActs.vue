@@ -21,7 +21,7 @@
                 <el-table-column prop="actYear" label="Год" width="100" />
                 <el-table-column prop="actDate" label="Дата акта" width="100" />
                 <el-table-column prop="actNum" label="№ Акта" width="140" />
-                <el-table-column prop="actFile" label="Файл" width="120" />
+                <el-table-column prop="actFile" label="Файл" width="320" />
                 <el-table-column fixed="right" label="Operations" min-width="120">
                 <template #default="scope">
                     <el-button
@@ -43,6 +43,7 @@
 // Импортируйте необходимые функции, если нужно
 import { ref, reactive, computed, onMounted, watch, defineModel, toRaw } from 'vue';
 import { get_year_files_list_by_house, generate_year_file_by_house_and_year } from '../../http/mkd-works-http-common'
+import dayjs from 'dayjs'
 
 const props = defineProps({
   selectedHouseId: String,
@@ -52,29 +53,7 @@ const props = defineProps({
 
 const activeTabYear = defineModel('activeTabYear')
 const selectedActYear = ref('')
-const tableData = ref([
-  {
-    numOrder: 1,
-    actYear: '2024',
-    actDate: '01.01.2024',
-    actNum: 'Los Angeles',
-    actFile: 'url',
-  },
-  {
-    numOrder: 2,
-    actYear: '2024',
-    actDate: '01.01.2024',
-    actNum: 'Los Angeles',
-    actFile: 'url',
-  },
-  {
-    numOrder: 3,
-    actYear: '2024',
-    actDate: '01.01.2024',
-    actNum: 'Los Angeles',
-    actFile: 'url',
-  },
-])
+const tableData = ref([])
 
 const showActData = (numAct) =>{
     console.log(numAct)
@@ -87,7 +66,17 @@ const showTab = () => {
 watch(activeTabYear, async () => {
   console.log('year act watch', activeTabYear)
   const response = await get_year_files_list_by_house(props.selectedHouseId);
-  tableData.value = response.data;
+  for (let [index, element] of response.data.entries()) {
+    tableData.value.push({
+      numOrder: index+1,
+      actYear: dayjs(element.date).year(),
+      actDate: dayjs(element.date).format('DD.MM.YYYY'),
+      actNum: element.num,
+      actFile: element.name,
+      actFileUUID: element.uuid,
+      }
+    )
+  }
 });
 
 const generate_year_act = () => {

@@ -5,13 +5,13 @@ from typing import List, Annotated
 from datetime import datetime, timezone
 from os import path
 
-from ..database.mkd_works.schemas import HousesMKDSchema, DoneWorksSchema, ReferenceBookSchema, WorkEditSchema, WorkNewSchema, YearActFilesSchema
+from ..database.mkd_works.schemas import HousesMKDSchema, DoneWorksSchema, ReferenceBookSchema, WorkEditSchema, WorkNewSchema, YearActFilesSchema, BGTaskSchema
 from ..database.mkd_works.crud import (
     get_all_houses, get_all_mkd_works_by_house_id, get_furure_work_id_from_db, create_mkd_works_db_object, get_all_mainworks,
     get_all_subworks, get_all_fixworks, update_act_db, update_acthasfixworks_db, update_acthassubworks_db, select_act_doc_by_uuid,
-    select_smeta_doc_by_uuid, get_year_acts_by_house_id, get_acts_by_year_and_house_id, get_year_acts_by_house_id_and_year
+    select_smeta_doc_by_uuid, get_year_acts_by_house_id, get_acts_by_year_and_house_id, get_year_acts_by_house_id_and_year, get_bg_task_status
     )
-from ..database.mkd_works.models import Acts, Actfiles, Actshasactfiles, Smetafiles, Actshassmetafiles, Acthassubworks, Acthasfixworks, YearActfiles
+from ..database.mkd_works.models import Acts, Actfiles, Actshasactfiles, Smetafiles, Actshassmetafiles, Acthassubworks, Acthasfixworks, BGTasks
 from api.security.acess_depends import user_scope_authorize
 from ..database.database import get_async_session
 from api.settings.settings import settings
@@ -398,16 +398,32 @@ async def get_all_year_acts_for_house(
         for work in works_for_year_from_db:
             workObj = DoneWorksSchema.model_validate(work).model_dump()
             data.append(workObj)
-        background_tasks.add_task(genereate_year_act_xlsx_file, year, house_id, data)
-        return {"message": "task started"}
+        task_db_obj = BGTasks(
+            status='start'
+        )    
+        task_db_record = await create_mkd_works_db_object(db_session, task_db_obj)
+        background_tasks.add_task(genereate_year_act_xlsx_file, year, house_id, data, task_db_record.uuid, db_session)
+        return {"message": "task started", "task_id": task_db_record.uuid}
     else:
         return {"message": "year act exist", "year": year.year, "act_num": exist_year_act.num}
     
-@router.get("/houses/yearacts/all/{house_id}")
+@router.get("/houses/yearacts/task/{uuid}/status", response_model=BGTaskSchema)
+async def get_bg_status_by_uuid(
+    uuid: str,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    if uuid:
+        task = await get_bg_task_status(db_session, uuid)
+        return task
+
+    
+@router.get("/houses/yearacts/all/{house_id}", response_model=list[YearActFilesSchema])
 async def get_all_year_acts_for_house(
     house_id: int,
     user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
-    pass
-    #selected_year_acts = aweait get_year_acts_by_house_id()
+    
+    selected_year_acts = await get_year_acts_by_house_id(db_session, house_id)
+    return selected_year_acts

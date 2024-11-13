@@ -26,3 +26,4 @@ ACT_FILES_STORE_PATH: /mnt/d/Projects/hcs_media/acts
 SMETA_FILES_STORE_PATH: /mnt/d/Projects/hcs_media/smeta
 YEAR_ACT_FILE_TEMPLATE_PATH: /mnt/d/Projects/Housing Company Services(HCS)/back-end/mkd_works_service/api/templates/year_act/
 YEAR_ACT_FILE_TEMPLATE_NAME: mkd_services_year_act_template.xlsx
+YEAR_ACT_FILE_READY_PATH: /mnt/d/Projects/hcs_media/year_act

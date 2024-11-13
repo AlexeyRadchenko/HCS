@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import BigInteger, Boolean, Column, ForeignKey, Integer, String, Text, DateTime, select, DECIMAL
+from sqlalchemy import BigInteger, Boolean, Column, ForeignKey, Integer, String, Text, DateTime, select, DECIMAL, Numeric
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -19,6 +19,9 @@ class Companies(Base):
     dirname = Column(String, nullable=True)
     dirsurname = Column(String, nullable=True)
     dirsecondname = Column(String, nullable=True)
+    dirname_who_what = Column(String, nullable=True)
+    dirsurname_who_what = Column(String, nullable=True)
+    dirsecondname_who_what = Column(String, nullable=True)
 
     houses = relationship("Houses", back_populates="companies")
 
@@ -28,6 +31,7 @@ class Houses(Base):
     id = Column(Integer, primary_key=True, index=True, nullable=False, autoincrement=True)
     street = Column(String, nullable=False)
     number = Column(String, nullable=False)
+    house_square = Column(Numeric, nullable=True)
     company_id = Column(Integer, ForeignKey('companies.id'), nullable=True)
 
     # заменено на select вешает запрос 
@@ -283,3 +287,14 @@ class YearActfiles(Base):
     date_upload = Column(DateTime(timezone=True), server_default=func.now())
 
     houses = relationship('Houses', back_populates='yearactfiles', lazy='joined')
+
+class BGTasks(Base):
+    __tablename__="bg_tasks"
+    uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    status = Column(String, nullable=False)
+    start_datetime = Column(DateTime(timezone=True), server_default=func.now())
+    end_datetime = Column(DateTime, nullable=True)
+    type = Column(String, nullable=True)
+    percent = Column(String, nullable=True)
+
+
