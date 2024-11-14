@@ -165,6 +165,15 @@ async def get_year_acts_by_house_id_and_year(db: AsyncSession, year: str, house_
     )
     return result.one_or_none()
 
+async def get_year_acts_file_by_year_act_uuid(db: AsyncSession, uuid:str):
+    result = await db.execute(
+        select(
+            YearActfiles
+        )
+        .where(YearActfiles.uuid == uuid)
+    )
+    return result.scalars().first()
+
 async def get_year_acts_by_house_id(db: AsyncSession, house_id:int):
     result = await db.execute(
         select(
@@ -203,4 +212,4 @@ async def get_bg_task_status(db: AsyncSession, uuid: str):
         )
         .where(BGTasks.uuid == uuid)
     )
-    return result.one_or_none()
+    return result.scalars().first()

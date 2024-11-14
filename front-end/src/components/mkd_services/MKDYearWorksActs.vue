@@ -11,25 +11,25 @@
             />
         </el-col>
         <el-col :span="5">
-            <el-button type="primary" @click.prevent="generate_year_act">Сформировать</el-button>
+            <el-button type="primary" @click.prevent="generate_year_act" :loading="generateFileInProccess">Сформировать</el-button>
         </el-col>
       </el-row>
       <el-row class="mkd-services-year-works-act-row">
         <el-col :span="24">
-            <el-table :data="tableData" style="width: 100%" max-height="900">
+            <el-table :data="tableData" style="width: 100%" max-height="900" v-loading="tableDataLoading">
                 <el-table-column fixed prop="numOrder" label="№ П/П" width="90" />
                 <el-table-column prop="actYear" label="Год" width="100" />
                 <el-table-column prop="actDate" label="Дата акта" width="100" />
                 <el-table-column prop="actNum" label="№ Акта" width="140" />
-                <el-table-column prop="actFile" label="Файл" width="320" />
-                <el-table-column fixed="right" label="Operations" min-width="120">
+                <el-table-column prop="actFile" label="Наименование" width="320" />
+                <el-table-column fixed="right" label="Скачать документ" min-width="120">
                 <template #default="scope">
                     <el-button
                     link
                     type="primary"
-                    @click.prevent="showActData(scope.row.actNum)"
+                    @click.prevent="downloadYearAct(scope.row.actFileUUID, scope.row.actFile)"
                     >
-                    Подробнее
+                    Файл документа
                     </el-button>
                 </template>
                 </el-table-column>
@@ -42,8 +42,12 @@
 <script setup>
 // Импортируйте необходимые функции, если нужно
 import { ref, reactive, computed, onMounted, watch, defineModel, toRaw } from 'vue';
-import { get_year_files_list_by_house, generate_year_file_by_house_and_year } from '../../http/mkd-works-http-common'
+import { get_year_files_list_by_house, generate_year_file_by_house_and_year, get_bg_task_status_by_task_uuid,
+          get_year_act_file_by_uuid
+        } from '../../http/mkd-works-http-common'
+import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
+import FileDownload from 'js-file-download'
 
 const props = defineProps({
   selectedHouseId: String,
@@ -54,37 +58,116 @@ const props = defineProps({
 const activeTabYear = defineModel('activeTabYear')
 const selectedActYear = ref('')
 const tableData = ref([])
+const tableDataLoading = ref(false)
+const generateFileInProccess = ref(false)
+const bg_year_act_task_id = ref('')
+const bg_year_status = ref('')
 
-const showActData = (numAct) =>{
-    console.log(numAct)
+const downloadYearAct = (actUUID, filename) =>{
+    console.log(actUUID)
+    get_year_act_file_by_uuid(actUUID).then((response) => {
+      FileDownload(response.data, filename)
+    }).catch((error) =>{
+      console.error('Error:', error);
+    });
 }
 
 const showTab = () => {
   console.log(activeTabYear.value)
 }
 
-watch(activeTabYear, async () => {
-  console.log('year act watch', activeTabYear)
-  const response = await get_year_files_list_by_house(props.selectedHouseId);
-  for (let [index, element] of response.data.entries()) {
-    tableData.value.push({
-      numOrder: index+1,
-      actYear: dayjs(element.date).year(),
-      actDate: dayjs(element.date).format('DD.MM.YYYY'),
-      actNum: element.num,
-      actFile: element.name,
-      actFileUUID: element.uuid,
+const statusCheck = async (uuid) => {
+  if (uuid) {
+    get_bg_task_status_by_task_uuid(uuid).then((response) => {
+      console.log(response)
+      if (response.status === 200 && response.data["status"] === "done") {
+        bg_year_status.value = 'done'
       }
-    )
+    }).catch((error) => {
+      console.error('Error:', error);
+    });
   }
+  return false
+}
+
+watch([activeTabYear, generateFileInProccess], async () => {
+  console.log('year act watch', activeTabYear)
+  if (!generateFileInProccess.value) {
+    tableDataLoading.value = true
+    let refreshData = []
+    const response = await get_year_files_list_by_house(props.selectedHouseId);
+    for (let [index, element] of response.data.entries()) {
+      refreshData.push({
+        numOrder: index+1,
+        actYear: dayjs(element.date).year(),
+        actDate: dayjs(element.date).format('DD.MM.YYYY'),
+        actNum: element.num,
+        actFile: element.name,
+        actFileUUID: element.uuid,
+        }
+      )
+    }
+    tableData.value = refreshData
+    tableDataLoading.value = false
+  }
+  
 });
 
-const generate_year_act = () => {
+function pause(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const generate_year_act = async () => {
+  if (!selectedActYear.value || !props.selectedHouseId) {
+    ElMessage({
+        message: 'Выберите год',
+        type: 'warning',
+        showClose: true,
+    }) 
+    return 
+  }
   generate_year_file_by_house_and_year(selectedActYear.value, props.selectedHouseId).then((response) => {
     console.log(response)
+    if (response.status === 200 && response.data["message"] === "task started") {
+      generateFileInProccess.value = true;
+      bg_year_act_task_id.value = response.data['task_id']
+
+    }else if (response.status === 200 && response.data["message"] === "year act exist") {
+      bg_year_status.value = 'create'
+      ElMessage({
+        message: 'Годовой акт уже создан',
+        type: 'warning',
+        showClose: true,
+        
+      })
+    }
   }).catch((error) => {
     console.error('Error:', error);
   });
+  let count = 0
+  if (bg_year_status.value != 'create'){
+    for (let i = 0; i < 10; i++) {
+      if (bg_year_status.value == 'create') {
+        break
+      }
+      await statusCheck(bg_year_act_task_id.value);
+      count ++;
+      if (bg_year_status.value === 'done') {
+        ElMessage({
+          message: 'Годовой акт успешно записан',
+          type: 'success',
+          showClose: true,
+        })
+        generateFileInProccess.value = false
+        break
+      }
+      
+      console.log('COUNT', count)
+      await pause(1000);
+    }
+    bg_year_status.value = ''
+  } 
+  bg_year_status.value = ''
 }
 
 

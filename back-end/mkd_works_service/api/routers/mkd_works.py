@@ -9,7 +9,8 @@ from ..database.mkd_works.schemas import HousesMKDSchema, DoneWorksSchema, Refer
 from ..database.mkd_works.crud import (
     get_all_houses, get_all_mkd_works_by_house_id, get_furure_work_id_from_db, create_mkd_works_db_object, get_all_mainworks,
     get_all_subworks, get_all_fixworks, update_act_db, update_acthasfixworks_db, update_acthassubworks_db, select_act_doc_by_uuid,
-    select_smeta_doc_by_uuid, get_year_acts_by_house_id, get_acts_by_year_and_house_id, get_year_acts_by_house_id_and_year, get_bg_task_status
+    select_smeta_doc_by_uuid, get_year_acts_by_house_id, get_acts_by_year_and_house_id, get_year_acts_by_house_id_and_year, get_bg_task_status,
+    get_year_acts_file_by_year_act_uuid
     )
 from ..database.mkd_works.models import Acts, Actfiles, Actshasactfiles, Smetafiles, Actshassmetafiles, Acthassubworks, Acthasfixworks, BGTasks
 from api.security.acess_depends import user_scope_authorize
@@ -381,6 +382,18 @@ async def download_act(
     if smeta:
         return FileResponse(path=smeta.path, filename=smeta.name, media_type=smeta.filetype)
     
+
+@router.get("/download/yearact/{uuid}")
+async def download_year_act_file(
+    uuid: str,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    year_act = await get_year_acts_file_by_year_act_uuid(db_session, uuid)
+    print("!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", year_act.path)
+    if year_act:
+        return FileResponse(path=year_act.path, filename=year_act.name, media_type=year_act.filetype)    
+    
 @router.get("/houses/yearacts/generate/{year}/{house_id}")
 async def get_all_year_acts_for_house(
     house_id: int,
@@ -405,7 +418,8 @@ async def get_all_year_acts_for_house(
         background_tasks.add_task(genereate_year_act_xlsx_file, year, house_id, data, task_db_record.uuid, db_session)
         return {"message": "task started", "task_id": task_db_record.uuid}
     else:
-        return {"message": "year act exist", "year": year.year, "act_num": exist_year_act.num}
+        print("sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss", exist_year_act)
+        return {"message": "year act exist", "year": year.year, "act_num": exist_year_act[0].num}
     
 @router.get("/houses/yearacts/task/{uuid}/status", response_model=BGTaskSchema)
 async def get_bg_status_by_uuid(
@@ -415,7 +429,9 @@ async def get_bg_status_by_uuid(
     ):
     if uuid:
         task = await get_bg_task_status(db_session, uuid)
-        return task
+        if task:
+            print(task, task.status)
+            return task
 
     
 @router.get("/houses/yearacts/all/{house_id}", response_model=list[YearActFilesSchema])

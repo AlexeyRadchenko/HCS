@@ -232,10 +232,10 @@ class YearActFilesSchema(BaseModel):
         from_attributes = True
 
 class BGTaskSchema(BaseModel):
-    uuid: str
+    uuid: UUID
     status: str
     start_datetime: datetime
-    end_datetime: datetime
+    end_datetime: Optional[datetime] | None
     type: Optional[str]
     percent: Optional[str]
 

@@ -160,7 +160,7 @@ export var get_year_files_list_by_house = async function (house_id) {
     })
   }
 
-  export var generate_year_file_by_house_and_year = async function (year, house_id) {
+export var generate_year_file_by_house_and_year = async function (year, house_id) {
     setHeaders(http)
     return await http.get('http://localhost:8050/api/v1/mkd_works_service/houses/yearacts/generate/' + year + '/' + house_id)
     .then(response => {
@@ -176,4 +176,42 @@ export var get_year_files_list_by_house = async function (house_id) {
         return null
       }
     })
+  }
+  
+export var get_bg_task_status_by_task_uuid = async function (uuid) {
+    setHeaders(http)
+    return await http.get('http://localhost:8050/api/v1/mkd_works_service/houses/yearacts/task/' + uuid +'/status')
+    .then(response => {
+      if (response.status == 200)
+        //console.log(response)
+        return response
+    })
+    .catch(e => {
+      if (!e.response) {
+        console.log('сервер не отвечает')
+        return null
+      } else {
+        return null
+      }
+    })
+  }
+
+
+export var get_year_act_file_by_uuid = async function (uuid) {
+    setHeaders(http)
+    return await http.get('http://localhost:8050/api/v1/mkd_works_service/download/yearact/' + uuid, {responseType: 'blob'})
+    .then(response => {
+      if (response.status == 200)
+        //console.log(response)
+        return response
+    })
+    .catch(e => {
+      if (!e.response) {
+        console.log('сервер не отвечает')
+        return null
+      } else {
+        return null
+      }
+    })
   }  
+

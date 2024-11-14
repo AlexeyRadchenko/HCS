@@ -148,7 +148,7 @@ async def genereate_year_act_xlsx_file(year, house, data, task_uuid, db_session)
         url='',
         path=ready_file_path + ready_file_name,
         size='',
-        filetype='',
+        filetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         house_id=data[0]['houses']['id'],
     )
     await create_mkd_works_db_object(db_session, year_act_obj)
