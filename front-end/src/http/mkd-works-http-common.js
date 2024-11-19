@@ -213,5 +213,23 @@ export var get_year_act_file_by_uuid = async function (uuid) {
         return null
       }
     })
-  }  
+  }
+
+export var get_techdoc_files_list_by_house = async function (house_id) {
+    setHeaders(http)
+    return await http.get('http://localhost:8050/api/v1/mkd_works_service/houses/techdocs/all/' + house_id)
+    .then(response => {
+      if (response.status == 200)
+        //console.log(response)
+        return response
+    })
+    .catch(e => {
+      if (!e.response) {
+        console.log('сервер не отвечает')
+        return null
+      } else {
+        return null
+      }
+    })
+  }
 

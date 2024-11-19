@@ -58,6 +58,7 @@
                           :selected-house-id="selectedHouseId"
                           :selected-company-id="selectedCompanyId"
                           :selected-house-name="getSelectedHouse"
+                          :active-tab-tech-doc="activeTabMain"
                             />
                         </el-tab-pane>
                         <el-tab-pane label="Фотофиксация работ"></el-tab-pane>

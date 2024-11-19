@@ -5,14 +5,16 @@ from typing import List, Annotated
 from datetime import datetime, timezone
 from os import path
 
-from ..database.mkd_works.schemas import HousesMKDSchema, DoneWorksSchema, ReferenceBookSchema, WorkEditSchema, WorkNewSchema, YearActFilesSchema, BGTaskSchema
+from ..database.mkd_works.schemas import (HousesMKDSchema, DoneWorksSchema, ReferenceBookSchema, WorkEditSchema, WorkNewSchema, YearActFilesSchema, 
+    BGTaskSchema, TechFilesSchema)
 from ..database.mkd_works.crud import (
     get_all_houses, get_all_mkd_works_by_house_id, get_furure_work_id_from_db, create_mkd_works_db_object, get_all_mainworks,
     get_all_subworks, get_all_fixworks, update_act_db, update_acthasfixworks_db, update_acthassubworks_db, select_act_doc_by_uuid,
     select_smeta_doc_by_uuid, get_year_acts_by_house_id, get_acts_by_year_and_house_id, get_year_acts_by_house_id_and_year, get_bg_task_status,
-    get_year_acts_file_by_year_act_uuid
+    get_year_acts_file_by_year_act_uuid, get_techdoc_file_by_uuid, get_tech_files_by_house_id
     )
-from ..database.mkd_works.models import Acts, Actfiles, Actshasactfiles, Smetafiles, Actshassmetafiles, Acthassubworks, Acthasfixworks, BGTasks
+from ..database.mkd_works.models import (Acts, Actfiles, Actshasactfiles, Smetafiles, Actshassmetafiles, Acthassubworks, Acthasfixworks, BGTasks,
+    Techfiles)
 from api.security.acess_depends import user_scope_authorize
 from ..database.database import get_async_session
 from api.settings.settings import settings
@@ -443,3 +445,66 @@ async def get_all_year_acts_for_house(
     
     selected_year_acts = await get_year_acts_by_house_id(db_session, house_id)
     return selected_year_acts
+
+@router.post("/uploadfile/techfile")
+async def create_upload_tech_file(
+    houseid: Annotated[int, Form()],
+    docnum: Annotated[str | None, Form()] = None,
+    docdate: Annotated[datetime | None, Form()] = None,
+    file: UploadFile | None = None,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    if not file:
+        return {"message": "No file sent"}
+    else:
+        if settings.FILE_SERVER == 'localhost':
+            url = '/download/techdoc/'
+        else:
+            url = f'https://{settings.FILE_SERVER}:{settings.FILE_SERVER_PORT}/download/techdoc/'
+        timstamp1 =int(datetime.now(tz=timezone.utc).timestamp() * 1000)  
+        fullpath = path.join(settings.TECH_FILES_STORE_PATH, f'{str(timstamp1)}_{file.filename}')
+        techfile = Techfiles(
+                name=file.filename,
+                date=docdate,
+                num=docnum,
+                extention=get_file_extension(file.filename),
+                url=url,
+                path=fullpath,
+                size=str(file.size),
+                filetype=file.content_type,  # assuming the file type is correct in this case
+                house_id=houseid,
+            )
+        cr_tech_doc = await create_mkd_works_db_object(db_session, techfile)
+                  
+        await chunked_copy(file, fullpath)
+        
+        return {
+            "techfilename": file.filename,
+            "techfiledate": docdate,
+            "techfilenum": docnum,
+            "url": url,
+            "uuid": cr_tech_doc.uuid
+            }
+    
+@router.get("/download/techdoc/{uuid}")
+async def download_tech_file(
+    uuid: str,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    techdoc = await get_techdoc_file_by_uuid(db_session, uuid)
+    print("!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", techdoc.path)
+    if techdoc:
+        return FileResponse(path=techdoc.path, filename=techdoc.name, media_type=techdoc.filetype)
+    
+@router.get("/houses/techdocs/all/{house_id}", response_model=list[TechFilesSchema])
+async def get_all_techdocs_for_house(
+    house_id: int,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    
+    selected_techdocs = await get_tech_files_by_house_id(db_session, house_id)
+    return selected_techdocs
+    

@@ -7,7 +7,8 @@ from sqlalchemy.orm import joinedload, aliased
 from datetime import datetime
 
 from ..database import row2dict
-from .models import Houses, Acts, Mainworks, Subworks, Fixworks, Actfiles, Smetafiles, Acthassubworks, Acthasfixworks, YearActfiles, BGTasks
+from .models import (Houses, Acts, Mainworks, Subworks, Fixworks, Actfiles, Smetafiles, Acthassubworks, Acthasfixworks, YearActfiles, 
+    BGTasks, Techfiles)
 
 
 async def create_mkd_works_db_object(db: AsyncSession, obj: Any):
@@ -213,3 +214,21 @@ async def get_bg_task_status(db: AsyncSession, uuid: str):
         .where(BGTasks.uuid == uuid)
     )
     return result.scalars().first()
+
+async def get_techdoc_file_by_uuid(db: AsyncSession, uuid:str):
+    result = await db.execute(
+        select(
+            Techfiles
+        )
+        .where(Techfiles.uuid == uuid)
+    )
+    return result.scalars().first()
+
+async def get_tech_files_by_house_id(db: AsyncSession, house_id: int):
+    result = await db.execute(
+        select(
+            Techfiles
+        )
+        .where(Techfiles.house_id == house_id)
+    )
+    return result.scalars().unique().all()

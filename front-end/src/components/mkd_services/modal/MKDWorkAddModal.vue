@@ -42,7 +42,7 @@
                             :headers="uploadHeaders"
                             :on-success="uploadSmetaSuccess"
                             :on-progress="uploadSmetaDisable"
-                            :disable="btnSmetaDisable"
+                            :disabled="btnSmetaDisable"
                         >
                             <template #trigger>
                             <el-button type="primary">select file</el-button>
@@ -127,7 +127,7 @@
                           :headers="uploadHeaders"
                           :on-success="uploadActSuccess"
                           :on-progress="uploadActDisable"
-                          :disable="btnActDisable"
+                          :disabled="btnActDisable"
                       >
                           <template #trigger>
                           <el-button type="primary">select file</el-button>

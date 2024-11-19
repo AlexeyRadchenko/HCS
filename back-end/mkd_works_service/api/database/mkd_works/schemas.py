@@ -128,6 +128,7 @@ class TechFilesSchema(BaseModel):
     size: Optional[str]
     filetype: Optional[str]
     house_id: Optional[int]
+    date_upload: Optional[datetime]
 
     class Config:
         from_attributes = True    

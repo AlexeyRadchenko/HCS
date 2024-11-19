@@ -217,9 +217,11 @@ class Techfiles(Base):
     num = Column(String, nullable=True)
     date = Column(DateTime, nullable=True)
     extention = Column(String, nullable=False)
+    url = Column(String, nullable=False)
     path = Column(String, nullable=False)
     size = Column(String, nullable=False)
     filetype = Column(String, nullable=True)
+    date_upload = Column(DateTime(timezone=True), server_default=func.now())
     house_id = Column(Integer, ForeignKey("houses.id"), nullable=False)
 
     houses = relationship('Houses', back_populates='techfiles', lazy='joined')
@@ -296,5 +298,6 @@ class BGTasks(Base):
     end_datetime = Column(DateTime, nullable=True)
     type = Column(String, nullable=True)
     percent = Column(String, nullable=True)
+
 
 
