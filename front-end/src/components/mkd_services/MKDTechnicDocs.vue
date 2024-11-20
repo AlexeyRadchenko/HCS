@@ -6,7 +6,7 @@
             ref="techFile"
             :data="getTechDocData"
             class="upload-demo"
-            action="http://localhost:8050/api/v1/mkd_works_service/uploadfile/techfile"
+            :action="api_main_url_port + '/api/v1/mkd_works_service/uploadfile/techfile'"
             :limit="1"
             :on-exceed="handleExceedTechFiles"
             :on-success="uploadTechFileSuccess"
@@ -84,6 +84,7 @@ const props = defineProps({
   selectedCompanyId: String,
   selectedHouseName: String,
 })
+const api_main_url_port = ref('')
 const activeTabTechDoc = defineModel("activeTabTechDoc")
 const techFileUploadBtnDisabled = ref(false)
 const techFile = ref(null)
@@ -147,7 +148,7 @@ const uploadTechFileSuccess = (response) => {
     })
 }
 
-watch([activeTabTechDoc, techFileUploadBtnDisabled], async () => {
+const refreshTechTableData = async() => {
   console.log('TECHTAB', activeTabTechDoc.value, techFileUploadBtnDisabled.value)
   if (!techFileUploadBtnDisabled.value) {
     tableTechDocDataLoading.value = true
@@ -167,11 +168,24 @@ watch([activeTabTechDoc, techFileUploadBtnDisabled], async () => {
     tableData.value = refreshData
     tableTechDocDataLoading.value = false
   }
+}
+
+watch([activeTabTechDoc, techFileUploadBtnDisabled], async () => {
+  await refreshTechTableData()
+});
+
+watch(() => props.selectedHouseId, (newValue, oldValue) => {
+  refreshTechTableData()
 });
 
 
 onMounted(() => {
   console.log('Компонент был смонтирован!');
+  api_main_url_port.value = import.meta.env.VITE_API_BASEURL;
+
+  if (import.meta.env.VITE_API_BASEPORT) {
+    api_main_url_port.value = `${api_main_url_port}:${import.meta.env.VITE_API_BASEPORT}`;
+  }
   //console.log('selectedCompanyId:', selectedCompanyId);
   //console.log('selectedHouseId:', selectedHouseId);
 });

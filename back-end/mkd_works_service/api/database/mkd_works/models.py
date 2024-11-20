@@ -41,6 +41,7 @@ class Houses(Base):
     techfiles = relationship('Techfiles', back_populates='houses', lazy='select')
     acts = relationship('Acts', back_populates='houses', lazy='select')
     yearactfiles = relationship('YearActfiles', back_populates='houses', lazy='select')
+    photofilesdoneworks = relationship('PhotoFilesDoneWorks', back_populates='houses', lazy='select')
 
 
 class Actshasactfiles(Base):
@@ -272,6 +273,8 @@ class Acts(Base):
         'Smetafiles', secondary='actshassmetafiles', back_populates='acts', lazy='joined', order_by="desc(Smetafiles.date_upload)"
     )
 
+    photofilesdoneworks = relationship('PhotoFilesDoneWorks', back_populates='acts', lazy='select')
+
 
 class YearActfiles(Base):
     __tablename__ = "yearactfiles"
@@ -292,12 +295,33 @@ class YearActfiles(Base):
 
 class BGTasks(Base):
     __tablename__="bg_tasks"
+
     uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     status = Column(String, nullable=False)
     start_datetime = Column(DateTime(timezone=True), server_default=func.now())
     end_datetime = Column(DateTime, nullable=True)
     type = Column(String, nullable=True)
     percent = Column(String, nullable=True)
+
+class PhotoFilesDoneWorks(Base):
+    __tablename__="photofilesdoneworks"
+
+    uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4) # for postresql
+    name = Column(String, nullable=True)
+    comment = Column(String, nullable=True)
+    num = Column(String, nullable=True)
+    date = Column(DateTime, nullable=True)
+    extention = Column(String, nullable=False)
+    url = Column(String, nullable=False)
+    path = Column(String, nullable=False)
+    size = Column(String, nullable=False)
+    filetype = Column(String, nullable=True)
+    house_id = Column(Integer, ForeignKey("houses.id"), nullable=False)
+    act_id = Column(Integer, ForeignKey("acts.id"), nullable=False)
+    date_upload = Column(DateTime(timezone=True), server_default=func.now())
+
+    houses = relationship('Houses', back_populates='photofilesdoneworks', lazy='joined')
+    acts = relationship('Acts', back_populates='photofilesdoneworks', lazy='joined')
 
 
 

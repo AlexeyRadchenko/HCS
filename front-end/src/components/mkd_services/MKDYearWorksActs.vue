@@ -54,7 +54,6 @@ const props = defineProps({
   selectedCompanyId: String,
   selectedHouseName: String,
 })
-
 const activeTabYear = defineModel('activeTabYear')
 const selectedActYear = ref('')
 const tableData = ref([])
@@ -90,7 +89,7 @@ const statusCheck = async (uuid) => {
   return false
 }
 
-watch([activeTabYear, generateFileInProccess], async () => {
+const refreshTableData = async () => {
   console.log('year act watch', activeTabYear)
   if (!generateFileInProccess.value) {
     tableDataLoading.value = true
@@ -110,8 +109,16 @@ watch([activeTabYear, generateFileInProccess], async () => {
     tableData.value = refreshData
     tableDataLoading.value = false
   }
-  
+}
+
+watch([activeTabYear, generateFileInProccess], async () => {
+  await refreshTableData()
 });
+
+watch(() => props.selectedHouseId, (newValue, oldValue) => {
+  refreshTableData()
+});
+
 
 function pause(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -173,6 +180,7 @@ const generate_year_act = async () => {
 
 onMounted(() => {
   console.log('Компонент был смонтирован!');
+  
 });
 </script>
 

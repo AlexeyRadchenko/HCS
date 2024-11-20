@@ -35,7 +35,7 @@
                         <el-upload
                             ref="uploadSmeta"
                             :data="getDataSmetaFile"
-                            action="http://localhost:8050/api/v1/mkd_works_service/uploadfile/smeta"
+                            :action="api_main_url_port + 'api/v1/mkd_works_service/uploadfile/smeta'"
                             :limit="1"
                             :on-exceed="handleExceedSmeta"
                             :auto-upload="false"
@@ -120,7 +120,7 @@
                       <el-upload
                           ref="uploadAct"
                           :data="getDataActFile"
-                          action="http://localhost:8050/api/v1/mkd_works_service/uploadfile/act"
+                          :action="api_main_url_port + '/api/v1/mkd_works_service/uploadfile/act'"
                           :limit="1"
                           :on-exceed="handleExceedAct"
                           :auto-upload="false"
@@ -268,6 +268,7 @@ const uploadHeaders = {
   'Authorization': 'Bearer ' + secureStorage.getItem('token')
 }
 
+const api_main_url_port = ref('')
 const dialogMKDWorksAddVisibleSub = defineModel('dialogMKDWorksAddVisibleSub')
 const workFromDBdata = defineModel('workFromDBdata')
 const btnSmetaDisable = ref(false)
@@ -585,6 +586,10 @@ const downloadFile = (url, filename) => {
 
 onMounted(() => {
   console.log('Компонент был смонтирован!');
+  api_main_url_port.value = import.meta.env.VITE_API_BASEURL;
+  if (import.meta.env.VITE_API_BASEPORT) {
+    api_main_url_port.value = `${api_main_url_port}:${import.meta.env.VITE_API_BASEPORT}`;
+  }
 });
 </script>
 
