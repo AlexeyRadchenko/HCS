@@ -15,8 +15,8 @@ app = FastAPI(
 
 app.include_router(debt_il.router, prefix="/api/v1/debt_il_service")
 
-#origins = ['https://komfort-trg.fvds.ru', 'https://komfort-services.fvds.ru']
-origins = ['*']
+origins = ['https://komfort-trg.fvds.ru', 'https://komfort-services.fvds.ru']
+#origins = ['*']
 
 app.add_middleware(
     CORSMiddleware,

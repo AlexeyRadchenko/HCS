@@ -90,7 +90,6 @@ import MKDYearWorksActs from './MKDYearWorksActs.vue';
 import MKDTechnicDocs from './MKDTechnicDocs.vue';
 import { get_mkd_works_get_all_houses, get_works_reference_book } from '../../http/mkd-works-http-common';
 // Создайте реактивные переменные
-const message = ref('Привет, Vue 3!');
 const serviceTitle = ref('Оказанные услуги (работы по МКД)')
 const dialogTypeOfWorksTableVisibleMain = ref(false)
 const dialogWorksRegistryMain = ref(false)
