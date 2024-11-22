@@ -32,7 +32,8 @@ class Houses(Base):
     street = Column(String, nullable=False)
     number = Column(String, nullable=False)
     house_square = Column(Numeric, nullable=True)
-    company_id = Column(Integer, ForeignKey('companies.id'), nullable=True)
+    #company_id = Column(Integer, ForeignKey('companies.id'), nullable=True)
+    company_id = Column(Integer, ForeignKey('companies.id', ondelete="SET NULL"), nullable=True)
 
     # заменено на select вешает запрос 
     companies = relationship('Companies', back_populates='houses', lazy='joined')
@@ -103,9 +104,9 @@ class Mainworks(Base):
     companyWorkType= Column(String, nullable=True)
     numsprav = Column(String, nullable=True)
 
-    subworks = relationship('Subworks', back_populates='mainworks', lazy='joined')
-    fixworks = relationship('Fixworks', back_populates='mainworks', lazy='joined')
-    acts = relationship('Acts', secondary='acthasmainworks', back_populates='mainworks', lazy='joined')
+    subworks = relationship('Subworks', back_populates='mainworks', lazy='select')
+    fixworks = relationship('Fixworks', back_populates='mainworks', lazy='select')
+    acts = relationship('Acts', secondary='acthasmainworks', back_populates='mainworks', lazy='select')
     
 
 
@@ -128,15 +129,18 @@ class Subworks(Base):
     """sum = AssociationProxy('acts_details', 'sum', creator=lambda values: values[0] if values else None)
     quantity = AssociationProxy('acts_details', 'quantity', creator=lambda values: values[0] if values else None)
     unitcost = AssociationProxy('acts_details', 'unitcost', creator=lambda values: values[0] if values else None)"""
-    @property
+    #@property
+    @hybrid_property
     def sum(self):
         return self.acts_details[0].sum if self.acts_details else None
 
-    @property
+    #@property
+    @hybrid_property
     def quantity(self):
         return self.acts_details[0].quantity if self.acts_details else None
 
-    @property
+    #@property
+    @hybrid_property
     def unitcost(self):
         return self.acts_details[0].unitcost if self.acts_details else None
 
@@ -153,19 +157,22 @@ class Fixworks(Base):
     numsprav = Column(String, nullable=True)
     mainwork_id = Column(Integer, ForeignKey('mainworks.id'), nullable=True)
 
-    mainworks = relationship('Mainworks', back_populates='fixworks', lazy='joined')
-    acts = relationship('Acts', secondary='acthasfixworks', back_populates='fixworks', lazy='joined', viewonly=True)
+    mainworks = relationship('Mainworks', back_populates='fixworks', lazy='select')
+    acts = relationship('Acts', secondary='acthasfixworks', back_populates='fixworks', lazy='select', viewonly=True)
     acts_details = relationship("Acthasfixworks", back_populates="fixworks", lazy='joined', viewonly=True)
 
-    @property
+    #@property
+    @hybrid_property
     def sum(self):
         return self.acts_details[0].sum if self.acts_details else None
 
-    @property
+    #@property
+    @hybrid_property
     def quantity(self):
         return self.acts_details[0].quantity if self.acts_details else None
 
-    @property
+    #@property
+    @hybrid_property
     def unitcost(self):
         return self.acts_details[0].unitcost if self.acts_details else None
 

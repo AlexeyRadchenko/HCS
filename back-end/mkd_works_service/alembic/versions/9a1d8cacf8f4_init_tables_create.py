@@ -46,7 +46,7 @@ def upgrade() -> None:
         sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
         sa.Column('work', sa.String(), nullable=False),
         sa.Column('workType', sa.String(50), nullable=True),
-        sa.Column('companyWorkType', sa.String(50), nullable=False),
+        sa.Column('companyWorkType', sa.String(50), nullable=True),
     )
 
     op.create_table(
