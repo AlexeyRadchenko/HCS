@@ -132,7 +132,7 @@
         </el-col>  
       </el-row>  
     </el-main>  
-  </el-container>
+ </el-container>
   <CreateRecordDialog ref="createRecordDialog" />
   <UpdateRecordDialog ref="updateRecordDialog" />
   <DeleteRecordDialog ref="deleteRecordDialog" />
@@ -163,6 +163,10 @@ export default {
     EGRNDocsDialog,
     PaymentsUploadDialog,
     PaymentsHistoryDialog,
+  },
+  setup() {
+    moment.updateLocale('ru', ru)
+    return { moment }
   },
   setup() {
     moment.updateLocale('ru', ru)
@@ -405,6 +409,7 @@ export default {
 .debt-sub-table {
   margin-left: 6em;
 }
+
 
 .filters-row-column {
   margin-top: 2em;

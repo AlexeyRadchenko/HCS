@@ -42,7 +42,12 @@ const router = createRouter({
     {
       path: '/management_debt_il',
       name: 'DebtILList',
-      component: () => import('../views/DebtIL.vue')
+      component: () => import('../views/DebtILView.vue')
+    },
+    {
+      path: '/mkd_services',
+      name: 'MKDServices',
+      component: () => import('../views/MKDServicesView.vue')
     },
   ]
 })

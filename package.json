@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@chenfengyuan/vue-barcode": "^2.0.0",
+    "jsbarcode": "^3.11.5",
+    "vue": "^3.2.36",
+    "vue-the-mask": "^0.11.1"
+  }
+}
