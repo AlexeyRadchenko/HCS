@@ -75,6 +75,82 @@ export var ContactDataObjectToTableObject = async function (fData) {
     return contactData
 }
 
+let getNamePayeerAndIL = (data_str) => {
+    let il, name = null
+    let regexp_il = /\d+\s?-\s?\d+\s?\/?\s?\d+/gm
+    let il_reg = data_str.match(regexp_il)
+    let il_reg_fullnum = data_str.match(/\d+/)
+    let name_reg = data_str.match(/\D+/)
+    //console.log(il_reg, name_reg, data_str)
+    if (!il_reg && il_reg_fullnum){
+        il = il_reg_fullnum[0].trim()
+    }
+    else {
+        il = il_reg[0].trim()
+    }
+    if (!name_reg) {
+        name = data_str
+    }else {
+        name = name_reg[0].trim()
+    }
+    //console.log('cllrrrrr', name, il)
+    return { name, il }
+}
+
+let pushILDataToArr = (row, arrData, acc_name, il) => {
+    arrData.push({
+        date: row[0],
+        type: 'квартплата по и/л' === row[3] ? 'оплата по и/л' : 'оплата касса и т.п.',
+        sum: row[5],
+        company: row[6],
+        account_name: acc_name,
+        il: il
+    })
+}
+
+export let clearFilePaymentData = (row, accumData) => {
+    let regexp_data = getNamePayeerAndIL(row[8])
+    let acc_name = regexp_data.name
+    let il = regexp_data.il
+    if (accumData.length === 0) {
+        pushILDataToArr(row, accumData, acc_name, il)
+    }
+
+    let find = false
+
+    accumData.forEach(element => {
+        if (element.il === il) {
+            element.sum = (element.sum * 10 + row[5] * 10) / 10
+            find = true
+            return
+        }
+    })
+
+    if (!find) {
+        pushILDataToArr(row, accumData, acc_name, il)
+    }
+}
+
+async function checkProperties(obj) {
+    for (var key in obj) {
+        if (obj[key] !== null && obj[key] != "")
+            return false;
+    }
+    return true;
+}
+
+export let validate_payment_data = async (dataList) => {
+    let status = true
+    dataList.forEach (element => {
+        for (var key in element) {
+            if (element[key] === null || element[key] === '') {
+                status = false
+                return
+            }        
+        }
+    })
+    return status
+
 export var mkd_works_works_to_string = function(main, sub, fix) {
     let works = ''
     for (let [index, element] of main.entries()) {works = works + element.work + '/n'}

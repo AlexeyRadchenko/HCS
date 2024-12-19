@@ -19,23 +19,28 @@ class Passport_il(Base):
     date_take = Column(DateTime, nullable=True)
     squad_code = Column(String, nullable=True)
     birth_date = Column(DateTime, nullable=True)
-    birth_city = Column(String, nullable=True)
+    birth_place = Column(String, nullable=True)
     scan = Column(String, nullable=True)
     account_il = relationship("Accounts_il", back_populates="passport_il")
 
 
 class Accounts_il(Base):
     __tablename__ = "accounts_il"
+
     uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4) # for postresql
     account_number = Column(String, nullable=True)
     name = Column(String, nullable=True)
     second_name = Column(String, nullable=True)
     surname = Column(String, nullable=True)
+    inn = Column(String, nullable=True)
+    del_mark = Column(Boolean, default=False)
+    part_of_appartment = Column(String, nullable=True)
     passport = Column(Integer, ForeignKey('passport_il.id'), nullable=True)
     passport_il = relationship('Passport_il', back_populates='account_il', lazy='joined')
     lists_il = relationship(
         'All_il', secondary='il_accounts', back_populates='accounts_il', lazy='dynamic'
     )
+    payments_il = relationship('Payments_il', back_populates='account_il', lazy='joined')
 
 
 class Egrn_il(Base):
@@ -44,7 +49,10 @@ class Egrn_il(Base):
     id = Column(BigInteger, primary_key=True, index=True, nullable=False, autoincrement=True)
     date = Column(DateTime, nullable=True)
     number = Column(String, nullable=True)
+    name = Column(String, nullable=True)
     file = Column(String, nullable=True)
+    note = Column(String, nullable=True)
+    del_mark = Column(Boolean, default=False)
     il_id = Column(BigInteger, ForeignKey('all_il.id'), nullable=False)
     list_il = relationship("All_il", back_populates="egrn_il")
 
@@ -96,11 +104,14 @@ class Payments_il(Base):
     __tablename__ = "payments_il"
 
     id = Column(BigInteger, primary_key=True, index=True, nullable=False, autoincrement=True)
-    date =  Column(DateTime, nullable=True)
+    date =  Column(DateTime, nullable=False)
     type = Column(String, nullable=True)
-    sum = Column(DECIMAL(24,2), nullable=True)
+    sum = Column(DECIMAL(24,2), nullable=False)
+    who_paid_uuid = Column(UUID(as_uuid=True), ForeignKey('accounts_il.uuid'), nullable=True)
+    notes = Column(Text(), nullable=True)
     il_id = Column(BigInteger, ForeignKey('all_il.id'), nullable=False)
     list_il = relationship("All_il", back_populates="payments_il")
+    account_il = relationship("Accounts_il", back_populates="payments_il")
 
 
 class Organisations_il(Base):
@@ -127,12 +138,14 @@ class All_il(Base):
     order_cancel = Column(Boolean, default=False)
     bailiff_forward_date = Column(DateTime, nullable=True)
     start_exec_pross_date = Column(DateTime, nullable=True)
-    sum_all_get = Column(DECIMAL(24,2), nullable=True)
-    sum_not_yet_get = Column(DECIMAL(24,2), nullable=True)
+    end_exec_pross_date = Column(DateTime, nullable=True)
+    # sum_all_get = Column(DECIMAL(24,2), nullable=True)
+    # sum_not_yet_get = Column(DECIMAL(24,2), nullable=True)
     payments = Column(DECIMAL(24,2), nullable=True)
     debt_sum_il = Column(DECIMAL(24,2), nullable=True)
     notes = Column(Text(), nullable=True)
-    organisation_id = Column(Integer, ForeignKey('organisations_il.id'), nullable=False) 
+    organisation_id = Column(Integer, ForeignKey('organisations_il.id'), nullable=False)
+    del_mark = Column(Boolean, default=False)
 
     egrn_il = relationship('Egrn_il', back_populates='list_il', lazy='joined')
     debt_sum_calc_il = relationship('Debt_calc_il', back_populates='list_il', lazy='joined')
@@ -141,8 +154,28 @@ class All_il(Base):
     judge_order_exec_date_il = relationship('Judge_orders_exec_il', back_populates='list_il', lazy='joined')
     payments_il = relationship('Payments_il', back_populates='list_il', lazy='joined')
     accounts_il = relationship(
-        'Accounts_il', secondary='il_accounts', back_populates='lists_il', lazy='dynamic'
+        'Accounts_il', secondary='il_accounts', back_populates='lists_il', lazy='joined'
     )
+
+    @hybrid_property
+    def sum_all_get(self):
+        return sum(payments.sum for payments in self.payments_il)
+    
+    """@hybrid_property
+    def period(self):
+        return [self.start_exec_pross_date, self.end_exec_pross_date]"""
+
+    #@sum_all_get.expression
+    #def sum_all_get(cls):
+        #return select(func.sum(Payments_il.sum)).\
+        #where(Payments_il.il_id==cls.id)  #.label('total_sum_get')
+        
+
+    @hybrid_property
+    def sum_not_yet_get(self):
+        debt_sum = self.debt_sum_il if self.debt_sum_il else 0
+        all_get = self.sum_all_get if self.sum_all_get else 0
+        return debt_sum - all_get
 
 
 class IL_accounts(Base):
