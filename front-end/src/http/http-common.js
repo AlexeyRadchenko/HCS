@@ -1,7 +1,16 @@
 import axios from 'axios';
 import secureStorage from '../storage/secStorage'
 
+//console.log('ENV DATA', import.meta.env.VITE_API_BASEURL)
+let api_main_url_port = import.meta.env.VITE_API_BASEURL;
+let api_auth_main_url_port = import.meta.env.VITE_API_BASEURL
 
+if (import.meta.env.VITE_API_BASEPORT) {
+  api_main_url_port = `${api_main_url_port}:${import.meta.env.VITE_API_BASEPORT}`;
+}
+if (import.meta.env.VITE_API_BASEPORT_AUTH) {
+  api_auth_main_url_port = `${api_auth_main_url_port}:${import.meta.env.VITE_API_BASEPORT}`;
+}
 const http = axios.create({})
 
 var setHeaders = function (axios_instance) {
@@ -17,7 +26,7 @@ var setHeaders = function (axios_instance) {
 
 export var login = function(authStore, userFormData, loading, router) {
   var token = null
-  http.post('http://127.0.0.1:8030/api/v1/users_control_service/token', userFormData)
+  http.post(api_auth_main_url_port +'/api/v1/users_control_service/token', userFormData)
     .then(response => {
       if (response.status == 200)
         token = response.data.access_token
@@ -43,7 +52,7 @@ export var login = function(authStore, userFormData, loading, router) {
 
 export var current_active_user = async function () {
     setHeaders(http)
-    return await http.get('http://localhost:8030/api/v1/users_control_service/management_users/me')
+    return await http.get(api_auth_main_url_port + '/api/v1/users_control_service/management_users/me')
     .then(response => {
       if (response.status == 200)
         return response.data
@@ -60,7 +69,7 @@ export var current_active_user = async function () {
 
 export var get_addresses_house_street_by_org_id = async function(id) {
     setHeaders(http)
-    var api_url = `http://localhost:8050/api/v1/contacts_service/organisation/${id}/addresses_house_street`
+    var api_url = api_main_url_port +`/api/v1/contacts_service/organisation/${id}/addresses_house_street`
     return await http.get(api_url)
     .then((response) => {
         if (response.status != 200)
@@ -77,7 +86,7 @@ export var get_addresses_house_street_by_org_id = async function(id) {
 
 export var get_contacts_list = async function() {
   setHeaders(http)
-  var api_url = `http://localhost:8050/api/v1/contacts_service/contacts_users/contacts`
+  var api_url = api_main_url_port + `/api/v1/contacts_service/contacts_users/contacts`
   return await http.get(api_url)
   .then((response) => {
       if (response.status != 200)
@@ -94,7 +103,7 @@ export var get_contacts_list = async function() {
 
 export var create_new_record_in_contacts = async function(formModalData) {
   setHeaders(http)
-  var api_url = `http://localhost:8050/api/v1/contacts_service/contacts_users/create_contact`;
+  var api_url = api_main_url_port + `/api/v1/contacts_service/contacts_users/create_contact`;
   return http.post(api_url, formModalData)
   .then((response) => {
       if (response.status != 200){
@@ -114,7 +123,7 @@ export var create_new_record_in_contacts = async function(formModalData) {
 
 export var update_record_in_contacts = async function(formModalData) {
   setHeaders(http)
-  var api_url = `http://localhost:8050/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
+  var api_url = api_main_url_port + `/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
   return http.put(api_url, formModalData)
   .then((response) => {
       if (response.status != 200){
@@ -133,7 +142,7 @@ export var update_record_in_contacts = async function(formModalData) {
 
 export var delete_record_in_contacts = async function(formModalData) {
   setHeaders(http)
-  var api_url = `http://localhost:8050/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
+  var api_url = api_main_url_port + `/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
   return http.delete(api_url, {data: {system_user: formModalData.get('system_user')}})
   .then((response) => {
       console.log(response.data, response.status)

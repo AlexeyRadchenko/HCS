@@ -44,7 +44,7 @@ class ContactsClientsAddresses(Base):
     part_owner = Column(Boolean, default=False)
     part_size = Column(String, nullable=True)
     address = relationship('ContactsAddresses', back_populates='clients', lazy='joined')
-    client = relationship('ContactsClients', back_populates='addresses')
+    clients = relationship('ContactsClients', back_populates='addresses')
 
     @hybrid_property
     def address_data(self):

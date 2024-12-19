@@ -1,4 +1,3 @@
-from distutils.command.upload import upload
 from fastapi import APIRouter, Depends, Form
 from fastapi import Security, Body
 from typing import List
@@ -60,7 +59,7 @@ async def get_addresses_house_street_list_by_organisation_id(
     addresses = await get_addressess_house_street_from_db_by_org_id(db_session, id)
     return addresses
 
-@router.post("/contacts_users/create_contact/", response_model=ContactsClientSchema)
+@router.post("/contacts_users/create_contact", response_model=ContactsClientSchema)
 async def create_contact_user_handler(
     user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_CONTACTS_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session),
@@ -156,7 +155,7 @@ async def update_contacts_user_data(
     update_journal = ContactsEditJournal(
         who_update=form_data['system_user']
     )
-
+    print('------------------------------->', db_session, update_client, update_journal, uuid, client_phones, client_emails_or_messengers)
     result = await update_contacts_client_by_uuid(db_session, update_client, update_journal, uuid, client_phones, client_emails_or_messengers)
     return result
 

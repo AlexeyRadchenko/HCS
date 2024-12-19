@@ -4,7 +4,7 @@ from typing import Any, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import false, select, update, desc, cast, func, Integer
 from sqlalchemy.orm import joinedload
-
+from uuid import UUID
 from ..database import row2dict
 from .models import ContactsAddresses, ContactsClients, ContactsClientsAddresses, ContactsEditJournal, ContactsPhones, ContactsOrganisations, ContactsEmails
 
@@ -21,10 +21,10 @@ async def update_contacts_client_by_uuid(
     client_values = row2dict(client)
     client_values.pop('uuid', None)
     client_values.pop('client_del', None)
-
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", client_values)
     await db.execute(
         update(ContactsClients)
-        .where(ContactsClients.uuid == uuid)
+        .where(ContactsClients.uuid == UUID(uuid))
         .values(client_values)
     )
     if client_phones:
@@ -33,7 +33,7 @@ async def update_contacts_client_by_uuid(
         client_phones_values.pop('client_uuid', None)
         await db.execute(
             update(ContactsPhones)
-            .where(ContactsPhones.client_uuid == uuid)
+            .where(ContactsPhones.client_uuid == UUID(uuid))
             .values(client_phones_values)
         )
     if client_emails:
@@ -42,7 +42,7 @@ async def update_contacts_client_by_uuid(
         client_emails_values.pop('client_uuid', None)
         await db.execute(
             update(ContactsEmails)
-            .where(ContactsEmails.client_uuid == uuid)
+            .where(ContactsEmails.client_uuid == UUID(uuid))
             .values(client_emails_values)
         )
     client_journal_values = row2dict(client_journal)
@@ -50,7 +50,7 @@ async def update_contacts_client_by_uuid(
     client_journal_values.pop('client_uuid', None)
     await db.execute(
         update(ContactsEditJournal)
-        .where(ContactsEditJournal.client_uuid == uuid)
+        .where(ContactsEditJournal.client_uuid == UUID(uuid))
         .values(who_update=client_journal_values['who_update'])
     )
     await db.commit()
@@ -124,7 +124,7 @@ async def get_address_id_by_street_house_appartment (db, street, house, appartme
 async def delete_contacts_client_by_uuid(db, uuid, client_journal):
     await db.execute(
         update(ContactsClients)
-        .where(ContactsClients.uuid == uuid)
+        .where(ContactsClients.uuid == UUID(uuid))
         .values(client_del=True)
     )
     client_journal_values = row2dict(client_journal)
@@ -132,7 +132,7 @@ async def delete_contacts_client_by_uuid(db, uuid, client_journal):
     client_journal_values.pop('client_uuid', None)
     await db.execute(
         update(ContactsEditJournal)
-        .where(ContactsEditJournal.client_uuid == uuid)
+        .where(ContactsEditJournal.client_uuid == UUID(uuid))
         .values(who_delete=client_journal_values['who_delete'])
     )
     await db.commit()

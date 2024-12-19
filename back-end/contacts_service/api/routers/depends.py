@@ -1,6 +1,6 @@
 from operator import contains
-from fastapi import Form
-from typing import Optional
+from fastapi import Form, Body
+from typing import Optional, Annotated
 
 async def decode_string_from_latin(string: str):
     try:
@@ -23,6 +23,9 @@ async def decode_address_data_to_db_params(street_house, entrance, appartment, p
     if part_own and part_own !='1':
         full_owner = False
         part_owner = True
+    if not part_own:
+        full_owner = True
+        part_owner = False
     return [
         {
             'street': street,
@@ -66,19 +69,20 @@ async def create_contact_organisation_decode_depends(
     }
 
 async def create_contact_user_decode_depends(
-    name: str = Form(...),
-    second_name: Optional[str] = Form(None),
-    surname: Optional[str] = Form(None),
-    street_house: Optional[str] = Form(None),
-    entrance: Optional[str] = Form(None),
-    appartment: Optional[str] = Form(None),
-    part_own: Optional[str] = Form(None),
-    home_phones: Optional[str] = Form(None),
-    work_phones: Optional[str] = Form(None),
-    mobile_phones: Optional[str] = Form(None),
-    emails: Optional[str] = Form(None),
-    note: Optional[str] = Form(None),
-    system_user: Optional[str] = Form(None)
+    name: str = Body(...),
+    second_name: Optional[str] = Body(None),
+    surname: Optional[str] = Body(None),
+    street_house: Optional[str] = Body(None),
+    entrance: Optional[str] = Body(None),
+    appartment: Optional[str] = Body(None),
+    part_own: Optional[str] = Body(None),
+    home_phones: Optional[str] = Body(None),
+    work_phones: Optional[str] = Body(None),
+    mobile_phones: Optional[str] = Body(None),
+    emails: Optional[str] = Body(None),
+    note: Optional[str] = Body(None),
+    system_user: Optional[str] = Body(None)
+   
 ):  
     return {
         'name': await decode_string_from_latin(name),
@@ -92,3 +96,18 @@ async def create_contact_user_decode_depends(
         'note': await decode_string_from_latin(note),
         'system_user': await decode_string_from_latin(system_user),
     }
+
+
+"""name: Annotated[str, Form()],
+    second_name: Optional[str] = Form(None),
+    surname: Optional[str] = Form(None),
+    street_house: Optional[str] = Form(None),
+    entrance: Optional[str] = Form(None),
+    appartment: Optional[str] = Form(None),
+    part_own: Optional[str] = Form(None),
+    home_phones: Optional[str] = Form(None),
+    work_phones: Optional[str] = Form(None),
+    mobile_phones: Optional[str] = Form(None),
+    emails: Optional[str] = Form(None),
+    note: Optional[str] = Form(None),
+    system_user: Optional[str] = Form(None)"""
