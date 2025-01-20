@@ -1,7 +1,6 @@
 #from argparse import ArgumentParser
 
 from api.utils.utils import init_mkd_works_db_data, init_mkd_works_db_works_reference_book, test_all_works_select
-from asyncio import get_event_loop
 from openpyxl import load_workbook
 import asyncio
 

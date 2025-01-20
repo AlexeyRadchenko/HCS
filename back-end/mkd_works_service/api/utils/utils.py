@@ -1,7 +1,7 @@
 from datetime import datetime
-from ..database.mkd_works.crud import create_mkd_works_db_object, get_all_subworks, get_all_fixworks, get_all_mainworks
+from ..database.mkd_works.crud import create_mkd_works_db_object, get_all_subworks, get_all_fixworks, get_all_mainworks, get_all_houses
 from ..database.database import get_async_session
-from ..database.mkd_works.models import Houses, Companies, Mainworks, Subworks, Fixworks
+from ..database.mkd_works.models import Houses, Companies, Mainworks, Subworks, Fixworks, Acts, Acthassubworks
 from ..database.database import async_session
 from decimal import Decimal
 
@@ -84,7 +84,66 @@ async def init_mkd_works_db_works_reference_book(mainworks_lst, subworks_lst, fi
                         numsprav=fixwork[0]
                     )
                     await create_mkd_works_db_object(db_session, fixwork_obj)
-    print("data upload to db")    
+    print("data upload to db")
+
+def find_upload_house_id (upload_house, houses_from_db):
+    split_upload_house = upload_house.strip().split(' ')
+    street = ' '.join(split_upload_house[:-1])
+    number = split_upload_house[-1].upper()
+    for db_house in houses_from_db:
+        if not db_house.street == street:
+            continue
+        elif not db_house.number == number:
+            continue
+        else:
+            return db_house.id
+    return
+
+def find_upload_subwork_in_db (upload_subwork_name, subworks_in_db):
+    for db_subwork in subworks_in_db:
+        if db_subwork.work == upload_subwork_name.rstrip():
+            return db_subwork
+    return
+
+async def upload_mkd_works_from_xlsx_to_db_util(mainworks_lst, org):
+    async with async_session() as db_session:
+        houses = await get_all_houses(db_session)
+        subworks_in_db = await get_all_subworks(db_session)
+        for work in mainworks_lst:
+            house_id = find_upload_house_id(work['Адрес дома'], houses)
+            if not house_id:
+                print("В базе не найден адрес ", work['Адрес дома'])
+                break
+            else:
+                act = Acts(
+                    date=work['Месяц и год проведения работ'],
+                    num=work['номер сметы'],
+                    all_sum=str(work['Цена выполненной работы (оказанной услуги) в рублях']),
+                    month_year_works=work['Месяц и год проведения работ'],
+                    work_square=work['еденицы измерения'],
+                    house_id=house_id,
+                )
+                created_act = await create_mkd_works_db_object(db_session, act)
+            subwork = find_upload_subwork_in_db(work['Нименование работы'], subworks_in_db)
+            if not subwork:
+                subwork = Subworks(
+                    work=work['Нименование работы'].rstrip(),
+                    workType='subwork',
+                    period=work['Периодичность'],
+                    numsprav=str(work['Номер работы по справочнику']),
+                )
+                created_subwork = await create_mkd_works_db_object(db_session, subwork)
+                subwork_id = created_subwork.id
+            else:
+                subwork_id = subwork.id
+
+            acthassubwork_obj = Acthassubworks(
+                act_id=created_act.id,
+                subwork_id=subwork_id,
+                sum=str(work['Цена выполненной работы (оказанной услуги) в рублях']), 
+                quantity=work['еденицы измерения']
+            )    
+            await create_mkd_works_db_object(db_session, acthassubwork_obj)    
 
 async def chunked_copy(src, dst):
     await src.seek(0)

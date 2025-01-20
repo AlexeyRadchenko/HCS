@@ -57,7 +57,7 @@ def upgrade() -> None:
         sa.Column('period', sa.String(500), nullable=True),
         sa.Column('base', sa.String(500), nullable=True),
         sa.Column('companyWorkType', sa.String(50), nullable=True),
-        sa.Column('mainwork_id', sa.Integer(), sa.ForeignKey("mainworks.id"), nullable=False),
+        sa.Column('mainwork_id', sa.Integer(), sa.ForeignKey("mainworks.id"), nullable=True),
     )
 
     op.create_table(

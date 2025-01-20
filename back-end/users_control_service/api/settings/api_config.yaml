@@ -13,7 +13,7 @@ TOKEN_URL: token
 
 # Database settings
 # for Alembic use alembic.ini in root
-DATABASE_URL: sqlite+aiosqlite:///./test.db
+DATABASE_URL: postgresql+asyncpg://pgmain_dbuser:thOxk3whURJOaM2yMOchDAGc1QICQ88@localhost/users_control_db
 
 #Security scope settings
 SELF_USER_SCOPE: me

@@ -10,7 +10,7 @@ if (import.meta.env.VITE_API_BASEPORT) {
   api_main_url_port = `${api_main_url_port}:${import.meta.env.VITE_API_BASEPORT}`;
 }
 if (import.meta.env.VITE_API_BASEPORT_AUTH) {
-  api_auth_main_url_port = `${api_auth_main_url_port}:${import.meta.env.VITE_API_BASEPORT}`;
+  api_auth_main_url_port = `${api_auth_main_url_port}:${import.meta.env.VITE_API_BASEPORT_AUTH}`;
 }
 const http = axios.create({})
 
@@ -26,6 +26,7 @@ var setHeaders = function (axios_instance) {
 }
 
 let get_root_url = function(env_param, dev_root_url) {
+  console.log('!!!!', env_param, dev_root_url, import.meta.env.VITE_API_BASEURL, api_auth_main_url_port)
   if (env_param != 'production') {
     return dev_root_url
   }
@@ -36,12 +37,9 @@ let get_root_url = function(env_param, dev_root_url) {
 
 export var login = function(authStore, userFormData, loading, router) {
   var token = null
-<<<<<<< HEAD
-  http.post(api_auth_main_url_port +'/api/v1/users_control_service/token', userFormData)
-=======
-  let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_USER_CONTROL_ROOT) 
-  http.post(root_url + '/api/v1/users_control_service/token', userFormData)
->>>>>>> 34ab13841cb2b4a105530f5e0c7f26991ca7ff25
+  //let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_USER_CONTROL_ROOT) 
+  //console.log(root_url)
+  http.post(api_auth_main_url_port + '/api/v1/users_control_service/token', userFormData)
     .then(response => {
       if (response.status == 200)
         token = response.data.access_token
@@ -67,12 +65,8 @@ export var login = function(authStore, userFormData, loading, router) {
 
 export var current_active_user = async function () {
     setHeaders(http)
-<<<<<<< HEAD
-    return await http.get(api_auth_main_url_port + '/api/v1/users_control_service/management_users/me')
-=======
     let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_USER_CONTROL_ROOT)
     return await http.get(root_url + '/api/v1/users_control_service/management_users/me')
->>>>>>> 34ab13841cb2b4a105530f5e0c7f26991ca7ff25
     .then(response => {
       if (response.status == 200)
         return response.data
@@ -89,12 +83,8 @@ export var current_active_user = async function () {
 
 export var get_addresses_house_street_by_org_id = async function(id) {
     setHeaders(http)
-<<<<<<< HEAD
-    var api_url = api_main_url_port +`/api/v1/contacts_service/organisation/${id}/addresses_house_street`
-=======
     let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_CONTACTS_ROOT)
     var api_url = root_url + `/api/v1/contacts_service/organisation/${id}/addresses_house_street`
->>>>>>> 34ab13841cb2b4a105530f5e0c7f26991ca7ff25
     return await http.get(api_url)
     .then((response) => {
         if (response.status != 200)
@@ -111,12 +101,8 @@ export var get_addresses_house_street_by_org_id = async function(id) {
 
 export var get_contacts_list = async function() {
   setHeaders(http)
-<<<<<<< HEAD
-  var api_url = api_main_url_port + `/api/v1/contacts_service/contacts_users/contacts`
-=======
   let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_CONTACTS_ROOT)
   var api_url = root_url+`/api/v1/contacts_service/contacts_users/contacts`
->>>>>>> 34ab13841cb2b4a105530f5e0c7f26991ca7ff25
   return await http.get(api_url)
   .then((response) => {
       if (response.status != 200)
@@ -133,12 +119,8 @@ export var get_contacts_list = async function() {
 
 export var create_new_record_in_contacts = async function(formModalData) {
   setHeaders(http)
-<<<<<<< HEAD
-  var api_url = api_main_url_port + `/api/v1/contacts_service/contacts_users/create_contact`;
-=======
   let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_CONTACTS_ROOT)
   var api_url = root_url+`/api/v1/contacts_service/contacts_users/create_contact`;
->>>>>>> 34ab13841cb2b4a105530f5e0c7f26991ca7ff25
   return http.post(api_url, formModalData)
   .then((response) => {
       if (response.status != 200){
@@ -158,12 +140,8 @@ export var create_new_record_in_contacts = async function(formModalData) {
 
 export var update_record_in_contacts = async function(formModalData) {
   setHeaders(http)
-<<<<<<< HEAD
-  var api_url = api_main_url_port + `/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
-=======
   let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_CONTACTS_ROOT)
   var api_url = root+`/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
->>>>>>> 34ab13841cb2b4a105530f5e0c7f26991ca7ff25
   return http.put(api_url, formModalData)
   .then((response) => {
       if (response.status != 200){
@@ -182,12 +160,8 @@ export var update_record_in_contacts = async function(formModalData) {
 
 export var delete_record_in_contacts = async function(formModalData) {
   setHeaders(http)
-<<<<<<< HEAD
-  var api_url = api_main_url_port + `/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
-=======
   let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_CONTACTS_ROOT)
   var api_url = root_url+`/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
->>>>>>> 34ab13841cb2b4a105530f5e0c7f26991ca7ff25
   return http.delete(api_url, {data: {system_user: formModalData.get('system_user')}})
   .then((response) => {
       console.log(response.data, response.status)

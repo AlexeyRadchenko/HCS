@@ -124,6 +124,7 @@ const dateFromDB = function (row, column, cellValue, index) {
 }
 
 const monthWorkFromDB = function (row, column, cellValue, index) {
+  console.log(cellValue, '----------------------')
   if (cellValue)
     return months[dayjs(cellValue).month()]
   else

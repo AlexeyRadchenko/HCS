@@ -150,8 +150,8 @@ export let validate_payment_data = async (dataList) => {
         }
     })
     return status
-
-export var mkd_works_works_to_string = function(main, sub, fix) {
+}
+export let mkd_works_works_to_string = function(main, sub, fix) {
     let works = ''
     for (let [index, element] of main.entries()) {works = works + element.work + '/n'}
     for (let [index, element] of sub.entries()) {works = works + element.work + '/n'}

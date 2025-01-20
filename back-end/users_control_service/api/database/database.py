@@ -1,9 +1,9 @@
-from cgitb import reset
 from inspect import isclass
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker, class_mapper
 from datetime import datetime
+from typing import Any
 from ..settings.settings import settings
 
 
@@ -77,6 +77,6 @@ def objects_many2many2dict_list(row_list, orm_class_name):
 
                 
 # Dependency
-async def get_async_session() -> AsyncSession:
+async def get_async_session() -> Any:
     async with async_session() as session:
         yield session
