@@ -1,6 +1,6 @@
 <template>
     <div class="mkd-services-works-regester-wrapper-conteiner">
-      <el-text class="mx-1" size="large">{{ selectedCompanyId }} - {{ selectedHouseId }}</el-text>
+      <!--<el-text class="mx-1" size="large">{{ selectedCompanyId }} - {{ selectedHouseId }}</el-text>-->
       <el-table :data="tableData" style="width: 100%" max-height="900" v-loading="loading">
         <el-table-column fixed prop="numOrder" label="№" width="50" />
         <el-table-column fixed prop="numSprav" label="Разд. Справ." width="69" />
@@ -100,7 +100,7 @@ const EditRow = (index) => {
   showMKDWorkAddModal.value = true
   editRowIndex.value = index
   workFromDBdataMain.value = tableData.value[index]
-  console.log("dddddddddddddddddddddddddddddddddd", tableData.value[index].workId)
+  //console.log("dddddddddddddddddddddddddddddddddd", tableData.value[index].workId)
   workID.value = String(tableData.value[index].workId)
 }
 

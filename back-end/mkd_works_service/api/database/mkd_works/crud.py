@@ -2,7 +2,7 @@ from typing import Any, List, Optional
 from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import func
-from sqlalchemy import false, select, update, desc, cast, func, Integer, and_
+from sqlalchemy import false, select, update, delete, desc, cast, func, Integer, and_
 from sqlalchemy.orm import joinedload, aliased
 from datetime import datetime
 
@@ -40,8 +40,7 @@ async def get_furure_work_id_from_db(db: AsyncSession, id: int):
 async def get_all_mkd_works_by_house_id(db: AsyncSession, id: int):
     result = await db.execute(
         select(
-            Acts,
-            Acthassubworks.sum,
+            Acts
         )
         .where(Acts.house_id == id)
     )
@@ -104,17 +103,18 @@ async def update_acthassubworks_db(db: AsyncSession, obj: Acthassubworks):
     await db.commit()
     return result.rowcount
 
-async def update_acthasfixworks_db(db: AsyncSession, obj: Acthasfixworks):
+async def update_acthasfixworks_db(db: AsyncSession, obj: Acthasfixworks, actID: int, prevFixWorkID: int, newFixWorkID: int):
     result = await db.execute(
         update(
             Acthasfixworks
         )
         .values(
+            fixwork_id=newFixWorkID,
             sum=obj.sum,
             quantity=obj.quantity,
             unitcost=obj.unitcost
         )
-        .where(and_(Acthasfixworks.act_id == obj.act_id, Acthasfixworks.subwork_id == obj.subwork_id))
+        .where(and_(Acthasfixworks.act_id == actID, Acthasfixworks.fixwork_id == prevFixWorkID))
     )
     await db.commit()
     return result.rowcount
@@ -232,3 +232,15 @@ async def get_tech_files_by_house_id(db: AsyncSession, house_id: int):
         .where(Techfiles.house_id == house_id)
     )
     return result.scalars().unique().all()
+
+async def delete_act_old_works (db: AsyncSession, act_id:int, worksType: str):
+    result = None
+    if worksType == 'subworks':
+        result = await db.execute(
+                delete(Acthassubworks).where(Acthassubworks.act_id == act_id)
+            )
+    if  worksType == 'fixworks':
+        result = await db.execute(
+                delete(Acthasfixworks).where(Acthasfixworks.act_id == act_id)
+            )
+    return result

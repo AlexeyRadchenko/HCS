@@ -45,7 +45,7 @@
                             :disabled="btnSmetaDisable"
                         >
                             <template #trigger>
-                            <el-button type="primary">select file</el-button>
+                            <el-button type="primary">Выбрать Файл</el-button>
                             </template>
                             <el-button style="margin-left: 1em;" type="success" @click="submitUploadSmeta">
                             Загрузить
@@ -130,7 +130,7 @@
                           :disabled="btnActDisable"
                       >
                           <template #trigger>
-                          <el-button type="primary">select file</el-button>
+                          <el-button type="primary">Выбрать Файл</el-button>
                           </template>
                           <el-button style="margin-left: 1em;" type="success" @click="submitUploadAct">
                           Загрузить
@@ -251,7 +251,7 @@ import secureStorage from '../../../storage/secStorage'
 import { edit_mkd_works, create_new_mkd_works, download_file_mkd_works } from '../../../http/mkd-works-http-common'
 import dayjs from 'dayjs'
 import FileDownload from 'js-file-download'
-import { generate_data_object_to_post, clear_input_data } from '../../../utils/utils';
+import { generate_data_object_to_post, clear_input_data, get_work_value_by_label } from '../../../utils/utils';
 
 const props = defineProps({
     houseId: String,
@@ -276,6 +276,7 @@ const btnActDisable = ref(false)
 const emit = defineEmits(['update-data'])
 const uploadSmeta = ref(null)
 const uploadAct = ref(null)
+const prevWorkData = ref({})
 const workInputData = ref({
   workMonthAndYear: '',
   actAllSumHandle: '',
@@ -384,10 +385,12 @@ watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
   if (show && props.modalCallType == 'edit') {
     /*console.log(props.modalCallType, props.editRowIndex)
     console.log(workFromDBdata.value)
-    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!",props.houseId, props.workID)*/
+    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!",props.houseId, props.workID)
+    console.log('ALLLLLLLLLOPT', props.allWorksOptions)*/
+    console.log('DB DATA WORK', workFromDBdata.value)
     actInputFileData.value.workid = workFromDBdata.value.workId
     smetaInputFileData.value.workid = workFromDBdata.value.workId
-    workInputData.value.workMonthAndYear = dayjs(workFromDBdata.value.date).format('YYYY-MM-DD')
+    workInputData.value.workMonthAndYear = dayjs(workFromDBdata.value.monthWork).format('YYYY-MM-DD')
     workInputData.value.directorSovietFIO = workFromDBdata.value.dirFIO
     workInputData.value.directorAppartNum = workFromDBdata.value.dirAppart
     workInputData.value.actAllSumHandle = workFromDBdata.value.sumWork
@@ -409,9 +412,10 @@ watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
     let works = workFromDBdata.value.subworks.concat(workFromDBdata.value.fixworks)
     if (works.length) {
       for (let [index, element] of works.entries()) {
+        //console.log("ELEMNT", element)
         if (index === 0) {
           tableData.value[0].numsprav = element.numsprav
-          tableData.value[0].nameWorkOrService = element.work
+          tableData.value[0].nameWorkOrService = get_work_value_by_label(element.work, props.allWorksOptions)
           tableData.value[0].period = element.period
           tableData.value[0].quantity = element.quantity
           tableData.value[0].costOfPart = element.unitcost
@@ -422,7 +426,7 @@ watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
         }
         tableData.push({
           numsprav: element.numsprav,
-          nameWorkOrService: element.work,
+          nameWorkOrService: get_work_value_by_label(element.work, props.allWorksOptions),
           period: element.period,
           quantity: element.quantity,
           costOfPart :element.unitcost,

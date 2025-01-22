@@ -188,6 +188,7 @@ export var get_quantity_works = function (sub, fix) {
 }
 
 var getTypeWorkByName = function (nameW) {
+    console.log('NAME SELECT TYEPE', nameW)
     let numType = nameW.split('_')[1]
     if (numType === '1') {
         return 'subwork'
@@ -200,6 +201,7 @@ var getTypeWorkByName = function (nameW) {
 export var generate_data_object_to_post = function (workData, tableRowData, workID, houseID, periodOptions) {
     console.log("wokrID", workID)
     console.log("periodOptions", periodOptions)
+    
     let postdata = {
         id: workID != '' ? workID : '-1',
         house_id: houseID,
@@ -214,17 +216,21 @@ export var generate_data_object_to_post = function (workData, tableRowData, work
         subworks: workData.subworks ? workData.subworks.map(element => ({id: element.id, workType: element.workType})) : [],
         fixworks: workData.fixworks ? workData.fixworks.map(element => ({id: element.id, workType: element.workType})) : [],
     }
+    
     for (let [index, element] of tableRowData.entries()) {
+        //console.log('POST ELEMENT', element.nameWorkOrService)
         postdata.num = element.numsprav
+        console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", element.workType, element.nameWorkOrService) 
+        let typeWorkInput = element.nameWorkOrService.value ? element.nameWorkOrService.value : element.nameWorkOrService
         postdata.works.push({
             numsprav: element.numsprav,
-            namework: element.nameWorkOrService,
+            namework: element.nameWorkOrService.value ? element.nameWorkOrService.value : element.nameWorkOrService,
             period: typeof(element.period) === 'number' ? periodOptions[parseInt(element.period)].label : element.period,
             quantity: element.quantity,
             costofpart: element.costOfPart,
             sum: element.sum,
             workSubId: element.workSubId != '' ? element.workSubId : -1,
-            workType: element.workType != '' ? element.workType : getTypeWorkByName(element.nameWorkOrService),
+            workType: element.workType != '' ? element.workType : getTypeWorkByName(typeWorkInput),
         })
     }
     return postdata
@@ -250,4 +256,12 @@ export var clear_input_data = function (inputData, tableRowData) {
             workSubId: '',
         }
     ]
+}
+
+
+export var get_work_value_by_label = function (label, data) {
+    for (let [index, element] of data.entries()) {
+        if (element.label === label)
+            return {value: element.value, label:  element.label}
+    }    
 }

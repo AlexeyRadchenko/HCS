@@ -167,6 +167,8 @@ def calcSum(*args, **kwargs):
 
 def getWorkSubId(id_str, needType):
     main, w_type, w_id = id_str.split('_')
+
+    print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@', id_str, needType, main, w_type, w_id)
     if needType == w_type:
         return int(w_id)
     return

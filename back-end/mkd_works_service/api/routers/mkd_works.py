@@ -11,7 +11,7 @@ from ..database.mkd_works.crud import (
     get_all_houses, get_all_mkd_works_by_house_id, get_furure_work_id_from_db, create_mkd_works_db_object, get_all_mainworks,
     get_all_subworks, get_all_fixworks, update_act_db, update_acthasfixworks_db, update_acthassubworks_db, select_act_doc_by_uuid,
     select_smeta_doc_by_uuid, get_year_acts_by_house_id, get_acts_by_year_and_house_id, get_year_acts_by_house_id_and_year, get_bg_task_status,
-    get_year_acts_file_by_year_act_uuid, get_techdoc_file_by_uuid, get_tech_files_by_house_id
+    get_year_acts_file_by_year_act_uuid, get_techdoc_file_by_uuid, get_tech_files_by_house_id, delete_act_old_works
     )
 from ..database.mkd_works.models import (Acts, Actfiles, Actshasactfiles, Smetafiles, Actshassmetafiles, Acthassubworks, Acthasfixworks, BGTasks,
     Techfiles)
@@ -207,6 +207,12 @@ async def update_act_model(
     db_session: AsyncSession = Depends(get_async_session)
     ):
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WORKS", work.works)
+    res = None
+    if len(work.subworks) > 0:
+        res = await delete_act_old_works(db_session, int(work.id), 'subworks')
+    if len(work.fixworks) > 0:
+        res = await delete_act_old_works(db_session, int(work.id), 'fixworks')
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WORKS", res)    
     act_edit_model_object = Acts(
         id=int(work.id),
         num=work.num,
@@ -223,12 +229,12 @@ async def update_act_model(
             if s.workType == 'subwork':
                 act_subwork = Acthassubworks(
                     act_id=int(work.id),
-                    subwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '1'),
+                    subwork_id=getWorkSubId(s.namework, '1'),
                     sum=s.sum,
                     quantity=s.quantity,
                     unitcost=s.costofpart
                 )
-                update_subworks_act_data = await update_acthassubworks_db(db_session, act_subwork)
+                update_subworks_act_data = await create_mkd_works_db_object(db_session, act_subwork)
                 print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", update_subworks_act_data)
                 if not update_subworks_act_data == 1:
                     create_subwork_act_data = await create_mkd_works_db_object(db_session, act_subwork)
@@ -237,12 +243,12 @@ async def update_act_model(
             if s.workType == 'fixwork':
                 act_fixwork = Acthasfixworks(
                     act_id=int(work.id),
-                    subwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '2'),
+                    fixwork_id=getWorkSubId(s.namework, '2'),
                     sum=s.sum,
                     quantity=s.quantity,
                     unitcost=s.costofpart
                 )
-                update_fixworks_act_data = await update_acthasfixworks_db(db_session, act_fixwork)
+                update_fixworks_act_data = await create_mkd_works_db_object(db_session, act_fixwork)
                 if not update_fixworks_act_data == 1:
                     create_fixwork_act_data = await create_mkd_works_db_object(db_session, act_fixwork)
 
@@ -296,7 +302,7 @@ async def create_act(
                 if s.workType == 'fixwork':
                     act_fixwork = Acthasfixworks(
                         act_id=create_db_act_data.id,
-                        subwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '2'),
+                        fixwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '2'),
                         sum=s.sum,
                         quantity=s.quantity,
                         unitcost=s.costofpart
