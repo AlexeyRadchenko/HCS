@@ -40,5 +40,7 @@ alembic revision --message="Initial" --autogenerate
 alembic upgrade head
 
 for add authantifications users for account_service in @user_control_service@ uncomment @@user = await get_account_user(db_session, account=token_data.login)@@ in
-user_data_depends.py 
+user_data_depends.py
+
+
 

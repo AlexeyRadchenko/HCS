@@ -423,6 +423,7 @@ async def get_all_year_acts_for_house(
             status='start'
         )    
         task_db_record = await create_mkd_works_db_object(db_session, task_db_obj)
+        
         background_tasks.add_task(genereate_year_act_xlsx_file, year, house_id, data, task_db_record.uuid, db_session)
         return {"message": "task started", "task_id": task_db_record.uuid}
     else:

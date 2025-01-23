@@ -188,7 +188,7 @@ async def get_acts_by_year_and_house_id(db: AsyncSession, year: datetime, house_
         select(
             Acts
         )
-        .where(and_(Acts.house_id == house_id, func.extract("year", Acts.date) == year.year))
+        .where(and_(Acts.house_id == house_id, func.extract("year", Acts.month_year_works) == year.year))
     )
     return result.scalars().unique().all()
 

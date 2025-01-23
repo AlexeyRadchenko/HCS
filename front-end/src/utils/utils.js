@@ -153,9 +153,9 @@ export let validate_payment_data = async (dataList) => {
 }
 export let mkd_works_works_to_string = function(main, sub, fix) {
     let works = ''
-    for (let [index, element] of main.entries()) {works = works + element.work + '/n'}
-    for (let [index, element] of sub.entries()) {works = works + element.work + '/n'}
-    for (let [index, element] of fix.entries()) {works = works + element.work + '/n'}
+    for (let [index, element] of main.entries()) {works = works + element.work + '\n'}
+    for (let [index, element] of sub.entries()) {works = works + element.work + '\n'}
+    for (let [index, element] of fix.entries()) {works = works + element.work + '\n'}
     return works
 }
 
@@ -230,7 +230,7 @@ export var generate_data_object_to_post = function (workData, tableRowData, work
             costofpart: element.costOfPart,
             sum: element.sum,
             workSubId: element.workSubId != '' ? element.workSubId : -1,
-            workType: element.workType != '' ? element.workType : getTypeWorkByName(typeWorkInput),
+            workType: getTypeWorkByName(typeWorkInput),
         })
     }
     return postdata
