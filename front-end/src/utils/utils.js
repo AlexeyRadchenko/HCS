@@ -1,3 +1,5 @@
+import { stringify } from "uuid"
+
 export var handleAddresses = async function(adresses) {
     var resultArr = []
     adresses.reverse().forEach(element => {
@@ -194,6 +196,8 @@ var getTypeWorkByName = function (nameW) {
         return 'subwork'
     } else if (numType === '2') {
         return 'fixwork'
+    } else if (parseInt(nameW) > 0) {
+        return 'mainwork'
     }
     return
 }
@@ -236,7 +240,7 @@ export var generate_data_object_to_post = function (workData, tableRowData, work
     return postdata
 }
 
-export var clear_input_data = function (inputData, tableRowData) {
+export var clear_input_data = function (inputData, tableRowData, actInputData, smetaInputData) {
     inputData.value.workMonthAndYear = ''
     inputData.value.directorSovietFIO = ''
     inputData.value.directorAppartNum = ''
@@ -256,6 +260,17 @@ export var clear_input_data = function (inputData, tableRowData) {
             workSubId: '',
         }
     ]
+    smetaInputData.value.smetanum = ''
+    smetaInputData.value.smetadate = ''
+    smetaInputData.value.actfutureid = ''
+    smetaInputData.value.workid = ''
+    smetaInputData.value.houseid = ''
+
+    actInputData.value.actnum = ''
+    actInputData.value.actdate = ''
+    actInputData.value.actfutureid = ''
+    actInputData.value.workid = ''
+    actInputData.value.houseid = ''
 }
 
 

@@ -7,7 +7,7 @@ from sqlalchemy.orm import joinedload, aliased
 from datetime import datetime
 
 from ..database import row2dict
-from .models import (Houses, Acts, Mainworks, Subworks, Fixworks, Actfiles, Smetafiles, Acthassubworks, Acthasfixworks, YearActfiles, 
+from .models import (Houses, Acts, Mainworks, Subworks, Fixworks, Actfiles, Smetafiles, Acthassubworks, Acthasfixworks, YearActfiles, Acthasmainworks,
     BGTasks, Techfiles)
 
 
@@ -235,6 +235,10 @@ async def get_tech_files_by_house_id(db: AsyncSession, house_id: int):
 
 async def delete_act_old_works (db: AsyncSession, act_id:int, worksType: str):
     result = None
+    if worksType == 'mainworks':
+        result = await db.execute(
+                delete(Acthasmainworks).where(Acthasmainworks.act_id == act_id)
+            )
     if worksType == 'subworks':
         result = await db.execute(
                 delete(Acthassubworks).where(Acthassubworks.act_id == act_id)
@@ -244,3 +248,12 @@ async def delete_act_old_works (db: AsyncSession, act_id:int, worksType: str):
                 delete(Acthasfixworks).where(Acthasfixworks.act_id == act_id)
             )
     return result
+
+async def get_mkd_director_data_from_db_by_house_id (db: AsyncSession, house_id: int):
+    result = await db.execute(
+        select(
+            Houses
+        )
+        .where(Houses.id == house_id)
+    )
+    return result.scalar()

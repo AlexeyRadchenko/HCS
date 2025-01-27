@@ -1,7 +1,7 @@
 
 <template>
     <div class="mkd-works-add-modal-wrapper-conteiner">
-        <el-dialog v-model="dialogMKDWorksAddVisibleSub" :title="'Добавление/Редактирование сведений о работах по МКД '+ houseName" width="1250">
+        <el-dialog v-model="dialogMKDWorksAddVisibleSub" :title="'Добавление/Редактирование сведений о работах по МКД '+ houseName" width="1350">
           <el-container>
             <main style="width: 100%;">
                 <el-row :gutter="20">   
@@ -57,7 +57,7 @@
                             </template>
                         </el-upload>
                     </el-col>
-                    <el-col :span="9">
+                    <el-col :span="6">
                       <el-input
                         v-model="workInputData.directorSovietFIO"
                         style="width: 100%"
@@ -65,13 +65,16 @@
                         clearable
                       />
                     </el-col>
-                    <el-col :span="3">
+                    <el-col :span="2">
                       <el-input
                         v-model="workInputData.directorAppartNum"
                         style="width: 100%"
                         placeholder="Номер квартиры"
                         clearable
                       />
+                    </el-col>
+                    <el-col :span="4">
+                      <el-button type="primary" @click="getHouseDirectorDataFromDB">Заполнить из базы</el-button>
                     </el-col>
                 </el-row>
                 <el-row :gutter="20">   
@@ -200,14 +203,19 @@
                           <el-input v-model="scope.row.quantity" style="width: 100%"/>
                         </template>
                       </el-table-column>
-                      <el-table-column label="Стоимость оказанной услуги за единицу, руб/м2" width="120">
+                      <el-table-column label="Стоимость оказанной услуги за единицу, руб/м2" width="100">
                         <template #default="scope">
-                          <el-input v-model="scope.row.costOfPart" style="width: 100%"/>
+                          <el-input v-model="scope.row.costOfPart" style="width: 100%" :parser="rublesFormatParser" :formatter="formatToDecimal"/>
                         </template>
                       </el-table-column>
                       <el-table-column label="Цена выполненной работы (оказанной услуги) в рублях" width="120">
                         <template #default="scope">
-                          <el-input v-model="scope.row.sum" style="width: 100%"/>
+                          <el-input v-model="scope.row.sum" style="width: 100%" :parser="rublesFormatParser" :formatter="formatToDecimal"/>
+                        </template>
+                      </el-table-column>
+                      <el-table-column label="Комментарий" width="140">
+                        <template #default="scope">
+                          <el-input v-model="scope.row.orderNum" style="width: 100%"/>
                         </template>
                       </el-table-column>
                       <el-table-column fixed="right" label="Строка" min-width="35">
@@ -216,6 +224,7 @@
                             link
                             type="danger"
                             size="small"
+                            style="margin-left: 1.4em;"
                             @click.prevent="deleteRow(scope.$index)"
                           >
                             Удалить
@@ -248,7 +257,7 @@
 import { ref, reactive, computed, onMounted, watch, toRaw, defineEmits } from 'vue';
 import { genFileId, ElMessage } from 'element-plus'
 import secureStorage from '../../../storage/secStorage'
-import { edit_mkd_works, create_new_mkd_works, download_file_mkd_works } from '../../../http/mkd-works-http-common'
+import { edit_mkd_works, create_new_mkd_works, download_file_mkd_works, request_director_data_drom_db } from '../../../http/mkd-works-http-common'
 import dayjs from 'dayjs'
 import FileDownload from 'js-file-download'
 import { generate_data_object_to_post, clear_input_data, get_work_value_by_label } from '../../../utils/utils';
@@ -276,7 +285,6 @@ const btnActDisable = ref(false)
 const emit = defineEmits(['update-data'])
 const uploadSmeta = ref(null)
 const uploadAct = ref(null)
-const prevWorkData = ref({})
 const workInputData = ref({
   workMonthAndYear: '',
   actAllSumHandle: '',
@@ -329,6 +337,50 @@ const getDataActFile = () => {
     houseid: props.houseId
   };
 };
+
+const formatToDecimal = (value) => {
+    // Если строка пустая или не определена, возвращаем "0.00"
+    if (!value || value.trim() === '') {
+        return '0.00';
+    }
+
+    // Заменяем запятые на точки
+    value = value.replace(/,/g, '.');
+
+    // Проверяем, есть ли в строке точка
+    if (!value.includes('.')) {
+        // Если точки нет, добавляем ".00" в конец строки
+        value += '.00';
+    } else {
+        // Если точка есть, проверяем количество знаков после нее
+        const [integerPart, decimalPart] = value.split('.');
+        // Обрезаем или дополняем дробную часть до двух знаков
+        value = `${integerPart}.${(decimalPart || '').padEnd(2, '0').slice(0, 2)}`;
+    }
+
+    return value;
+}
+
+const rublesFormatParser = (value) => {
+  // Если строка пустая или не определена, возвращаем "0.00"
+  if (!value || value.trim() === '') {
+      return '0.00';
+  }
+
+  // Заменяем запятые на точки
+  value = value.replace(/,/g, '.');
+
+  // Пробуем преобразовать строку в число
+  const number = parseFloat(value);
+
+  // Если преобразование не удалось, возвращаем "0.00"
+  if (isNaN(number)) {
+      return '0.00';
+  }
+
+  // Приводим число к строке с двумя знаками после точки
+  return number.toFixed(2);
+}
 
 const getDataSmetaFile = () => {
   return {
@@ -422,6 +474,7 @@ watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
           tableData.value[0].sum = element.sum
           tableData.value[0].workType = element.workType
           tableData.value[0].workSubId = element.id
+          tableData.value[0].notes = element.notes
           continue
         }
         tableData.push({
@@ -437,7 +490,7 @@ watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
       }  
     }
   } else if (show && props.modalCallType == 'add') {
-    clear_input_data(workInputData, tableData)
+    clear_input_data(workInputData, tableData, actInputFileData, smetaInputFileData)
   }
   //console.log(workInputData.value.workMonthAndYear, dayjs(workFromDBdata.value.date).format('MM.YYYY'))
 })
@@ -583,6 +636,16 @@ const onSaveBtnClick =  () => {
 const downloadFile = (url, filename) => {
   download_file_mkd_works(url).then((response) =>{
     FileDownload(response.data, filename)
+  }).catch((error) =>{
+    console.error('Error:', error);
+  });
+}
+
+const getHouseDirectorDataFromDB = () => {
+  request_director_data_drom_db(props.houseId).then((response) =>{
+    console.log(response.data)
+    workInputData.value.directorSovietFIO = response.data.director_fio
+    workInputData.value.directorAppartNum = response.data.director_appartment
   }).catch((error) =>{
     console.error('Error:', error);
   });

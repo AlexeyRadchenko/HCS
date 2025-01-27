@@ -11,9 +11,9 @@ from ..database.mkd_works.crud import (
     get_all_houses, get_all_mkd_works_by_house_id, get_furure_work_id_from_db, create_mkd_works_db_object, get_all_mainworks,
     get_all_subworks, get_all_fixworks, update_act_db, update_acthasfixworks_db, update_acthassubworks_db, select_act_doc_by_uuid,
     select_smeta_doc_by_uuid, get_year_acts_by_house_id, get_acts_by_year_and_house_id, get_year_acts_by_house_id_and_year, get_bg_task_status,
-    get_year_acts_file_by_year_act_uuid, get_techdoc_file_by_uuid, get_tech_files_by_house_id, delete_act_old_works
+    get_year_acts_file_by_year_act_uuid, get_techdoc_file_by_uuid, get_tech_files_by_house_id, delete_act_old_works, get_mkd_director_data_from_db_by_house_id
     )
-from ..database.mkd_works.models import (Acts, Actfiles, Actshasactfiles, Smetafiles, Actshassmetafiles, Acthassubworks, Acthasfixworks, BGTasks,
+from ..database.mkd_works.models import (Acts, Actfiles, Actshasactfiles, Smetafiles, Actshassmetafiles, Acthasmainworks, Acthassubworks, Acthasfixworks, BGTasks,
     Techfiles)
 from api.security.acess_depends import user_scope_authorize
 from ..database.database import get_async_session
@@ -226,6 +226,18 @@ async def update_act_model(
     if len(work.works) > 0:
         for s in work.works:
             sum = calcSum(s.sum, sum=sum)
+            if s.workType == 'mainwork':
+                    act_subwork = Acthasmainworks(
+                        act_id=int(work.id),
+                        mainwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '0'),
+                        sum=s.sum,
+                        quantity=s.quantity,
+                        unitcost=s.costofpart,
+                        notes = s.notes
+                    )
+                    create_mainwork_act_data = await create_mkd_works_db_object(db_session, act_subwork)
+                    print("#######################################", create_mainwork_act_data)
+                    continue
             if s.workType == 'subwork':
                 act_subwork = Acthassubworks(
                     act_id=int(work.id),
@@ -269,6 +281,7 @@ async def create_act(
     db_session: AsyncSession = Depends(get_async_session)
     ):
     # если -1, то работа новая несуществующая. Доки еще добавить
+    print("------------------------------------------------>>>>>>>>>>>", work)
     print("------------------------------------------------>>>>>>>>>>>", work.id)
     if work.id and work.id == '-1':
         print("------------------------------------------------>>>>>>>>>>>first if", work.id)
@@ -287,13 +300,26 @@ async def create_act(
         if len(work.works) > 0:
             for s in work.works:
                 sum = calcSum(s.sum, sum=sum)
+                if s.workType == 'mainwork':
+                    act_subwork = Acthasmainworks(
+                        act_id=create_db_act_data.id,
+                        mainwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '0'),
+                        sum=s.sum,
+                        quantity=s.quantity,
+                        unitcost=s.costofpart,
+                        notes = s.notes
+                    )
+                    create_mainwork_act_data = await create_mkd_works_db_object(db_session, act_subwork)
+                    print("#######################################", create_mainwork_act_data)
+                    continue
                 if s.workType == 'subwork':
                     act_subwork = Acthassubworks(
                         act_id=create_db_act_data.id,
                         subwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '1'),
                         sum=s.sum,
                         quantity=s.quantity,
-                        unitcost=s.costofpart
+                        unitcost=s.costofpart,
+                        notes = s.notes
                     )
                     create_subworks_act_data = await create_mkd_works_db_object(db_session, act_subwork)
                     print("#######################################", create_subworks_act_data)
@@ -305,7 +331,8 @@ async def create_act(
                         fixwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '2'),
                         sum=s.sum,
                         quantity=s.quantity,
-                        unitcost=s.costofpart
+                        unitcost=s.costofpart,
+                        notes = s.notes
                     )
                     create_fixwork_act_data = await create_mkd_works_db_object(db_session, act_fixwork)
 
@@ -319,53 +346,7 @@ async def create_act(
             print("!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", acts_create)
             return             
         return {"error": "document not update", "status_code": 422}
-    elif work.id and work.id != '-1':
-        print("------------------------------------------------>>>>>>>>>>>second if", work.id)
-        act_edit_model_object = Acts(
-            id=int(work.id),
-            num=work.num,
-            all_sum=work.all_sum,
-            month_year_works=datetime.strptime(work.month_year_works, '%Y-%m-%d') if work.month_year_works != '' else None,
-            house_id=int(work.house_id),
-        )
-        sum = 0
-        if len(work.works) > 0:
-            for s in work.works:
-                sum = calcSum(s.sum, sum=sum)
-                if s.workType == 'subwork':
-                    act_subwork = Acthassubworks(
-                        act_id=int(work.id),
-                        subwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '1'),
-                        sum=s.sum,
-                        quantity=s.quantity,
-                        unitcost=s.costofpart
-                    )
-                    update_subworks_act_data = await update_acthassubworks_db(db_session, act_subwork)
-                    if not update_subworks_act_data == 1:
-                        create_subwork_act_data = await create_mkd_works_db_object(db_session, act_subwork)
-                    continue
-
-                if s.workType == 'fixwork':
-                    act_fixwork = Acthasfixworks(
-                        act_id=int(work.id),
-                        subwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '2'),
-                        sum=s.sum,
-                        quantity=s.quantity,
-                        unitcost=s.costofpart
-                    )
-                    update_fixworks_act_data = await update_acthasfixworks_db(db_session, act_fixwork)
-                    if not update_fixworks_act_data == 1:
-                        create_fixwork_act_data = await create_mkd_works_db_object(db_session, act_fixwork)
-
-        #print("-----------------", sum, act_edit_model_object.all_sum)
-        if sum != work.all_sum:
-            act_edit_model_object.all_sum = sum
-            print("-----------------", sum, act_edit_model_object.all_sum)
-        acts_update = await update_act_db(db_session, act_edit_model_object)
-        if acts_update == 1:
-            #print("!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", acts_update)
-            return             
-        return {"error": "document not update", "status_code": 422}
+    
 
 @router.get("/download/act/{uuid}")
 async def download_act(
@@ -423,7 +404,7 @@ async def get_all_year_acts_for_house(
             status='start'
         )    
         task_db_record = await create_mkd_works_db_object(db_session, task_db_obj)
-        
+
         background_tasks.add_task(genereate_year_act_xlsx_file, year, house_id, data, task_db_record.uuid, db_session)
         return {"message": "task started", "task_id": task_db_record.uuid}
     else:
@@ -515,3 +496,13 @@ async def get_all_techdocs_for_house(
     selected_techdocs = await get_tech_files_by_house_id(db_session, house_id)
     return selected_techdocs
     
+@router.get("/house/{house_id}/director", response_model=HousesMKDSchema)
+async def get_mkd_director_data_by_house_id(
+    house_id: int,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    director_data = await get_mkd_director_data_from_db_by_house_id(db_session, house_id)
+    print(">>>>>>>>>>>>>>>>>>>>>>", director_data, house_id)
+    #print(">>>>>>>>>>>>>>>>>>>>>>", all_works_by_house_id[0].subworks)
+    return director_data

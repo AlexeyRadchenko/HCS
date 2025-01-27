@@ -27,6 +27,8 @@ class HousesMKDSchema(BaseModel):
     company_id: Optional[int]
     companies: Optional[CompaniesMKDScheme]
     house_square: Optional[float]
+    director_fio: Optional[str]
+    director_appartment: Optional[str]
 
     class Config:
         from_attributes = True
@@ -37,6 +39,7 @@ class MainWorksSchema(BaseModel):
     work: Optional[str]
     workType: Optional[str]
     companyWorkType: Optional[str]
+    notes: Optional[str]
 
     class Config:
         from_attributes = True
@@ -47,6 +50,7 @@ class ActHasSubworksScheme(BaseModel):
     sum: Optional[str]
     quantity: Optional[str]
     unitcost: Optional[str]
+    notes: Optional[str]
 
     class Config:
         from_attributes = True   
@@ -64,6 +68,7 @@ class SubWorksSchema(BaseModel):
     sum: Optional[str]
     quantity: Optional[str]
     unitcost: Optional[str]
+    notes: Optional[str]
 
     class Config:
         from_attributes = True
@@ -81,6 +86,7 @@ class FixWorksSchema(BaseModel):
     sum: Optional[str]
     quantity: Optional[str]
     unitcost: Optional[str]
+    notes: Optional[str]
 
     class Config:
         from_attributes = True

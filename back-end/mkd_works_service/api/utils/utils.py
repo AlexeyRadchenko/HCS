@@ -171,6 +171,8 @@ def getWorkSubId(id_str, needType):
     print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@', id_str, needType, main, w_type, w_id)
     if needType == w_type:
         return int(w_id)
+    elif needType == '0':
+        return int(id_str)
     return
 
 async def test_all_works_select():

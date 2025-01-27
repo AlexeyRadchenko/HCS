@@ -240,3 +240,21 @@ export var get_techdoc_files_list_by_house = async function (house_id) {
     })
   }
 
+export var request_director_data_drom_db = async function (house_id) {
+  setHeaders(http)
+  return await http.get(api_main_url_port + '/api/v1/mkd_works_service/house/' + house_id +'/director')
+  .then(response => {
+    if (response.status == 200)
+      //console.log(response)
+      return response
+  })
+  .catch(e => {
+    if (!e.response) {
+      console.log('сервер не отвечает')
+      return null
+    } else {
+      return null
+    }
+  })
+}
+

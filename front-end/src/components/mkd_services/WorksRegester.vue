@@ -33,7 +33,7 @@
         </el-table-column>
         <el-table-column prop="monthWork" label="Месяц пров. работ" width="100" :formatter="monthWorkFromDB" />
         <el-table-column prop="yearWork" label="Год пров. работ" width="100" :formatter="yearWorkFromDB"/>
-        <el-table-column prop="sumWork" label="Стоимость работ" width="100" />
+        <el-table-column prop="sumWork" label="Стоимость работ" width="100" :formatter="formatToDecimal"/>
         <el-table-column fixed="right" label="Редактирование" min-width="120">
           <template #default="scope">
             <el-button
@@ -93,6 +93,26 @@ const loading = ref(true)
 const modalCallType=ref('add')
 const editRowIndex = ref(null)
 const tableData = ref([])
+
+const formatToDecimal = (row, column, cellValue, index) => {
+    // Если строка пустая или не определена, возвращаем "0.00"
+    if (!cellValue || cellValue.trim() === '') {
+        return '0.00';
+    }
+    // Заменяем запятые на точки
+    cellValue = cellValue.replace(/,/g, '.');
+    // Проверяем, есть ли в строке точка
+    if (!cellValue.includes('.')) {
+        // Если точки нет, добавляем ".00" в конец строки
+        cellValue += '.00';
+    } else {
+        // Если точка есть, проверяем количество знаков после нее
+        const [integerPart, decimalPart] = cellValue.split('.');
+        // Обрезаем или дополняем дробную часть до двух знаков
+        cellValue = `${integerPart}.${(decimalPart || '').padEnd(2, '0').slice(0, 2)}`;
+    }
+    return cellValue;
+}
 
 const EditRow = (index) => {
   //tableData.value.splice(index, 1)
