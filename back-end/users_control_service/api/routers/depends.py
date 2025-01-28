@@ -1,6 +1,6 @@
 from operator import contains
 from fastapi import Form
-from typing import Optional
+from typing import Optional, Annotated
 
 async def decode_string_from_latin(string: str):
     try:
@@ -42,11 +42,11 @@ async def decode_organisations_data_to_db_params(organisations_str):
 
 
 async def contact_address_decode_depends(
-    street: str = Form(...),
-    house_number: str = Form(...),
-    entrance: str = Form(...),
-    appartment: str = Form(...),
-    organisation_id: str = Form(...)
+    street: Annotated[str, Form()],
+    house_number: Annotated[str, Form()],
+    entrance: Annotated[str, Form()],
+    appartment: Annotated[str, Form()],
+    organisation_id: Annotated[str, Form()]
 ):
     return {
         'street': await decode_string_from_latin(street),
@@ -57,8 +57,8 @@ async def contact_address_decode_depends(
     }
 
 async def create_contact_organisation_decode_depends(
-    full_name: str = Form(...),
-    short_name: str = Form(...)
+    full_name: Annotated[str, Form()],
+    short_name: Annotated[str, Form()]
 ):
     return {
         'full_name': await decode_string_from_latin(full_name),
@@ -66,8 +66,10 @@ async def create_contact_organisation_decode_depends(
     }
 
 async def create_management_user_decode_depends(
-    username: str = Form(...),
-    password: str = Form(...)
+    #username: str = Form(...),
+    #password: str = Form(...)
+    username: Annotated[str, Form()],
+    password: Annotated[str, Form()]
 ):  
     return {
         'username': await decode_string_from_latin(username),
@@ -75,11 +77,11 @@ async def create_management_user_decode_depends(
     }
 
 async def create_account_user_decode_depends(
-    username: str = Form(...),
-    password: str = Form(...),
-    street: str = Form(...),
-    house: str = Form(...),
-    appartment: str = Form(...)
+    username: Annotated[str, Form()],
+    password: Annotated[str, Form()],
+    street: Annotated[str, Form()],
+    house: Annotated[str, Form()],
+    appartment: Annotated[str, Form()]
 ):  
     return {
         'username': await decode_string_from_latin(username),
