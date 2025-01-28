@@ -70,6 +70,7 @@ class Acthasmainworks(Base):
     unitcost = Column(String, nullable=True)
     notes = Column(String, nullable=True)
 
+    acts = relationship("Acts", back_populates="mainworks_details", lazy='joined', viewonly=True)
     mainworks = relationship('Mainworks', back_populates='acts_details', lazy='joined', viewonly=True)
 
 
@@ -272,8 +273,11 @@ class Acts(Base):
 
     houses = relationship('Houses', back_populates='acts', lazy='joined')
     mainworks = relationship(
-        'Mainworks', secondary='acthasmainworks', back_populates='acts', lazy='joined'
+        'Mainworks', secondary='acthasmainworks', primaryjoin="Acts.id == Acthasmainworks.act_id",  secondaryjoin="Mainworks.id == Acthasmainworks.mainwork_id", 
+        back_populates='acts', lazy='joined', overlaps="acts"
     )
+
+    mainworks_details = relationship("Acthasmainworks", back_populates="acts", lazy='joined', viewonly=True)
 
     subworks = relationship(
         'Subworks', secondary='acthassubworks', primaryjoin="Acts.id == Acthassubworks.act_id",  secondaryjoin="Subworks.id == Acthassubworks.subwork_id", 
