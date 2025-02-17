@@ -116,7 +116,9 @@ const formatToDecimal = (row, column, cellValue, index) => {
 
 const EditRow = (index) => {
   //tableData.value.splice(index, 1)
+  console.log("Asdasdasd", modalCallType.value)
   modalCallType.value = 'edit'
+  console.log("Asdasdasd", modalCallType.value)
   showMKDWorkAddModal.value = true
   editRowIndex.value = index
   workFromDBdataMain.value = tableData.value[index]

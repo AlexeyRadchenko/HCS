@@ -5,9 +5,6 @@ from .routers import mkd_works
 
 
 app = FastAPI(
-    servers=[ 
-        {"url": "https://komfort-trg.fvds.ru", "description": "Production environment"},
-    ],
     title='MKD works service API',
     docs_url='/api/v1/mkd_works_service/docs', 
     redoc_url='/api/v1/mkd_works_service/redoc',
@@ -16,8 +13,8 @@ app = FastAPI(
 
 app.include_router(mkd_works.router, prefix="/api/v1/mkd_works_service")
 
-#origins = ['https://komfort-trg.fvds.ru', 'https://komfort-services.fvds.ru']
-origins = ['*']
+origins = ['https://komfortservices.fvds.ru', 'http://127.0.0.1:8050/', 'http://localhost:5173']
+#origins = ['*']
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,6 +22,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )               
 
 @app.get("/")

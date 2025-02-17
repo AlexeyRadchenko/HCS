@@ -166,9 +166,10 @@ onMounted(() => {
   });
 
   get_works_reference_book().then((response) => {
-    //console.log('Data:', response.data);
+    //console.log('Data:RESPOSE', response.data);
     Object.assign(works_ref_from_db.value, response.data)
     for (const element of response.data.mainworks) {
+      //console.log('Data:RESPOSE', element);
       works_refrenece_book_list.value.push(
         {
           value: String(element.id),

@@ -110,6 +110,7 @@ class Mainworks(Base):
     workType = Column(String, nullable=False)
     companyWorkType= Column(String, nullable=True)
     numsprav = Column(String, nullable=True)
+    period = Column(String, nullable=True)
 
     subworks = relationship('Subworks', back_populates='mainworks', lazy='select')
     fixworks = relationship('Fixworks', back_populates='mainworks', lazy='select')
@@ -312,6 +313,7 @@ class YearActfiles(Base):
     name = Column(String, nullable=True)
     num = Column(String, nullable=True)
     date = Column(DateTime, nullable=True)
+    year = Column(DateTime, nullable=True)
     extention = Column(String, nullable=False)
     url = Column(String, nullable=False)
     path = Column(String, nullable=False)

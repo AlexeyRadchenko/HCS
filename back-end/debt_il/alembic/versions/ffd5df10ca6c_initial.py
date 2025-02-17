@@ -35,8 +35,13 @@ def upgrade():
     sa.Column('sum_not_yet_get', sa.DECIMAL(precision=24, scale=2), nullable=True),
     sa.Column('payments', sa.DECIMAL(precision=24, scale=2), nullable=True),
     sa.Column('debt_sum_il', sa.DECIMAL(precision=24, scale=2), nullable=True),
+    sa.Column('one_or_parts', sa.Boolean(), nullable=True),
+    sa.Column('end_exec_pross_date', sa.DateTime(), nullable=True),
     sa.Column('notes', sa.Text(), nullable=True),
-    sa.PrimaryKeyConstraint('id')
+    sa.Column('organisation_id', sa.Integer(), nullable=True),
+    sa.Column('del_mark', sa.Boolean(), nullable=False),
+    sa.PrimaryKeyConstraint('id'),
+    sa.ForeignKeyConstraint(['organisation_id'], ['organisation.id'], ),
     )
     op.create_index(op.f('ix_all_il_id'), 'all_il', ['id'], unique=False)
     op.create_table('passport_il',
@@ -48,6 +53,7 @@ def upgrade():
     sa.Column('squad_code', sa.String(), nullable=True),
     sa.Column('birth_date', sa.DateTime(), nullable=True),
     sa.Column('birth_city', sa.String(), nullable=True),
+    sa.Column('birth_place', sa.String(), nullable=True),
     sa.Column('scan', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
@@ -59,6 +65,9 @@ def upgrade():
     sa.Column('second_name', sa.String(), nullable=True),
     sa.Column('surname', sa.String(), nullable=True),
     sa.Column('passport', sa.Integer(), nullable=True),
+    sa.Column('inn', sa.String(), nullable=True),
+    sa.Column('del_mark', sa.Boolean(), nullable=False),
+    sa.Column('part_of_appartment', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['passport'], ['passport_il.id'], ),
     sa.PrimaryKeyConstraint('uuid')
     )
@@ -85,6 +94,9 @@ def upgrade():
     sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),
     sa.Column('date', sa.DateTime(), nullable=True),
     sa.Column('number', sa.String(), nullable=True),
+    sa.Column('name', sa.String(), nullable=True),
+    sa.Column('note', sa.String(), nullable=True),
+    sa.Column('del_mark', sa.Boolean(), nullable=False),
     sa.Column('file', sa.String(), nullable=True),
     sa.Column('il_id', sa.BigInteger(), nullable=False),
     sa.ForeignKeyConstraint(['il_id'], ['all_il.id'], ),
@@ -117,7 +129,11 @@ def upgrade():
     sa.Column('type', sa.String(), nullable=True),
     sa.Column('sum', sa.DECIMAL(precision=24, scale=2), nullable=True),
     sa.Column('il_id', sa.BigInteger(), nullable=False),
-    sa.ForeignKeyConstraint(['il_id'], ['all_il.id'], ),
+    sa.Column('who_paid_uuid', postgresql.UUID(as_uuid=True), nullable=True),
+    sa.Column('notes', sa.String(), nullable=True),
+    
+    sa.ForeignKeyConstraint(['who_paid_uuid'], ['accounts_il.uuid'], ),
+    sa.ForeignKeyConstraint(['il_id'], ['all_il.id'], ), 
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_payments_il_id'), 'payments_il', ['id'], unique=False)

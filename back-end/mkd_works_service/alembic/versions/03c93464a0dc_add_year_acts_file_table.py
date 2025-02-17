@@ -26,6 +26,7 @@ def upgrade() -> None:
         sa.Column('uuid', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
         sa.Column('name', sa.String(500), nullable=False),
         sa.Column('date', sa.Date, nullable=True),
+        sa.Column('year', sa.Date, nullable=True),
         sa.Column('num', sa.String(100), nullable=True),
         sa.Column('extention', sa.String(500), nullable=False),
         sa.Column('url', sa.String(500), nullable=False),

@@ -10,7 +10,8 @@ class PassportILSchema(BaseModel):
     serial: Optional[str]
     number: Optional[str]
     who_take: Optional[str]
-    when_take: Optional[datetime]
+    date_take: Optional[datetime] = None 
+    when_take: Optional[datetime] = None
     squad_code: Optional[str]
     birth_date: Optional[datetime]
     birth_place: Optional[str]

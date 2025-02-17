@@ -98,7 +98,7 @@ const refreshTableData = async () => {
     for (let [index, element] of response.data.entries()) {
       refreshData.push({
         numOrder: index+1,
-        actYear: dayjs(element.date).year(),
+        actYear: dayjs(element.year).year(),
         actDate: dayjs(element.date).format('DD.MM.YYYY'),
         actNum: element.num,
         actFile: element.name,

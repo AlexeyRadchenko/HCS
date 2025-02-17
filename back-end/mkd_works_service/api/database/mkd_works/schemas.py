@@ -40,6 +40,7 @@ class MainWorksSchema(BaseModel):
     workType: Optional[str]
     companyWorkType: Optional[str]
     notes: Optional[str]
+    period: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -181,6 +182,7 @@ class TableWorkRowEditSchema(BaseModel):
     sum: Optional[str]
     workType: Optional[str]
     workSubId: Optional[int]
+    notes: Optional[str] = None
 
 class TableWorkNewSchema(BaseModel):
     numsprav: Optional[str] = None
@@ -190,7 +192,8 @@ class TableWorkNewSchema(BaseModel):
     costofpart: Optional[str] = None
     sum: Optional[str] = None
     workType: Optional[str] = None
-    workSubId: Optional[int] = None    
+    workSubId: Optional[int] = None
+    notes: Optional[str] = None  
 
 class EditWorksListSchema(BaseModel):
     id: Optional[int]
@@ -226,6 +229,7 @@ class YearActFilesSchema(BaseModel):
     uuid: Optional[UUID]
     name: Optional[str]
     date: Optional[datetime]
+    year: Optional[datetime] = None
     num: Optional[str]
     extention: Optional[str]
     url: Optional[str]

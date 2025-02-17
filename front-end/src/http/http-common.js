@@ -12,6 +12,7 @@ if (import.meta.env.VITE_API_BASEPORT) {
 if (import.meta.env.VITE_API_BASEPORT_AUTH) {
   api_auth_main_url_port = `${api_auth_main_url_port}:${import.meta.env.VITE_API_BASEPORT_AUTH}`;
 }
+
 const http = axios.create({})
 
 var setHeaders = function (axios_instance) {
@@ -37,15 +38,18 @@ let get_root_url = function(env_param, dev_root_url) {
 
 export var login = function(authStore, userFormData, loading, router) {
   var token = null
-  //let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_USER_CONTROL_ROOT) 
+  let root_url = get_root_url(import.meta.env.MODE, api_auth_main_url_port) 
   //console.log(root_url)
-  http.post(api_auth_main_url_port + '/api/v1/users_control_service/token', userFormData)
+  http.post(root_url + '/api/v1/users_control_service/token', userFormData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
     .then(response => {
-      if (response.status == 200)
+      if (response.status == 200) {
         token = response.data.access_token
         authStore.setToken(token)
         router.push('services')
         loading.close()
+      }  
     })
     .catch(e => {
         if (!e.response) {
@@ -65,7 +69,8 @@ export var login = function(authStore, userFormData, loading, router) {
 
 export var current_active_user = async function () {
     setHeaders(http)
-    let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_USER_CONTROL_ROOT)
+    let root_url = get_root_url(import.meta.env.MODE, api_auth_main_url_port)
+    console.log('current_active_user', api_auth_main_url_port)
     return await http.get(root_url + '/api/v1/users_control_service/management_users/me')
     .then(response => {
       if (response.status == 200)

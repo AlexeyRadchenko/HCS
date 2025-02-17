@@ -163,7 +163,7 @@
                 </el-row>
                 <el-row>
                   <el-col :span="24">
-                    <el-table :data="tableData" style="width: 100%" max-height="450">
+                    <el-table :data="tableData" style="width: 100%" max-height="450" v-loading="loading">
                       <el-table-column label="№ П/П" width="65">
                         <template #default="scope">
                           <el-input v-model="scope.row.orderNum" style="width: 100%"/>
@@ -215,7 +215,7 @@
                       </el-table-column>
                       <el-table-column label="Комментарий" width="140">
                         <template #default="scope">
-                          <el-input v-model="scope.row.orderNum" style="width: 100%"/>
+                          <el-input v-model="scope.row.notes" style="width: 100%"/>
                         </template>
                       </el-table-column>
                       <el-table-column fixed="right" label="Строка" min-width="35">
@@ -260,7 +260,7 @@ import secureStorage from '../../../storage/secStorage'
 import { edit_mkd_works, create_new_mkd_works, download_file_mkd_works, request_director_data_drom_db } from '../../../http/mkd-works-http-common'
 import dayjs from 'dayjs'
 import FileDownload from 'js-file-download'
-import { generate_data_object_to_post, clear_input_data, get_work_value_by_label } from '../../../utils/utils';
+import { generate_data_object_to_post, clear_input_data, get_work_value_by_label, get_mainwork_numspav } from '../../../utils/utils';
 
 const props = defineProps({
     houseId: String,
@@ -276,7 +276,7 @@ const props = defineProps({
 const uploadHeaders = {
   'Authorization': 'Bearer ' + secureStorage.getItem('token')
 }
-
+const loading = ref(true)
 const api_main_url_port = ref('')
 const dialogMKDWorksAddVisibleSub = defineModel('dialogMKDWorksAddVisibleSub')
 const workFromDBdata = defineModel('workFromDBdata')
@@ -432,9 +432,14 @@ const uploadSmetaDisable = () => {
   btnSmetaDisable.value = true
 }
 
-watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
-  console.log(show, oldStatus)
-  if (show && props.modalCallType == 'edit') {
+
+
+watch(
+  [() => props.dialogMKDWorksAddVisibleSub, () => props.allPeriodsOptions], 
+  ([newShow, newOptions], [oldShow, oldOptions]) => {
+  console.log(newShow, oldShow)
+  if (newShow && props.modalCallType == 'edit' && ((oldOptions.length > 0) || (newOptions.length > 0))) {
+    loading.value = false
     /*console.log(props.modalCallType, props.editRowIndex)
     console.log(workFromDBdata.value)
     console.log("!!!!!!!!!!!!!!!!!!!!!!!!!",props.houseId, props.workID)
@@ -461,12 +466,12 @@ watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
     smetaDownloadFile.value.uuid = workFromDBdata.value.smeta.uuid
     smetaDownloadFile.value.workid = workFromDBdata.value.smeta.workId
     smetaDownloadFile.value.filename = workFromDBdata.value.smeta.name
-    let works = workFromDBdata.value.subworks.concat(workFromDBdata.value.fixworks)
+    let works = [...workFromDBdata.value.mainworks, ...workFromDBdata.value.subworks, ...workFromDBdata.value.fixworks];
     if (works.length) {
       for (let [index, element] of works.entries()) {
         //console.log("ELEMNT", element)
         if (index === 0) {
-          tableData.value[0].numsprav = element.numsprav
+          tableData.value[0].numsprav =  element.workType != 'main' ? element.numsprav : get_mainwork_numspav(element.work)
           tableData.value[0].nameWorkOrService = get_work_value_by_label(element.work, props.allWorksOptions)
           tableData.value[0].period = element.period
           tableData.value[0].quantity = element.quantity
@@ -474,11 +479,11 @@ watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
           tableData.value[0].sum = element.sum
           tableData.value[0].workType = element.workType
           tableData.value[0].workSubId = element.id
-          tableData.value[0].notes = element.notes
+          tableData.value[0].notes = element.notes ? element.notes : '' 
           continue
         }
         tableData.push({
-          numsprav: element.numsprav,
+          numsprav: element.workType != 'main' ? element.numsprav : get_mainwork_numspav(element.work),
           nameWorkOrService: get_work_value_by_label(element.work, props.allWorksOptions),
           period: element.period,
           quantity: element.quantity,
@@ -489,7 +494,7 @@ watch(() => props.dialogMKDWorksAddVisibleSub, (show, oldStatus) => {
           })
       }  
     }
-  } else if (show && props.modalCallType == 'add') {
+  } else if (newShow && props.modalCallType == 'add') {
     clear_input_data(workInputData, tableData, actInputFileData, smetaInputFileData)
   }
   //console.log(workInputData.value.workMonthAndYear, dayjs(workFromDBdata.value.date).format('MM.YYYY'))
@@ -573,7 +578,7 @@ const onCancleBtnClick = () => {
 }
 
 const onSaveBtnClick =  () => {
-  console.log(props.modalCallType)
+  console.log('CAll TYPE', props.modalCallType)
   //console.log("periodOptions", props.allPeriodsOptions)
   if (props.modalCallType === 'edit') {
     //console.log("call edit func")

@@ -235,6 +235,7 @@ export var generate_data_object_to_post = function (workData, tableRowData, work
             sum: element.sum,
             workSubId: element.workSubId != '' ? element.workSubId : -1,
             workType: getTypeWorkByName(typeWorkInput),
+            notes: element.notes,
         })
     }
     return postdata
@@ -258,6 +259,7 @@ export var clear_input_data = function (inputData, tableRowData, actInputData, s
             sum: '0.00',
             workType: '',
             workSubId: '',
+            notes: '',
         }
     ]
     smetaInputData.value.smetanum = ''
@@ -274,9 +276,46 @@ export var clear_input_data = function (inputData, tableRowData, actInputData, s
 }
 
 
-export var get_work_value_by_label = function (label, data) {
+/*export var get_work_value_by_label = function (label, data) {
     for (let [index, element] of data.entries()) {
         if (element.label === label)
+            //console.log("2===========================", element.label, label)
             return {value: element.value, label:  element.label}
     }    
+}*/
+
+export var get_work_value_by_label = function (label, data) {
+    // Функция для жесткой нормализации строки
+    function normalizeText(text) {
+        return text
+            .trim() // Убираем пробелы в начале и конце
+            .replace(/\s+/g, " ") // Заменяем все пробелы (включая неразрывные) на один обычный
+            .replace(/\u00A0/g, " ") // Удаляем неразрывные пробелы
+            .replace(/\u200B/g, "") // Убираем Zero-width space
+            .replace(/\uFEFF/g, "") // Убираем BOM
+            .normalize("NFC"); // Приводим к одной форме Юникода
+    }
+
+    const normalizedLabel = normalizeText(label);
+    console.log("SEARCHING FOR:", JSON.stringify(normalizedLabel), JSON.stringify(normalizedLabel).length, data.length);
+
+    for (let element of data) {
+        const normalizedElementLabel = normalizeText(element.label);
+        
+        console.log("CHECKING:", JSON.stringify(normalizedElementLabel), JSON.stringify(normalizedElementLabel).length);
+        
+        if (normalizedElementLabel.substring(0,5) === normalizedLabel.substring(0,5)) {
+            console.log("MATCH FOUND!");
+            return { value: element.value, label: element.label };
+        }
+    }    
+
+    console.log("NO MATCH FOUND!");
+    return null;
+};
+
+export var get_mainwork_numspav = function (workname) {
+    let result = workname.match(/^\s*(\d{1,2}\.)/);
+    console.log('SEARCH RESULT:', result);
+    return result ? result[1] : null; // Возвращаем число с точкой
 }

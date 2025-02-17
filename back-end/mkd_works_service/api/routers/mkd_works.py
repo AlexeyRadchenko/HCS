@@ -20,6 +20,7 @@ from ..database.database import get_async_session
 from api.settings.settings import settings
 from ..utils.utils import chunked_copy, get_file_extension, calcSum, getWorkSubId
 from ..tasks.tasks import genereate_year_act_xlsx_file
+from ..tasks.task_v2 import genereate_year_act_xlsx_file_v2
 
 
 
@@ -208,6 +209,8 @@ async def update_act_model(
     ):
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WORKS", work.works)
     res = None
+    if len(work.mainworks) > 0:
+        res = await delete_act_old_works(db_session, int(work.id), 'mainworks')
     if len(work.subworks) > 0:
         res = await delete_act_old_works(db_session, int(work.id), 'subworks')
     if len(work.fixworks) > 0:
@@ -227,17 +230,17 @@ async def update_act_model(
         for s in work.works:
             sum = calcSum(s.sum, sum=sum)
             if s.workType == 'mainwork':
-                    act_subwork = Acthasmainworks(
-                        act_id=int(work.id),
-                        mainwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '0'),
-                        sum=s.sum,
-                        quantity=s.quantity,
-                        unitcost=s.costofpart,
-                        notes = s.notes
-                    )
-                    create_mainwork_act_data = await create_mkd_works_db_object(db_session, act_subwork)
-                    print("#######################################", create_mainwork_act_data)
-                    continue
+                act_mainwork = Acthasmainworks(
+                    act_id=int(work.id),
+                    mainwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '0'),
+                    sum=s.sum,
+                    quantity=s.quantity,
+                    unitcost=s.costofpart,
+                    notes = s.notes
+                )
+                create_mainwork_act_data = await create_mkd_works_db_object(db_session, act_mainwork)
+                print("#######################################", create_mainwork_act_data)
+                continue
             if s.workType == 'subwork':
                 act_subwork = Acthassubworks(
                     act_id=int(work.id),
@@ -301,7 +304,7 @@ async def create_act(
             for s in work.works:
                 sum = calcSum(s.sum, sum=sum)
                 if s.workType == 'mainwork':
-                    act_subwork = Acthasmainworks(
+                    act_mainwork = Acthasmainworks(
                         act_id=create_db_act_data.id,
                         mainwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '0'),
                         sum=s.sum,
@@ -309,7 +312,7 @@ async def create_act(
                         unitcost=s.costofpart,
                         notes = s.notes
                     )
-                    create_mainwork_act_data = await create_mkd_works_db_object(db_session, act_subwork)
+                    create_mainwork_act_data = await create_mkd_works_db_object(db_session, act_mainwork)
                     print("#######################################", create_mainwork_act_data)
                     continue
                 if s.workType == 'subwork':
@@ -392,7 +395,7 @@ async def get_all_year_acts_for_house(
     db_session: AsyncSession = Depends(get_async_session)
     ):
     #YearActFilesSchema, YearActfiles
-    print("--------------------------------->", year, house_id)
+    #print("--------------------------------->", year, house_id)
     exist_year_act = await get_year_acts_by_house_id_and_year(db_session, year, house_id)
     if not exist_year_act:
         works_for_year_from_db = await get_acts_by_year_and_house_id(db_session, year, house_id)
@@ -405,7 +408,8 @@ async def get_all_year_acts_for_house(
         )    
         task_db_record = await create_mkd_works_db_object(db_session, task_db_obj)
 
-        background_tasks.add_task(genereate_year_act_xlsx_file, year, house_id, data, task_db_record.uuid, db_session)
+        #background_tasks.add_task(genereate_year_act_xlsx_file, year, house_id, data, task_db_record.uuid, db_session)
+        background_tasks.add_task(genereate_year_act_xlsx_file_v2, year, house_id, data, task_db_record.uuid, db_session)
         return {"message": "task started", "task_id": task_db_record.uuid}
     else:
         print("sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss", exist_year_act)

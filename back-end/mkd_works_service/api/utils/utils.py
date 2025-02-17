@@ -166,13 +166,15 @@ def calcSum(*args, **kwargs):
     return str(s)
 
 def getWorkSubId(id_str, needType):
+    if needType == '0':
+        return int(id_str)
+    
     main, w_type, w_id = id_str.split('_')
 
-    print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@', id_str, needType, main, w_type, w_id)
+    #print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@', id_str, needType, main, w_type, w_id)
     if needType == w_type:
         return int(w_id)
-    elif needType == '0':
-        return int(id_str)
+    
     return
 
 async def test_all_works_select():
@@ -180,4 +182,4 @@ async def test_all_works_select():
         mainworks = await get_all_mainworks(db_session)
         subworks = await get_all_subworks(db_session)
         fixworks = await get_all_fixworks(db_session)
-        print("TEST WORKS REF", len(mainworks), len(subworks), len(fixworks))
+       #print("TEST WORKS REF", len(mainworks), len(subworks), len(fixworks))

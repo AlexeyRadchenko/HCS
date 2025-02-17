@@ -54,6 +54,15 @@ async def get_all_mainworks(db: AsyncSession):
     )
     return result.scalars().unique().all()
 
+async def get_mainwork_by_id(db: AsyncSession, id:int):
+    result = await db.execute(
+        select(
+            Mainworks
+        )
+        .where(Mainworks.id == id)
+    )
+    return result.scalar()
+
 async def get_all_subworks(db: AsyncSession):
     result = await db.execute(
         select(
@@ -157,7 +166,7 @@ async def select_smeta_doc_by_uuid(db: AsyncSession, uuid: str):
     )
     return result.one_or_none()
 
-async def get_year_acts_by_house_id_and_year(db: AsyncSession, year: str, house_id:int):
+async def get_year_acts_by_house_id_and_year(db: AsyncSession, year: datetime, house_id:int):
     result = await db.execute(
         select(
             YearActfiles
@@ -233,27 +242,19 @@ async def get_tech_files_by_house_id(db: AsyncSession, house_id: int):
     )
     return result.scalars().unique().all()
 
-async def delete_act_old_works (db: AsyncSession, act_id:int, worksType: str):
-    result = None
-    if worksType == 'mainworks':
-        result = await db.execute(
-                delete(Acthasmainworks).where(Acthasmainworks.act_id == act_id)
-            )
-    if worksType == 'subworks':
-        result = await db.execute(
-                delete(Acthassubworks).where(Acthassubworks.act_id == act_id)
-            )
-    if  worksType == 'fixworks':
-        result = await db.execute(
-                delete(Acthasfixworks).where(Acthasfixworks.act_id == act_id)
-            )
-    return result
+async def delete_act_old_works(db: AsyncSession, act_id: int, works_type: str):
+    delete_mapping = {
+        'mainworks': Acthasmainworks,
+        'subworks': Acthassubworks,
+        'fixworks': Acthasfixworks
+    }
+    model = delete_mapping.get(works_type)
+    if model:
+        result = await db.execute(delete(model).where(model.act_id == act_id))
+        await db.commit()
+        return result.rowcount
+    return 0
 
-async def get_mkd_director_data_from_db_by_house_id (db: AsyncSession, house_id: int):
-    result = await db.execute(
-        select(
-            Houses
-        )
-        .where(Houses.id == house_id)
-    )
+async def get_mkd_director_data_from_db_by_house_id(db: AsyncSession, house_id: int):
+    result = await db.execute(select(Houses).where(Houses.id == house_id))
     return result.scalar()
