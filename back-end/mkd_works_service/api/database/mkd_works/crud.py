@@ -49,10 +49,13 @@ async def get_all_mkd_works_by_house_id(db: AsyncSession, id: int):
 async def get_all_mainworks(db: AsyncSession):
     result = await db.execute(
         select(
-            Mainworks
-        )
+            Mainworks.id,
+            Mainworks.work, 
+        ).order_by(Mainworks.id)
     )
-    return result.scalars().unique().all()
+    #return result.scalars().unique().all()
+    return result.fetchall()
+    #return [dict(row) for row in result.mappings().all()]
 
 async def get_mainwork_by_id(db: AsyncSession, id:int):
     result = await db.execute(
@@ -66,18 +69,34 @@ async def get_mainwork_by_id(db: AsyncSession, id:int):
 async def get_all_subworks(db: AsyncSession):
     result = await db.execute(
         select(
-            Subworks
-        )
+            Subworks.id,
+            Subworks.work,
+            Subworks.ext_works,
+            Subworks.period,
+            Subworks.base,
+            Subworks.workType,
+            Subworks.mainwork_id
+        ).order_by(Subworks.id)
     )
-    return result.scalars().unique().all()
+    #return result.scalars().unique().all()
+    return result.fetchall()
+    #return [dict(row) for row in result.mappings().all()]
 
 async def get_all_fixworks(db: AsyncSession):
     result = await db.execute(
         select(
-            Fixworks
-        )
+            Fixworks.id,
+            Fixworks.work,
+            Fixworks.ext_works,
+            Fixworks.period,
+            Fixworks.base,
+            Fixworks.workType,
+            Fixworks.mainwork_id
+        ).order_by(Fixworks.id)
     )
-    return result.scalars().unique().all()
+    #return result.scalars().unique().all()
+    return result.fetchall()
+    #return [dict(row) for row in result.mappings().all()]
 
 async def update_act_db(db: AsyncSession, obj: Acts):
     result = await db.execute(

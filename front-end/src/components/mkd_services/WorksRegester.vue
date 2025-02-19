@@ -169,7 +169,7 @@ const worksDataFromDBtoTableView = (worksData) => {
       work: mkd_works_works_to_string(element.mainworks, element.subworks, element.fixworks),
       smeta: element.smetafiles.length > 0 ? element.smetafiles[0]: {num: '', url: '', date: '', uuid: '', name: ''},
       act: element.actfiles.length  > 0 ? element.actfiles[0]: {num: '', url: '', date: '', uuid: '', name: ''},
-      period: get_period(element.subworks, element.fixworks),
+      period: get_period(element.mainworks, element.subworks, element.fixworks),
       monthWork: element.month_year_works,
       yearWork: element.month_year_works,
       sumWork: element.all_sum,

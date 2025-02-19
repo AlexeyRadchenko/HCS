@@ -172,7 +172,7 @@ export var get_mkd_works_sprav_name = function(main, sub, fix) {
 }
 
 
-export var get_period = function(sub, fix) {
+export var get_period = function(main, sub, fix) {
     let mp = ''
     let sp = ''
     let fp = ''
@@ -297,15 +297,15 @@ export var get_work_value_by_label = function (label, data) {
     }
 
     const normalizedLabel = normalizeText(label);
-    console.log("SEARCHING FOR:", JSON.stringify(normalizedLabel), JSON.stringify(normalizedLabel).length, data.length);
+    //console.log("SEARCHING FOR:", JSON.stringify(normalizedLabel), JSON.stringify(normalizedLabel).length, data.length);
 
     for (let element of data) {
         const normalizedElementLabel = normalizeText(element.label);
         
-        console.log("CHECKING:", JSON.stringify(normalizedElementLabel), JSON.stringify(normalizedElementLabel).length);
+        //console.log("CHECKING:", JSON.stringify(normalizedElementLabel), JSON.stringify(normalizedElementLabel).length);
         
         if (normalizedElementLabel.substring(0,5) === normalizedLabel.substring(0,5)) {
-            console.log("MATCH FOUND!");
+            //console.log("MATCH FOUND!");
             return { value: element.value, label: element.label };
         }
     }    

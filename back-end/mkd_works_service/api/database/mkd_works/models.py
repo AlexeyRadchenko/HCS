@@ -69,6 +69,7 @@ class Acthasmainworks(Base):
     quantity = Column(String, nullable=True)
     unitcost = Column(String, nullable=True)
     notes = Column(String, nullable=True)
+    act_custom_period = Column(String, nullable=True)
 
     acts = relationship("Acts", back_populates="mainworks_details", lazy='joined', viewonly=True)
     mainworks = relationship('Mainworks', back_populates='acts_details', lazy='joined', viewonly=True)
@@ -83,6 +84,7 @@ class Acthassubworks(Base):
     quantity = Column(String, nullable=True)
     unitcost = Column(String, nullable=True)
     notes = Column(String, nullable=True)
+    act_custom_period = Column(String, nullable=True)
 
     acts = relationship("Acts", back_populates="subworks_details", lazy='joined', viewonly=True)
     subworks = relationship('Subworks', back_populates='acts_details', lazy='joined', viewonly=True)
@@ -97,6 +99,7 @@ class Acthasfixworks(Base):
     quantity = Column(String, nullable=True)
     unitcost = Column(String, nullable=True)
     notes = Column(String, nullable=True)
+    act_custom_period = Column(String, nullable=True)
 
     acts = relationship("Acts", back_populates="fixworks_details", lazy='joined', viewonly=True)
     fixworks = relationship('Fixworks', back_populates='acts_details', lazy='joined', viewonly=True)
@@ -116,9 +119,28 @@ class Mainworks(Base):
     fixworks = relationship('Fixworks', back_populates='mainworks', lazy='select')
     acts = relationship('Acts', secondary='acthasmainworks', back_populates='mainworks', lazy='select')
     acts_details = relationship("Acthasmainworks", back_populates="mainworks", lazy='joined', viewonly=True)
+    
+    @hybrid_property
+    def sum(self):
+        return self.acts_details[0].sum if self.acts_details else None
+
+    #@property
+    @hybrid_property
+    def quantity(self):
+        return self.acts_details[0].quantity if self.acts_details else None
+
+    #@property
+    @hybrid_property
+    def unitcost(self):
+        return self.acts_details[0].unitcost if self.acts_details else None
+    
     @hybrid_property
     def notes(self):
         return self.acts_details[0].notes if self.acts_details else None
+    
+    @hybrid_property
+    def act_custom_period(self):
+        return self.acts_details[0].act_custom_period if self.acts_details else None
     
 
 
@@ -159,6 +181,10 @@ class Subworks(Base):
     @hybrid_property
     def notes(self):
         return self.acts_details[0].notes if self.acts_details else None
+    
+    @hybrid_property
+    def act_custom_period(self):
+        return self.acts_details[0].act_custom_period if self.acts_details else None
 
 class Fixworks(Base):
     __tablename__ = "fixworks"
@@ -195,6 +221,10 @@ class Fixworks(Base):
     @hybrid_property
     def notes(self):
         return self.acts_details[0].notes if self.acts_details else None
+    
+    @hybrid_property
+    def act_custom_period(self):
+        return self.acts_details[0].act_custom_period if self.acts_details else None
 
 
 class Actfiles(Base):

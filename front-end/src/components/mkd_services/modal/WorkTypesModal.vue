@@ -1,6 +1,9 @@
 <template>
     <div class="mkd-services-work-types-wrapper-conteiner">
         <el-dialog v-model="dialogTypeOfWorksTableVisibleSub" title="Реестры работ" width="1250">
+          <el-row>
+            <el-col :span="6" style="margin-left: 1em; margin-bottom: 1em;"><el-input v-model="searchInput" style="width: 340px" placeholder="Поск по справочнику" clearable /></el-col>
+          </el-row>
           <el-table :data="genTableData" :span-method="spanMethod">
             <el-table-column prop="work" label="Перечень услуг и работ по содержанию и текущему ремонту общего имущества в многоквартирном доме" width="350">
               <template #default="scope">
@@ -30,7 +33,7 @@ const props = defineProps({
   worksFixRefBook: Array,
 })
 
-
+const searchInput = ref('')
 const genTableData = computed(() => {
     console.log("1111111111111111", props.worksMainRefBook)
     let dataArr = []
@@ -72,6 +75,10 @@ const genTableData = computed(() => {
         }
       })
     });
+    
+    if (searchInput.value.trim()) {
+      return dataArr.filter(item => item.work.toLowerCase().includes(searchInput.value.toLowerCase()));
+    }
     return dataArr
 })
 

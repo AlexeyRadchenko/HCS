@@ -193,6 +193,7 @@ async def get_reference_book_data_all(
     mainworks = await get_all_mainworks(db_session)
     subworks = await get_all_subworks(db_session)
     fixworks = await get_all_fixworks(db_session)
+    #print("++++++++++++++++++++++++++++++++++", mainworks)
     reference_book_schema_obj = ReferenceBookSchema(
         mainworks=mainworks,
         subworks=subworks,

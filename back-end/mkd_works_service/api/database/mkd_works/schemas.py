@@ -41,6 +41,7 @@ class MainWorksSchema(BaseModel):
     companyWorkType: Optional[str]
     notes: Optional[str]
     period: Optional[str] = None
+    act_custom_period: Optional[str]=None
 
     class Config:
         from_attributes = True
@@ -52,6 +53,7 @@ class ActHasSubworksScheme(BaseModel):
     quantity: Optional[str]
     unitcost: Optional[str]
     notes: Optional[str]
+    act_custom_period: Optional[str]=None
 
     class Config:
         from_attributes = True   
@@ -70,6 +72,7 @@ class SubWorksSchema(BaseModel):
     quantity: Optional[str]
     unitcost: Optional[str]
     notes: Optional[str]
+    act_custom_period: Optional[str]=None
 
     class Config:
         from_attributes = True
@@ -88,6 +91,7 @@ class FixWorksSchema(BaseModel):
     quantity: Optional[str]
     unitcost: Optional[str]
     notes: Optional[str]
+    act_custom_period: Optional[str]=None
 
     class Config:
         from_attributes = True
@@ -163,10 +167,41 @@ class DoneWorksSchema(BaseModel):
     class Config:
         from_attributes = True
 
+class ReferenceMainWorkSchema(BaseModel):
+    id: Optional[int]
+    work: Optional[str]
+
+    class Config:
+        from_attributes = True
+
+class ReferenceSubworkSchema(BaseModel):
+    id: Optional[int]
+    work: Optional[str]
+    ext_works: Optional[str]
+    workType: Optional[str]
+    period: Optional[str]
+    base: Optional[str]
+    mainwork_id: Optional[int]
+
+    class Config:
+        from_attributes = True
+
+class ReferenceFixworkSchema(BaseModel):
+    id: Optional[int]
+    work: Optional[str]
+    ext_works: Optional[str]
+    workType: Optional[str]
+    period: Optional[str]
+    base: Optional[str]
+    mainwork_id: Optional[int]
+
+    class Config:
+        from_attributes = True        
+
 class ReferenceBookSchema(BaseModel):
-    mainworks: List[MainWorksSchema]
-    fixworks: List[SubWorksSchema]
-    subworks: List[FixWorksSchema]
+    mainworks: List[ReferenceMainWorkSchema]
+    fixworks: List[ReferenceSubworkSchema]
+    subworks: List[ReferenceFixworkSchema]
 
     class Config:
         from_attributes = True
