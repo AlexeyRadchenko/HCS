@@ -126,6 +126,7 @@ export var create_new_record_in_contacts = async function(formModalData) {
   setHeaders(http)
   let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_CONTACTS_ROOT)
   var api_url = root_url+`/api/v1/contacts_service/contacts_users/create_contact`;
+  //console.log("API_URL", api_url)
   return http.post(api_url, formModalData)
   .then((response) => {
       if (response.status != 200){
@@ -146,7 +147,8 @@ export var create_new_record_in_contacts = async function(formModalData) {
 export var update_record_in_contacts = async function(formModalData) {
   setHeaders(http)
   let root_url = get_root_url(import.meta.env.MODE, import.meta.env.VITE_API_CONTACTS_ROOT)
-  var api_url = root+`/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
+  var api_url = root_url + `/api/v1/contacts_service/contacts_users/contact/` + formModalData.get('uuid');
+  console.log("API_URL", api_url)
   return http.put(api_url, formModalData)
   .then((response) => {
       if (response.status != 200){

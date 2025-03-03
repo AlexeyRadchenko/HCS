@@ -3,7 +3,7 @@
         :label-position="labelPosition"
         label-width="100px"
         :model="formDataModal"
-        style="width 50%;"
+        style="width: 50%;"
     >
             <el-row :gutter="5">
                 <el-col :span="8">

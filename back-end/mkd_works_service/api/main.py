@@ -13,7 +13,7 @@ app = FastAPI(
 
 app.include_router(mkd_works.router, prefix="/api/v1/mkd_works_service")
 
-origins = ['https://komfortservices.fvds.ru', 'http://127.0.0.1:8050/', 'http://localhost:5173']
+origins = ['https://komfortservices.fvds.ru', 'http://127.0.0.1:8190/', 'http://localhost:5173']
 #origins = ['*']
 
 app.add_middleware(
