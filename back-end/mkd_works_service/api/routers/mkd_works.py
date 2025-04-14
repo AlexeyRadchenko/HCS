@@ -384,7 +384,7 @@ async def download_year_act_file(
     db_session: AsyncSession = Depends(get_async_session)
     ):
     year_act = await get_year_acts_file_by_year_act_uuid(db_session, uuid)
-    print("!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", year_act.path)
+    #print("!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", year_act.path)
     if year_act:
         return FileResponse(path=year_act.path, filename=year_act.name, media_type=year_act.filetype)    
     

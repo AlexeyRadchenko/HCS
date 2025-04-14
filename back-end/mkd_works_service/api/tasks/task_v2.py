@@ -61,15 +61,15 @@ async def grouping_and_sum_works(works, db_session):
             groups_exist_ids.append(main_work.id)
             group = create_group(main_work, work)
             group_works.append(group)
-            print("TOTAL SUM ON CREATE", group['total_sum'])
+            #print("TOTAL SUM ON CREATE", group['total_sum'])
         else:
             index = find_group_index(group_works, main_work.id)
             if index is None:
                 raise ValueError(f"Группа с main_work_id={main_work.id} не найдена")
             group = group_works[index]
-            print(">>>>>>>>>>>>>>>>>>", group['total_sum'], work['sum'])
+            #print(">>>>>>>>>>>>>>>>>>", group['total_sum'], work['sum'])
             group['total_sum'] = calcSum(*[work['sum']], sum=group['total_sum'])
-            print("<<<<<<<<<<<<<<<<<<<<<<<<", group['total_sum'])
+            #print("<<<<<<<<<<<<<<<<<<<<<<<<", group['total_sum'])
             work_id = work.get('mainwork_id') if work.get('mainwork_id') else work.get('subwork_id') if work.get('subwork_id') else work.get('fixwork_id')
             group['works'].append({
                 'work_id': work_id,
@@ -80,7 +80,7 @@ async def grouping_and_sum_works(works, db_session):
                 'sum': work['sum'],
             })
             group['record_ids'].append(work_id)
-            print("TOTAL SUM AFTER CREATE", group['total_sum'])
+            #print("TOTAL SUM AFTER CREATE", group['total_sum'])
             
             """if work['id'] in group['record_ids']:
                 # Если работа уже существует в группе, обновляем только её данные
@@ -158,7 +158,7 @@ async def write_table_data(doc_sheet, write_data, start_write_row_num, db_sessio
             for col in ['A', 'B', 'C', 'D', 'E']:
                 apply_style(doc_sheet[f'{col}{write_row}'], cell_style)
             write_row += 1
-        print("AASSSSSSSSSSSSSSSSSSSS", group)
+        #print("AASSSSSSSSSSSSSSSSSSSS", group)
         doc_sheet[f'A{write_row}'].value = 'Итого:'
         doc_sheet.merge_cells(f'A{write_row}:D{write_row}')
         #print("SUMMMMMMMMMMMMMMMMMMMMMM", group['total_sum'])
@@ -217,9 +217,9 @@ async def genereate_year_act_xlsx_file_v2(year, house, data, task_uuid, db_sessi
                 fixwork['name_work'] = act['fixworks'][index]['work']
             all_works_lst.extend(act['fixworks_details'])
 
-    print("LENGTH DATA@@@@@@@@@@@@@@@@@@@@@@@", len(all_works_lst))
-    for d in all_works_lst:
-        print("DATA@@@@@@@@@@@@@@@@@@@@@@@", d)
+    #print("LENGTH DATA@@@@@@@@@@@@@@@@@@@@@@@", len(all_works_lst))
+    """for d in all_works_lst:
+        print("DATA@@@@@@@@@@@@@@@@@@@@@@@", d)"""
     template_xlsx = load_workbook(settings.YEAR_ACT_FILE_TEMPLATE_PATH + settings.YEAR_ACT_FILE_TEMPLATE_NAME)
     template_sheet = template_xlsx.active
     now = datetime.now()
