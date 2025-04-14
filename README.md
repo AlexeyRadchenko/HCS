@@ -42,5 +42,5 @@ alembic upgrade head
 for add authantifications users for account_service in @user_control_service@ uncomment @@user = await get_account_user(db_session, account=token_data.login)@@ in
 user_data_depends.py
 
-
+engine = create_async_engine(DATABASE_URL, echo=False) echo отключает вывод в консоль SQL запросов
 

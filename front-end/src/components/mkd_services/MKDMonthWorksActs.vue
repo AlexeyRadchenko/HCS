@@ -1,24 +1,25 @@
 <template>
     <div class="mkd-services-year-works-act-wrapper-conteiner">
       <el-row :gutter="20">
-        <el-col :span="2">
+        <el-col :span="3">
             <el-date-picker
-                v-model="selectedActYear"
-                type="year"
-                placeholder="Год"
+                v-model="selectedMonthYear"
+                type="month"
+                placeholder="Месяц и год"
                 style="width: 100%"
                 value-format="YYYY-MM-DD"
+                format="MM-YYYY"
             />
         </el-col>
         <el-col :span="5">
-            <el-button type="primary" @click.prevent="generate_year_act" :loading="generateFileInProccess">Сформировать</el-button>
+            <el-button type="primary" @click.prevent="generate_month_act" :loading="generateFileInProccess">Сформировать</el-button>
         </el-col>
       </el-row>
-      <el-row class="mkd-services-year-works-act-row">
+      <el-row class="mkd-services-month-year-works-act-row">
         <el-col :span="24">
             <el-table :data="tableData" style="width: 100%" max-height="900" v-loading="tableDataLoading">
                 <el-table-column fixed prop="numOrder" label="№ П/П" width="90" />
-                <el-table-column prop="actYear" label="Год" width="100" />
+                <el-table-column prop="actYear" label="Год и месяц" width="100" />
                 <el-table-column prop="actDate" label="Дата акта" width="100" />
                 <el-table-column prop="actNum" label="№ Акта" width="140" />
                 <el-table-column prop="actFile" label="Наименование" width="320" />
@@ -27,7 +28,7 @@
                     <el-button
                     link
                     type="primary"
-                    @click.prevent="downloadYearAct(scope.row.actFileUUID, scope.row.actFile)"
+                    @click.prevent="downloadMonthAct(scope.row.actFileUUID, scope.row.actFile)"
                     >
                     Файл документа
                     </el-button>
@@ -42,9 +43,8 @@
 <script setup>
 // Импортируйте необходимые функции, если нужно
 import { ref, reactive, computed, onMounted, watch, defineModel, toRaw } from 'vue';
-import { get_year_files_list_by_house, generate_year_file_by_house_and_year, get_bg_task_status_by_task_uuid,
-          get_year_act_file_by_uuid
-        } from '../../http/mkd-works-http-common'
+import { get_month_files_list_by_house, generate_year_file_by_house_and_month_and_year, get_bg_task_status_by_task_uuid,
+    get_month_act_file_by_uuid } from '../../http/mkd-works-http-common'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 import FileDownload from 'js-file-download'
@@ -54,17 +54,17 @@ const props = defineProps({
   selectedCompanyId: String,
   selectedHouseName: String,
 })
-const activeTabYear = defineModel('activeTabYear')
-const selectedActYear = ref('')
+const activeTabMonth = defineModel('activeTabMonth')
+const selectedMonthYear = ref('')
 const tableData = ref([])
 const tableDataLoading = ref(false)
 const generateFileInProccess = ref(false)
 const bg_year_act_task_id = ref('')
 const bg_year_status = ref('')
 
-const downloadYearAct = (actUUID, filename) =>{
+const downloadMonthAct = (actUUID, filename) =>{
     console.log(actUUID)
-    get_year_act_file_by_uuid(actUUID).then((response) => {
+    get_month_act_file_by_uuid(actUUID).then((response) => {
       FileDownload(response.data, filename)
     }).catch((error) =>{
       console.error('Error:', error);
@@ -72,7 +72,7 @@ const downloadYearAct = (actUUID, filename) =>{
 }
 
 const showTab = () => {
-  console.log(activeTabYear.value)
+  console.log(activeTabMonth.value)
 }
 
 const statusCheck = async (uuid) => {
@@ -89,12 +89,12 @@ const statusCheck = async (uuid) => {
   return false
 }
 
-const refreshTableData = async () => {
-  console.log('year act watch', activeTabYear)
+/*const refreshTableData = async () => {
+  console.log('year act watch', activeTabMonth)
   if (!generateFileInProccess.value) {
     tableDataLoading.value = true
     let refreshData = []
-    const response = await get_year_files_list_by_house(props.selectedHouseId);
+    const response = await get_month_files_list_by_house(props.selectedHouseId);
     for (let [index, element] of response.data.entries()) {
       refreshData.push({
         numOrder: index+1,
@@ -109,9 +109,45 @@ const refreshTableData = async () => {
     tableData.value = refreshData
     tableDataLoading.value = false
   }
-}
+}*/
+const refreshTableData = async () => {
+  console.log('year act watch', activeTabMonth);
+  if (!generateFileInProccess.value) {
+    tableDataLoading.value = true;
+    let refreshData = [];
+    try {
+      if (!props.selectedHouseId) {
+        throw new Error('selectedHouseId is not defined');
+      }
+      const response = await get_month_files_list_by_house(props.selectedHouseId);
+      if (!response || !response.data) {
+        throw new Error('Response is null or does not contain data');
+      }
+      for (let [index, element] of response.data.entries()) {
+        refreshData.push({
+          numOrder: index + 1,
+          actYear: dayjs(element.year).year(),
+          actDate: dayjs(element.date).format('DD.MM.YYYY'),
+          actNum: element.num,
+          actFile: element.name,
+          actFileUUID: element.uuid,
+        });
+      }
+      tableData.value = refreshData;
+    } catch (error) {
+      console.error('Error in refreshTableData:', error.message);
+      ElMessage({
+        message: 'Ошибка при загрузке данных: ' + error.message,
+        type: 'error',
+        showClose: true,
+      });
+    } finally {
+      tableDataLoading.value = false;
+    }
+  }
+};
 
-watch([activeTabYear, generateFileInProccess], async () => {
+watch([activeTabMonth, generateFileInProccess], async () => {
   await refreshTableData()
 });
 
@@ -124,37 +160,36 @@ function pause(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const generate_year_act = async () => {
-  generateFileInProccess.value = true;
-  if (!selectedActYear.value || !props.selectedHouseId) {
+const generate_month_act = async () => {
+  if (!selectedMonthYear.value || !props.selectedHouseId) {
     ElMessage({
-        message: 'Выберите год',
+        message: 'Выберите месяц и год',
         type: 'warning',
         showClose: true,
-    })
-    generateFileInProccess.value = false; 
+    }) 
     return 
   }
-  generate_year_file_by_house_and_year(selectedActYear.value, props.selectedHouseId).then((response) => {
+  generate_year_file_by_house_and_month_and_year(selectedMonthYear.value, props.selectedHouseId).then((response) => {
     console.log(response)
     if (response.status === 200 && response.data["message"] === "task started") {
+      generateFileInProccess.value = true;
       bg_year_act_task_id.value = response.data['task_id']
-    }else if (response.status === 200 && response.data["message"] === "year act exist") {
+
+    }else if (response.status === 200 && response.data["message"] === "month act exist") {
       bg_year_status.value = 'create'
       ElMessage({
-        message: 'Годовой акт уже создан',
+        message: 'Акт за месяц уже создан',
         type: 'warning',
         showClose: true,
         
       })
-      generateFileInProccess.value = false;
     }
   }).catch((error) => {
     console.error('Error:', error);
   });
   let count = 0
   if (bg_year_status.value != 'create'){
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 10; i++) {
       if (bg_year_status.value == 'create') {
         break
       }
@@ -162,7 +197,7 @@ const generate_year_act = async () => {
       count ++;
       if (bg_year_status.value === 'done') {
         ElMessage({
-          message: 'Годовой акт успешно записан',
+          message: 'Акт за месяц успешно записан',
           type: 'success',
           showClose: true,
         })
@@ -186,7 +221,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.mkd-services-year-works-act-row {
+.mkd-services-month-year-works-act-row {
   margin-top: 1em;
 }
 </style>

@@ -10,7 +10,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="smeta.date" label="Дата сметы" width="100" :formatter="dateFromDB" />
-        <el-table-column prop="numSmeta" label="№ Сметы / Файл" width="140">
+        <el-table-column label="№ Сметы / Файл" width="140">
           <template #default="scope">
             <div style="display: flex; align-items: center">
               <span>{{ scope.row.smeta.num }}</span>
@@ -21,7 +21,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="act.date" label="Дата акта" width="100" :formatter="dateFromDB" />
-        <el-table-column prop="act.num" label="№ Акта / Файл" width="140">
+        <el-table-column  label="№ Акта / Файл" width="140">
           <template #default="scope">
             <div style="display: flex; align-items: center">
               <span>{{ scope.row.act.num }}</span>
@@ -165,10 +165,10 @@ const worksDataFromDBtoTableView = (worksData) => {
   for (let [index, element] of worksData.entries()) {
     tableData.value.push({
       numOrder: index + 1,
-      numSprav: element.num ? element.num : get_mkd_works_sprav_name(element.mainworks, element.subworks, element.fixworks),
+      numSprav: element.numsprav ? element.numsprav : get_mkd_works_sprav_name(element.mainworks, element.subworks, element.fixworks),
       work: mkd_works_works_to_string(element.mainworks, element.subworks, element.fixworks),
-      smeta: element.smetafiles.length > 0 ? element.smetafiles[0]: {num: '', url: '', date: '', uuid: '', name: ''},
-      act: element.actfiles.length  > 0 ? element.actfiles[0]: {num: '', url: '', date: '', uuid: '', name: ''},
+      smeta: (element.smetafiles.length > 0) ? element.smetafiles[0]:{num: element.num, url: '', date: '', uuid: '', name: ''},
+      act: (element.actfiles.length > 0) ? element.actfiles[0]:{num: '', url: '', date: '', uuid: '', name: ''},
       period: get_period(element.mainworks, element.subworks, element.fixworks),
       monthWork: element.month_year_works,
       yearWork: element.month_year_works,

@@ -184,6 +184,42 @@ export var generate_year_file_by_house_and_year = async function (year, house_id
       }
     })
   }
+
+export var get_month_files_list_by_house = async function (house_id) {
+  setHeaders(http)
+  return await http.get(api_main_url_port + '/api/v1/mkd_works_service/houses/monthacts/all/' + house_id)
+  .then(response => {
+    if (response.status == 200)
+      //console.log(response)
+      return response
+  })
+  .catch(e => {
+    if (!e.response) {
+      console.log('сервер не отвечает')
+      return null
+    } else {
+      return null
+    }
+  })
+}  
+
+export var generate_year_file_by_house_and_month_and_year = async function (month_year, house_id) {
+    setHeaders(http)
+    return await http.get(api_main_url_port + '/api/v1/mkd_works_service/houses/monthacts/generate/' + month_year + '/' + house_id)
+    .then(response => {
+      if (response.status == 200)
+        //console.log(response)
+        return response
+    })
+    .catch(e => {
+      if (!e.response) {
+        console.log('сервер не отвечает')
+        return null
+      } else {
+        return null
+      }
+    })
+  }  
   
 export var get_bg_task_status_by_task_uuid = async function (uuid) {
     setHeaders(http)
@@ -221,6 +257,24 @@ export var get_year_act_file_by_uuid = async function (uuid) {
       }
     })
   }
+
+export var get_month_act_file_by_uuid = async function (uuid) {
+  setHeaders(http)
+  return await http.get(api_main_url_port + '/api/v1/mkd_works_service/download/monthact/' + uuid, {responseType: 'blob'})
+  .then(response => {
+    if (response.status == 200)
+      //console.log(response)
+      return response
+  })
+  .catch(e => {
+    if (!e.response) {
+      console.log('сервер не отвечает')
+      return null
+    } else {
+      return null
+    }
+  })
+}  
 
 export var get_techdoc_files_list_by_house = async function (house_id) {
     setHeaders(http)

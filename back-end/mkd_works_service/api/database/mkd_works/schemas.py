@@ -34,13 +34,30 @@ class HousesMKDSchema(BaseModel):
         from_attributes = True
         
 
-class MainWorksSchema(BaseModel):
+"""class MainWorksSchema(BaseModel):
     id: Optional[int]
     work: Optional[str]
     workType: Optional[str]
     companyWorkType: Optional[str]
     notes: Optional[str]
     period: Optional[str] = None
+    act_custom_period: Optional[str]=None
+
+    class Config:
+        from_attributes = True"""
+
+class MainWorksSchema(BaseModel):
+    id: Optional[int]
+    work: Optional[str]
+    workType: Optional[str]
+    companyWorkType: Optional[str]
+    numsprav: Optional[str]
+    period: Optional[str] = None
+    sum: Optional[str]
+    quantity: Optional[str]
+    unitcost: Optional[str]
+    notes: Optional[str]
+    mainwork_id: Optional[int] = None
     act_custom_period: Optional[str]=None
 
     class Config:
@@ -56,7 +73,31 @@ class ActHasSubworksScheme(BaseModel):
     act_custom_period: Optional[str]=None
 
     class Config:
-        from_attributes = True   
+        from_attributes = True
+
+class ActHasMainworksScheme(BaseModel):
+    act_id: Optional[int]
+    mainwork_id: Optional[int]
+    sum: Optional[str]
+    quantity: Optional[str]
+    unitcost: Optional[str]
+    notes: Optional[str]
+    act_custom_period: Optional[str]=None
+
+    class Config:
+        from_attributes = True
+
+class ActHasFixworksScheme(BaseModel):
+    act_id: Optional[int]
+    fixwork_id: Optional[int]
+    sum: Optional[str]
+    quantity: Optional[str]
+    unitcost: Optional[str]
+    notes: Optional[str]
+    act_custom_period: Optional[str]=None
+
+    class Config:
+        from_attributes = True                   
 
 class SubWorksSchema(BaseModel):
     id: Optional[int]
@@ -159,8 +200,11 @@ class DoneWorksSchema(BaseModel):
     director_appartment: Optional[str]
     houses:Optional[HousesMKDSchema]
     mainworks: List[MainWorksSchema]
-    subworks: List[SubWorksSchema]
-    fixworks: List[FixWorksSchema]
+    subworks: List[FixWorksSchema]
+    fixworks: List[SubWorksSchema]
+    mainworks_details: List[ActHasMainworksScheme]
+    subworks_details: List[ActHasSubworksScheme]
+    fixworks_details: List[ActHasFixworksScheme]
     actfiles: List[ActFilesSchema]
     smetafiles: List[SmetaFilesSchema]
 
@@ -276,6 +320,23 @@ class YearActFilesSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+class MonthActFilesSchema(BaseModel):
+    uuid: Optional[UUID]
+    name: Optional[str]
+    date: Optional[datetime]
+    month_year: Optional[datetime] = None
+    num: Optional[str]
+    extention: Optional[str]
+    url: Optional[str]
+    path: Optional[str]
+    size: Optional[str]
+    filetype: Optional[str]
+    house_id: Optional[int]
+    date_upload: Optional[datetime]
+
+    class Config:
+        from_attributes = True        
 
 class BGTaskSchema(BaseModel):
     uuid: UUID

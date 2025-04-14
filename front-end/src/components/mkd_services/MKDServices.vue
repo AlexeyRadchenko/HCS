@@ -53,6 +53,14 @@
                           :active-tab-year="activeTabMain"
                             />
                         </el-tab-pane>
+                        <el-tab-pane label="Акты выполненных работ за месяц">
+                          <MKDMonthWorksActs
+                          :selected-house-id="selectedHouseId"
+                          :selected-company-id="selectedCompanyId"
+                          :selected-house-name="getSelectedHouse"
+                          :active-tab-month="activeTabMain"
+                            />
+                        </el-tab-pane>
                         <el-tab-pane label="Тех. Документация">
                           <MKDTechnicDocs
                           :selected-house-id="selectedHouseId"
@@ -88,6 +96,7 @@ import WorksRegester from './WorksRegester.vue';
 import MKDAllWorksRegestry from './modal/MKDAllWorksRegestry.vue';
 import MKDYearWorksActs from './MKDYearWorksActs.vue';
 import MKDTechnicDocs from './MKDTechnicDocs.vue';
+import MKDMonthWorksActs from './MKDMonthWorksActs.vue';
 import { get_mkd_works_get_all_houses, get_works_reference_book } from '../../http/mkd-works-http-common';
 // Создайте реактивные переменные
 const serviceTitle = ref('Оказанные услуги (работы по МКД)')

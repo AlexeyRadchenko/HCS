@@ -43,6 +43,7 @@ class Houses(Base):
     techfiles = relationship('Techfiles', back_populates='houses', lazy='select')
     acts = relationship('Acts', back_populates='houses', lazy='select')
     yearactfiles = relationship('YearActfiles', back_populates='houses', lazy='select')
+    monthactfiles = relationship('MonthActfiles', back_populates='houses', lazy='select')
     photofilesdoneworks = relationship('PhotoFilesDoneWorks', back_populates='houses', lazy='select')
 
 
@@ -319,7 +320,7 @@ class Acts(Base):
 
 
     fixworks = relationship(
-        'Fixworks', secondary='acthasfixworks', back_populates='acts', lazy='joined', primaryjoin="Acts.id == Acthasfixworks.act_id", 
+        'Fixworks', secondary='acthasfixworks', back_populates='acts', lazy='subquery', primaryjoin="Acts.id == Acthasfixworks.act_id", 
         secondaryjoin="Fixworks.id == Acthasfixworks.fixwork_id", overlaps='acts'
     )
 
@@ -353,6 +354,24 @@ class YearActfiles(Base):
     date_upload = Column(DateTime(timezone=True), server_default=func.now())
 
     houses = relationship('Houses', back_populates='yearactfiles', lazy='joined')
+
+class MonthActfiles(Base):
+    __tablename__ = "monthactfiles"
+
+    uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4) # for postresql
+    name = Column(String, nullable=True)
+    num = Column(String, nullable=True)
+    date = Column(DateTime, nullable=True)
+    month_year = Column(DateTime, nullable=True)
+    extention = Column(String, nullable=False)
+    url = Column(String, nullable=False)
+    path = Column(String, nullable=False)
+    size = Column(String, nullable=False)
+    filetype = Column(String, nullable=True)
+    house_id = Column(Integer, ForeignKey("houses.id"), nullable=False)
+    date_upload = Column(DateTime(timezone=True), server_default=func.now())
+
+    houses = relationship('Houses', back_populates='monthactfiles', lazy='joined')    
 
 class BGTasks(Base):
     __tablename__="bg_tasks"

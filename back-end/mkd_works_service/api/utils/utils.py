@@ -1,9 +1,9 @@
 from datetime import datetime
 from ..database.mkd_works.crud import create_mkd_works_db_object, get_all_subworks, get_all_fixworks, get_all_mainworks, get_all_houses
 from ..database.database import get_async_session
-from ..database.mkd_works.models import Houses, Companies, Mainworks, Subworks, Fixworks, Acts, Acthassubworks
+from ..database.mkd_works.models import Houses, Companies, Mainworks, Subworks, Fixworks, Acts, Acthassubworks, Acthasmainworks, Acthasfixworks
 from ..database.database import async_session
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 
 CHUNK_SIZE = 2 ** 20  # 1MB
@@ -99,51 +99,87 @@ def find_upload_house_id (upload_house, houses_from_db):
             return db_house.id
     return
 
-def find_upload_subwork_in_db (upload_subwork_name, subworks_in_db):
-    for db_subwork in subworks_in_db:
-        if db_subwork.work == upload_subwork_name.rstrip():
-            return db_subwork
+def find_upload_work_in_db (upload_work_name, works_in_db):
+    for db_work in works_in_db:
+        if db_work.work == upload_work_name.rstrip():
+            return db_work
     return
 
+def validate_work_in_db(work, mainworks_in_db, subworks_in_db, fixworks_in_db):
+    model_work_type = None
+    mainwork = find_upload_work_in_db(work['Нименование работы(услуги)'], mainworks_in_db)
+    if not mainwork:
+        subwork = find_upload_work_in_db(work['Нименование работы(услуги)'], subworks_in_db)
+        if not subwork:
+            fixwork = find_upload_work_in_db(work['Нименование работы(услуги)'], fixworks_in_db)
+            if not fixwork:
+                raise ValueError(f"В базе не найдено название работы {work['Нименование работы(услуги)']}", work)
+            else:
+                model_work_type = 'fix'
+        else:
+            model_work_type = 'sub'         
+    else:
+        model_work_type = 'main'
+    work_id = mainwork.id if model_work_type == 'main' else subwork.id if model_work_type == 'sub' else fixwork.id
+    return model_work_type, work_id            
+
+
 async def upload_mkd_works_from_xlsx_to_db_util(mainworks_lst, org):
+    model_works_map = {
+        'main': {
+            'model': Acthasmainworks,
+            'id_attr': lambda work_obj, id : setattr(work_obj, 'mainwork_id', id)
+        },
+        'sub': {
+            'model': Acthassubworks,
+            'id_attr': lambda work_obj, id : setattr(work_obj, 'subwork_id', id)
+            }, 
+        'fix': {
+            'model': Acthasfixworks,
+            'id_attr': lambda work_obj, id : setattr(work_obj, 'fixwork_id', id)
+        }
+    }
+     
     async with async_session() as db_session:
         houses = await get_all_houses(db_session)
+        mainworks_in_db = await get_all_mainworks(db_session)
         subworks_in_db = await get_all_subworks(db_session)
+        fixworks_in_db = await get_all_fixworks(db_session)
         for work in mainworks_lst:
             house_id = find_upload_house_id(work['Адрес дома'], houses)
+            model_work_type = None
             if not house_id:
-                print("В базе не найден адрес ", work['Адрес дома'])
-                break
+                raise ValueError(f"В базе не найден адрес {work['Адрес дома']}")
             else:
                 act = Acts(
                     date=work['Месяц и год проведения работ'],
-                    num=work['номер сметы'],
+                    num=work['Номер сметы'],
                     all_sum=str(work['Цена выполненной работы (оказанной услуги) в рублях']),
                     month_year_works=work['Месяц и год проведения работ'],
-                    work_square=work['еденицы измерения'],
+                    work_square=str(work['Кол-во единиц измерений']),
+                    unit_cost=str(work['Стоимость оказанной услуги за единицу, руб/м2']),
                     house_id=house_id,
                 )
                 created_act = await create_mkd_works_db_object(db_session, act)
-            subwork = find_upload_subwork_in_db(work['Нименование работы'], subworks_in_db)
-            if not subwork:
-                subwork = Subworks(
-                    work=work['Нименование работы'].rstrip(),
-                    workType='subwork',
-                    period=work['Периодичность'],
-                    numsprav=str(work['Номер работы по справочнику']),
+                        
+            model_work_type, work_id = validate_work_in_db(work, mainworks_in_db, subworks_in_db, fixworks_in_db)
+            if model_work_type:
+                model_work = model_works_map[model_work_type]['model']
+                work_obj = model_work(
+                    act_id=created_act.id,
+                    sum=str(work['Цена выполненной работы (оказанной услуги) в рублях']),
+                    quantity=str(work['Кол-во единиц измерений']),
+                    unitcost=str(work['Стоимость оказанной услуги за единицу, руб/м2']),
+                    notes=work['коментарий'],
+                    act_custom_period=work['Периодичность'],
                 )
-                created_subwork = await create_mkd_works_db_object(db_session, subwork)
-                subwork_id = created_subwork.id
-            else:
-                subwork_id = subwork.id
-
-            acthassubwork_obj = Acthassubworks(
-                act_id=created_act.id,
-                subwork_id=subwork_id,
-                sum=str(work['Цена выполненной работы (оказанной услуги) в рублях']), 
-                quantity=work['еденицы измерения']
-            )    
-            await create_mkd_works_db_object(db_session, acthassubwork_obj)    
+                
+                model_works_map[model_work_type]['id_attr'](work_obj, work_id)
+                await create_mkd_works_db_object(db_session, work_obj)
+        print("data upload to db")
+        await db_session.commit()
+        await db_session.close()
+        
 
 async def chunked_copy(src, dst):
     await src.seek(0)

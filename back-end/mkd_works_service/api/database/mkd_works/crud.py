@@ -7,8 +7,8 @@ from sqlalchemy.orm import joinedload, aliased
 from datetime import datetime
 
 from ..database import row2dict
-from .models import (Houses, Acts, Mainworks, Subworks, Fixworks, Actfiles, Smetafiles, Acthassubworks, Acthasfixworks, YearActfiles, Acthasmainworks,
-    BGTasks, Techfiles)
+from .models import (Houses, Acts, Mainworks, Subworks, Fixworks, Actfiles, Smetafiles, Acthassubworks, Acthasfixworks, YearActfiles, MonthActfiles, 
+    Acthasmainworks, BGTasks, Techfiles)
 
 
 async def create_mkd_works_db_object(db: AsyncSession, obj: Any):
@@ -63,6 +63,24 @@ async def get_mainwork_by_id(db: AsyncSession, id:int):
             Mainworks
         )
         .where(Mainworks.id == id)
+    )
+    return result.scalar()
+
+async def get_subwork_by_id(db: AsyncSession, id:int):
+    result = await db.execute(
+        select(
+            Subworks
+        )
+        .where(Subworks.id == id)
+    )
+    return result.scalar()
+
+async def get_fixwork_by_id(db: AsyncSession, id:int):
+    result = await db.execute(
+        select(
+            Fixworks
+        )
+        .where(Fixworks.id == id)
     )
     return result.scalar()
 
@@ -211,12 +229,36 @@ async def get_year_acts_by_house_id(db: AsyncSession, house_id:int):
     )
     return result.scalars().unique().all()
 
+async def get_month_acts_by_house_id(db: AsyncSession, house_id:int):
+    result = await db.execute(
+        select(
+            MonthActfiles
+        ).where(MonthActfiles.house_id == house_id)
+    )
+    return result.scalars().unique().all()
+
 async def get_acts_by_year_and_house_id(db: AsyncSession, year: datetime, house_id: int):
     result = await db.execute(
         select(
             Acts
         )
+        .distinct(Acts.id)
         .where(and_(Acts.house_id == house_id, func.extract("year", Acts.month_year_works) == year.year))
+    )
+    return result.scalars().unique().all()
+
+async def get_acts_by_month_year_and_house_id(db: AsyncSession, year: int, month: int, house_id: int):
+    result = await db.execute(
+        select(
+            Acts
+        )
+        .where(
+            and_(
+                Acts.house_id == house_id,
+                func.extract("year", Acts.month_year_works) == year,
+                func.extract("month", Acts.month_year_works) == month
+            )
+        )
     )
     return result.scalars().unique().all()
 
