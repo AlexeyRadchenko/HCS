@@ -212,6 +212,7 @@ async def get_year_acts_by_house_id_and_year(db: AsyncSession, year: datetime, h
     )
     return result.one_or_none()
 
+
 async def get_year_acts_file_by_year_act_uuid(db: AsyncSession, uuid:str):
     result = await db.execute(
         select(
@@ -247,6 +248,18 @@ async def get_acts_by_year_and_house_id(db: AsyncSession, year: datetime, house_
     )
     return result.scalars().unique().all()
 
+async def get_month_acts_files_data_by_house_id_and_month_year(db: AsyncSession, month_year: datetime, house_id:int):
+    result = await db.execute(
+        select(
+            MonthActfiles
+        )
+        .where(and_(MonthActfiles.house_id == house_id, 
+                    func.extract("year", MonthActfiles.date) == month_year.year,
+                    func.extract("month", MonthActfiles.date) == month_year.month)
+                )
+    )
+    return result.one_or_none()
+
 async def get_acts_by_month_year_and_house_id(db: AsyncSession, year: int, month: int, house_id: int):
     result = await db.execute(
         select(
@@ -261,6 +274,15 @@ async def get_acts_by_month_year_and_house_id(db: AsyncSession, year: int, month
         )
     )
     return result.scalars().unique().all()
+
+async def get_month_acts_file_by_year_act_uuid(db: AsyncSession, uuid:str):
+    result = await db.execute(
+        select(
+            MonthActfiles
+        )
+        .where(MonthActfiles.uuid == uuid)
+    )
+    return result.scalars().first()
 
 async def update_bg_task_status(db: AsyncSession, uuid: str, status: str, end_task_time: datetime):
     result = await db.execute(

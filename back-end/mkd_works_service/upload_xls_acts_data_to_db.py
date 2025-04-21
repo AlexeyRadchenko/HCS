@@ -117,7 +117,7 @@ def process_xlsx(file_path):
     
     return all_data
 async def main():
-    file_path = "/home/bers/HSCUploads/mks_works/свод_работ_по домам для актов 1.xlsx" #"house_works_accum.xlsx"  # Укажите путь к вашему файлу
+    file_path = "/home/bers/HSCUploads/mks_works/jks_upload.xlsx.xlsx" #"house_works_accum.xlsx"  # Укажите путь к вашему файлу
     data = process_xlsx(file_path)
     #print("DATA@@@@@@@@@@@@@@@@@@@@@@@", len(data))
     await upload_mkd_works_from_xlsx_to_db_util(data, 1) #загрузка для комфорта

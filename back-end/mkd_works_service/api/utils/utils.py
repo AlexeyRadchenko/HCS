@@ -219,3 +219,10 @@ async def test_all_works_select():
         subworks = await get_all_subworks(db_session)
         fixworks = await get_all_fixworks(db_session)
        #print("TEST WORKS REF", len(mainworks), len(subworks), len(fixworks))
+
+def sorting_works_group(works):
+    sorted_data = sorted(works, key=lambda x: x['main_work_id'])
+    for gwork in works:
+        gwork['works'] = sorted(gwork['works'], key=lambda w: w['work_id'])
+
+    return sorted_data    

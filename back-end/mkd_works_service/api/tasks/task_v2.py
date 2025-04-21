@@ -5,7 +5,7 @@ from jinja2 import Environment, BaseLoader
 from locale import setlocale, LC_TIME
 from pathlib import Path
 from ..settings.settings import settings
-from ..utils.utils import calcSum
+from ..utils.utils import calcSum, sorting_works_group
 from ..database.mkd_works.models import YearActfiles
 from ..database.mkd_works.crud import (create_mkd_works_db_object, update_bg_task_status, get_mainwork_by_id,
     get_subwork_by_id, get_fixwork_by_id)
@@ -141,7 +141,8 @@ async def write_table_data(doc_sheet, write_data, start_write_row_num, db_sessio
 
     write_row = start_write_row_num + 3
     #print("WRITE DATA LENGTH ", len(write_data))
-    group_works = await grouping_and_sum_works(write_data, db_session)
+    group_works_for_sort = await grouping_and_sum_works(write_data, db_session)
+    group_works = sorting_works_group(group_works_for_sort)
     #print("group LENGTH ", len(group_works))
     total_sum_of_groups = 0.00
     for group in group_works:
@@ -281,3 +282,7 @@ async def genereate_year_act_xlsx_file_v2(year, house, data, task_uuid, db_sessi
     await create_mkd_works_db_object(db_session, year_act_obj)
     task_ready_time = datetime.now()
     await update_bg_task_status(db_session, task_uuid, 'done', task_ready_time)
+
+def genereate_month_act_xlsx_file_v2(month_year, house, data, task_uuid, db_session):
+    """Генерирует месячный акт в формате XLSX."""
+    pass    
