@@ -1,7 +1,8 @@
 from datetime import datetime
-from ..database.mkd_works.crud import create_mkd_works_db_object, get_all_subworks, get_all_fixworks, get_all_mainworks, get_all_houses
+from ..database.mkd_works.crud import (create_mkd_works_db_object, get_all_subworks, get_all_fixworks, get_all_mainworks,
+    get_all_houses, update_company_work_type_subwork, update_company_work_type_fixwork, update_company_work_type_mainwork)
 from ..database.database import get_async_session
-from ..database.mkd_works.models import Houses, Companies, Mainworks, Subworks, Fixworks, Acts, Acthassubworks, Acthasmainworks, Acthasfixworks
+from ..database.mkd_works.models import (Houses, Companies, Mainworks, Subworks, Fixworks, Acts, Acthassubworks, Acthasmainworks, Acthasfixworks)
 from ..database.database import async_session
 from decimal import Decimal, InvalidOperation
 
@@ -225,4 +226,23 @@ def sorting_works_group(works):
     for gwork in works:
         gwork['works'] = sorted(gwork['works'], key=lambda w: w['work_id'])
 
-    return sorted_data    
+    return sorted_data  
+
+async def update_company_work_type (data, work_type):
+    update_call_map = {
+        'mainwork': update_company_work_type_mainwork,
+        'subwork': update_company_work_type_subwork,
+        'fixwork': update_company_work_type_fixwork,
+    }
+    async with async_session() as db_session:
+        for work in data:
+            res = await update_call_map[work_type](db_session, work)
+            if res:
+                print("update company work type", work)
+            else:
+                print("update company work type error", work)
+                await db_session.close()
+                break
+        await db_session.close()
+        print("data upload to db")
+ 

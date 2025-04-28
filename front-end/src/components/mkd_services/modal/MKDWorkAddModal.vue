@@ -495,6 +495,7 @@ watch(
       }  
     }
   } else if (newShow && props.modalCallType == 'add') {
+    loading.value = false
     clear_input_data(workInputData, tableData, actInputFileData, smetaInputFileData)
   }
   //console.log(workInputData.value.workMonthAndYear, dayjs(workFromDBdata.value.date).format('MM.YYYY'))

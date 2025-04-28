@@ -9,22 +9,12 @@
                       v-model="reportMonth"
                       type="month"
                       placeholder="Выберите месяц"
+                      format="MM.YYYY"
+                      value-format="YYYY-MM-DD"
                     />
                   </el-col>
                   <el-col :span="6">
-                    <el-button type="info" style="width: 100%">Сформировать за выбранный месяц</el-button>
-                  </el-col>
-                </el-row>
-                <el-row class="mkd-all-works-register-rows-top-m">
-                  <el-col :span="5">
-                    <el-date-picker
-                      v-model="reportYear"
-                      type="year"
-                      placeholder="Выберите год"
-                    />
-                  </el-col>
-                  <el-col :span="6">
-                    <el-button type="info" style="width: 100%">Сформировать за выбранный год</el-button>
+                    <el-button type="info" style="width: 100%" @click.prevent="generate_month_act_for_all_houses" :loading="generateMonthAllHousesFileInProccess">Сформировать за выбранный месяц</el-button>
                   </el-col>
                 </el-row>
                 <el-row class="mkd-all-works-register-rows-top-m">
@@ -74,10 +64,18 @@ import { ref, reactive, computed, onMounted, watch, defineModel, toRaw, effectSc
 import Decimal from 'decimal.js';
 //https://github.com/MikeMcl/decimal.js
 Decimal.set({ rounding: 2 })
+import { get_month_files_list_by_house, generate_month_file_by_house_and_month_and_year, get_bg_task_status_by_task_uuid,
+    get_month_act_file_by_uuid } from '../../../http/mkd-works-http-common'
+import { ElMessage } from 'element-plus'
+import dayjs from 'dayjs'
+import FileDownload from 'js-file-download'
 
 const dialogAllWorksRegisterVisibleSub = defineModel('dialogAllWorksRegisterVisibleSub')
 const reportMonth = ref('')
-const reportYear = ref('')
+const generateMonthAllHousesFileInProccess = ref(false)
+const generateFileInProccess = ref(false)
+const bg_month_act_task_id = ref('')
+const bg_month_status = ref('')
 const tableDataWaterWorks = ref([
   {
     order: '1',
@@ -120,6 +118,84 @@ const sumTableDataWaterWorks = computed(() => {
 
 const deleteRowWaterWorks = (index) => {
   tableDataWaterWorks.value.splice(index, 1)
+}
+
+function pause(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const statusCheck = async (uuid) => {
+  if (uuid) {
+    get_bg_task_status_by_task_uuid(uuid).then((response) => {
+      console.log(response)
+      if (response.status === 200 && response.data["status"] === "done") {
+        bg_year_status.value = 'done'
+      }
+    }).catch((error) => {
+      console.error('Error:', error);
+    });
+  }
+  return false
+}
+
+const generate_month_act_for_all_houses = async () => {
+  if (!reportMonth.value) {
+    ElMessage({
+        message: 'Выберите месяц и год',
+        type: 'warning',
+        showClose: true,
+    }) 
+    return 
+  }
+  generate_month_file_by_house_and_month_and_year(reportMonth.value, -1).then((response) => {
+    console.log(response)
+    if (response.status === 200 && response.data["message"] === "task started") {
+      generateFileInProccess.value = true;
+      bg_month_act_task_id.value = response.data['task_id']
+
+    }else if (response.status === 200 && response.data["message"] === "month act exist") {
+      bg_month_status.value = 'create'
+      ElMessage({
+        message: 'Акт за месяц уже создан',
+        type: 'warning',
+        showClose: true,
+        
+      })
+    } else if (response.status === 200 && response.data["message"] === "Works not found") {
+      ElMessage({
+        message: 'За указанный период нет выполненных работ',
+        type: 'warning',
+        showClose: true,
+        
+      })
+    }
+  }).catch((error) => {
+    console.error('Error:', error);
+  });
+  let count = 0
+  if (bg_month_status.value != 'create') {
+    for (let i = 0; i < 20; i++) {
+      if (bg_month_status.value == 'create' && bg_month_act_task_id.value == '') {
+        break
+      }
+      await statusCheck(bg_month_act_task_id.value);
+      count ++;
+      if (bg_month_status.value === 'done') {
+        ElMessage({
+          message: 'Акт за месяц успешно записан',
+          type: 'success',
+          showClose: true,
+        })
+        generateFileInProccess.value = false
+        break
+      }
+      
+      console.log('COUNT', count)
+      await pause(1000);
+    }
+    bg_month_status.value = ''
+  } 
+  bg_month_status.value = ''
 }
 
 onMounted(() => {

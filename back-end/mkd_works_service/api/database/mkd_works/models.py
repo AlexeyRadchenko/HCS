@@ -368,7 +368,7 @@ class MonthActfiles(Base):
     path = Column(String, nullable=False)
     size = Column(String, nullable=False)
     filetype = Column(String, nullable=True)
-    house_id = Column(Integer, ForeignKey("houses.id"), nullable=False)
+    house_id = Column(Integer, ForeignKey("houses.id"), nullable=True)
     date_upload = Column(DateTime(timezone=True), server_default=func.now())
 
     houses = relationship('Houses', back_populates='monthactfiles', lazy='joined')    

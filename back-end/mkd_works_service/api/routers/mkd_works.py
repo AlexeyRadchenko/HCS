@@ -12,7 +12,8 @@ from ..database.mkd_works.crud import (
     get_all_subworks, get_all_fixworks, update_act_db, update_acthasfixworks_db, update_acthassubworks_db, select_act_doc_by_uuid,
     select_smeta_doc_by_uuid, get_year_acts_by_house_id, get_acts_by_year_and_house_id, get_year_acts_by_house_id_and_year, get_bg_task_status,
     get_year_acts_file_by_year_act_uuid, get_techdoc_file_by_uuid, get_tech_files_by_house_id, delete_act_old_works,
-    get_mkd_director_data_from_db_by_house_id, get_month_acts_by_house_id, get_month_acts_files_data_by_house_id_and_month_year, get_acts_by_month_year_and_house_id
+    get_mkd_director_data_from_db_by_house_id, get_month_acts_by_house_id, get_month_acts_files_data_by_house_id_and_month_year, 
+    get_acts_by_month_year_and_house_id, get_month_acts_file_by_year_act_uuid
     )
 from ..database.mkd_works.models import (Acts, Actfiles, Actshasactfiles, Smetafiles, Actshassmetafiles, Acthasmainworks, Acthassubworks, Acthasfixworks, BGTasks,
     Techfiles)
@@ -408,7 +409,9 @@ async def get_all_year_acts_for_house(
             data.append(workObj)
         task_db_obj = BGTasks(
             status='start'
-        ) 
+        )
+        if len(data) == 0:
+            return {"message": "Works not found", "month": year.year}
         #print("WORKS ON YEAR __________", len(data))   
         task_db_record = await create_mkd_works_db_object(db_session, task_db_obj)
 
@@ -442,7 +445,7 @@ async def get_all_year_acts_for_house(
     selected_year_acts = await get_year_acts_by_house_id(db_session, house_id)
     return selected_year_acts
 
-@router.get("/houses/month/generate/{month_year}/{house_id}")
+@router.get("/houses/monthacts/generate/{month_year}/{house_id}")
 async def generate_all_month_acts_for_house(
     house_id: int,
     month_year: datetime,
@@ -452,6 +455,8 @@ async def generate_all_month_acts_for_house(
     ):
     #YearActFilesSchema, YearActfiles
     #print("--------------------------------->", year, house_id)
+    if house_id == -1:
+        house_id = None
     exist_month_act = await get_month_acts_files_data_by_house_id_and_month_year(db_session, month_year, house_id)
     if not exist_month_act:
         works_for_month_from_db = await get_acts_by_month_year_and_house_id(db_session, month_year, house_id)
@@ -462,12 +467,14 @@ async def generate_all_month_acts_for_house(
             data.append(workObj)
         task_db_obj = BGTasks(
             status='start'
-        ) 
+        )
+        if len(data) == 0:
+            return {"message": "Works not found", "month": month_year.month}
         #print("WORKS ON MONTH __________", len(data))   
         task_db_record = await create_mkd_works_db_object(db_session, task_db_obj)
 
         #background_tasks.add_task(genereate_year_act_xlsx_file, year, house_id, data, task_db_record.uuid, db_session)
-        background_tasks.add_task(genereate_month_act_xlsx_file_v2, month_year, house_id, data, task_db_record.uuid, db_session)
+        background_tasks.add_task(genereate_month_act_xlsx_file_v2, month_year, data, task_db_record.uuid, db_session, house_id)
         return {"message": "task started", "task_id": task_db_record.uuid}
     else:
         #print("sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss", exist_month_act)
@@ -484,6 +491,17 @@ async def get_bg_status_by_uuid(
         if task:
             print(task, task.status)
             return task
+        
+@router.get("/download/monthact/{uuid}")
+async def download_month_act_file(
+    uuid: str,
+    user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
+    db_session: AsyncSession = Depends(get_async_session)
+    ):
+    month_act = await get_month_acts_file_by_year_act_uuid(db_session, uuid)
+    #print("!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", year_act.path)
+    if month_act:
+        return FileResponse(path=month_act.path, filename=month_act.name, media_type=month_act.filetype)        
 
 @router.get("/houses/monthacts/all/{house_id}", response_model=list[MonthActFilesSchema])
 async def get_all_year_acts_for_house(

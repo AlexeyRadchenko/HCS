@@ -33,7 +33,7 @@ def upgrade() -> None:
         sa.Column('path', sa.String(500), nullable=False),
         sa.Column('size', sa.String(500), nullable=True),
         sa.Column('filetype', sa.String(500), nullable=True),
-        sa.Column('house_id', sa.Integer(), sa.ForeignKey("houses.id"), nullable=False),
+        sa.Column('house_id', sa.Integer(), sa.ForeignKey("houses.id"), nullable=True),
         sa.Column('date_upload', sa.DateTime(), nullable=True, server_default=sa.func.current_timestamp()),
     )
 

@@ -203,7 +203,7 @@ export var get_month_files_list_by_house = async function (house_id) {
   })
 }  
 
-export var generate_year_file_by_house_and_month_and_year = async function (month_year, house_id) {
+export var generate_month_file_by_house_and_month_and_year = async function (month_year, house_id) {
     setHeaders(http)
     return await http.get(api_main_url_port + '/api/v1/mkd_works_service/houses/monthacts/generate/' + month_year + '/' + house_id)
     .then(response => {

@@ -43,7 +43,7 @@
 <script setup>
 // Импортируйте необходимые функции, если нужно
 import { ref, reactive, computed, onMounted, watch, defineModel, toRaw } from 'vue';
-import { get_month_files_list_by_house, generate_year_file_by_house_and_month_and_year, get_bg_task_status_by_task_uuid,
+import { get_month_files_list_by_house, generate_month_file_by_house_and_month_and_year, get_bg_task_status_by_task_uuid,
     get_month_act_file_by_uuid } from '../../http/mkd-works-http-common'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
@@ -169,7 +169,7 @@ const generate_month_act = async () => {
     }) 
     return 
   }
-  generate_year_file_by_house_and_month_and_year(selectedMonthYear.value, props.selectedHouseId).then((response) => {
+  generate_month_file_by_house_and_month_and_year(selectedMonthYear.value, props.selectedHouseId).then((response) => {
     console.log(response)
     if (response.status === 200 && response.data["message"] === "task started") {
       generateFileInProccess.value = true;
@@ -183,14 +183,21 @@ const generate_month_act = async () => {
         showClose: true,
         
       })
+    } else if (response.status === 200 && response.data["message"] === "Works not found") {
+      ElMessage({
+        message: 'За указанный период нет выполненных работ',
+        type: 'warning',
+        showClose: true,
+        
+      })
     }
   }).catch((error) => {
     console.error('Error:', error);
   });
   let count = 0
-  if (bg_year_status.value != 'create'){
-    for (let i = 0; i < 10; i++) {
-      if (bg_year_status.value == 'create') {
+  if (bg_year_status.value != 'create') {
+    for (let i = 0; i < 20; i++) {
+      if (bg_year_status.value == 'create' && bg_year_act_task_id.value == '') {
         break
       }
       await statusCheck(bg_year_act_task_id.value);

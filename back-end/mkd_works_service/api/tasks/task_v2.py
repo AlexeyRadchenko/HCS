@@ -6,9 +6,24 @@ from locale import setlocale, LC_TIME
 from pathlib import Path
 from ..settings.settings import settings
 from ..utils.utils import calcSum, sorting_works_group
-from ..database.mkd_works.models import YearActfiles
+from ..database.mkd_works.models import YearActfiles, MonthActfiles
 from ..database.mkd_works.crud import (create_mkd_works_db_object, update_bg_task_status, get_mainwork_by_id,
     get_subwork_by_id, get_fixwork_by_id)
+
+MONTHS_MAP = {
+    1: 'январь',
+    2: 'февраль',
+    3: 'март',
+    4: 'апрель',
+    5: 'май',
+    6: 'июнь',
+    7: 'июль',
+    8: 'август',
+    9: 'сентябрь',
+    10: 'октябрь',
+    11: 'ноябрь',
+    12: 'декабрь'
+}
 
 
 def get_double_index(doubles_list, search_id):
@@ -108,6 +123,24 @@ async def grouping_and_sum_works(works, db_session):
     #print("BLYAAAAAAAAAAAAAAAAA", [(g['main_work_id'], len(g['works'])) for g in group_works])    
     return group_works
 
+async def group_by_company_works_type(works):
+    groups = []
+    existing_groups = []
+    for work in works:
+        if work['work_company_type'] not in existing_groups:
+            existing_groups.append(work['work_company_type'])
+            groups.append({
+                'group': work['work_company_type'],
+                'works': [work],
+                'group_sum': work['sum'],
+            })
+        else:
+            index = existing_groups.index(work['work_company_type'])
+            if index is None:
+                raise ValueError(f"Группа с work_company_type={work['work_company_type']} не найдена")
+            groups[index]['works'].append(work)
+            groups[index]['group_sum'] = calcSum(*[work['sum']], sum=groups[index]['group_sum'])
+    return groups
 
 def write_header_data(doc_sheet, write_data, jinja_env):
     """Записывает заголовок в документ."""
@@ -120,6 +153,17 @@ def write_header_data(doc_sheet, write_data, jinja_env):
                     j_template = jinja_env.from_string(xlsx_cell.value)
                     xlsx_cell.value = j_template.render(write_data)
     return end_row_num
+
+
+def write_header_data_month_act(doc_sheet, write_data, jinja_env):
+    """Записывает заголовок в документ."""
+    for idx, xlsx_row in enumerate(doc_sheet.iter_rows(), start=1):
+        if idx == 1:
+            j_template = jinja_env.from_string(xlsx_row[1].value)
+            xlsx_row[1].value = j_template.render(write_data)
+        if idx == 2:
+            j_template = jinja_env.from_string(xlsx_row[2].value)
+            xlsx_row[2].value = j_template.render(write_data)    
 
 
 async def write_table_data(doc_sheet, write_data, start_write_row_num, db_session, year):
@@ -176,6 +220,50 @@ async def write_table_data(doc_sheet, write_data, start_write_row_num, db_sessio
     apply_style(doc_sheet[f'A{write_row}'], cell_style_left)
     return write_row
 
+async def write_table_data_month_act(doc_sheet, write_data, start_write_row_num, month):
+    thin = Side(border_style="thin", color="000000")
+    border = Border(top=thin, left=thin, right=thin, bottom=thin)
+    border_left = Border(top=thin, left=thin, right=thin, bottom=None)
+    alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    alignment_left = Alignment(horizontal="left", vertical="center", wrap_text=True)
+    font = Font(name='Times New Roman', size=12)
+    font_bold = Font(name='Times New Roman', size=12, bold=True)
+
+    cell_style = NamedStyle(name="styled_cell", border=border, alignment=alignment, font=font)
+    cell_style_font_bold_only = NamedStyle(name="styled_cell_font_bold_only", font=font_bold)
+    cell_style_font_only = NamedStyle(name="styled_cell_font_only", font=font)
+    cell_style_left = NamedStyle(name="styled_cell_left", border=border_left, alignment=alignment_left, font=font_bold)
+    cell_styel_work_group = NamedStyle(name="styled_cell_work_group", alignment=alignment, font=font_bold)
+
+    groups = await group_by_company_works_type(write_data)
+    num_work_order = 1
+    total_sum_of_groups = 0.00
+    for group in groups:
+        doc_sheet[f'A{start_write_row_num}'].value = group['group']
+        doc_sheet.merge_cells(f'A{start_write_row_num}:E{start_write_row_num}')
+        apply_style(doc_sheet[f'A{start_write_row_num}'], cell_styel_work_group)
+        start_write_row_num += 1
+        for work in group['works']:
+            doc_sheet[f'A{start_write_row_num}'].value = num_work_order
+            doc_sheet[f'B{start_write_row_num}'].value = work['house']
+            doc_sheet[f'C{start_write_row_num}'].value = work['name_work']
+            doc_sheet[f'D{start_write_row_num}'].value = work['smeta_num']
+            doc_sheet[f'E{start_write_row_num}'].value = work['sum']
+            for col in ['A', 'B', 'C', 'D', 'E']:
+                apply_style(doc_sheet[f'{col}{start_write_row_num}'], cell_style)
+            start_write_row_num += 1
+            num_work_order += 1
+        doc_sheet[f'A{start_write_row_num}'].value = f'Итого: {group["group"]}'
+        doc_sheet.merge_cells(f'A{start_write_row_num}:D{start_write_row_num}')
+        doc_sheet[f'E{start_write_row_num}'].value = group['group_sum']
+        apply_style(doc_sheet[f'E{start_write_row_num}'], cell_style_font_bold_only)
+        total_sum_of_groups = calcSum(*[group['group_sum']], sum=total_sum_of_groups)
+        start_write_row_num += 1
+    doc_sheet[f'A{start_write_row_num}'].value = f'Итого за {month}:'
+    doc_sheet[f'E{start_write_row_num}'].value = total_sum_of_groups
+    apply_style(doc_sheet[f'E{start_write_row_num}'], cell_style_font_bold_only)    
+    return start_write_row_num + 1    
+
 
 def write_footer_data(doc_sheet, text_list, data_to_write, jinja_env, start_row):
     """Записывает нижний колонтитул в документ."""
@@ -190,6 +278,17 @@ def write_footer_data(doc_sheet, text_list, data_to_write, jinja_env, start_row)
         doc_sheet.merge_cells(f'A{row}:E{row}')
         row += 2 if idx != 4 else 5
 
+def write_footer_data_month_act(doc_sheet, text_list, data_to_write, jinja_env, start_row):
+    """Записывает нижний колонтитул в документ."""
+    font = Font(name='Times New Roman', size=12)
+    row = start_row + 2
+
+    for idx, text in enumerate(text_list, start=1):
+        j_template = jinja_env.from_string(text)
+        value = j_template.render(data_to_write)
+        doc_sheet[f'A{row}'].value = value
+        doc_sheet[f'A{row}'].font = font
+        doc_sheet.merge_cells(f'A{row}:E{row}')
 
 async def genereate_year_act_xlsx_file_v2(year, house, data, task_uuid, db_session):
     """Генерирует годовой акт в формате XLSX."""
@@ -283,6 +382,92 @@ async def genereate_year_act_xlsx_file_v2(year, house, data, task_uuid, db_sessi
     task_ready_time = datetime.now()
     await update_bg_task_status(db_session, task_uuid, 'done', task_ready_time)
 
-def genereate_month_act_xlsx_file_v2(month_year, house, data, task_uuid, db_session):
+async def genereate_month_act_xlsx_file_v2(month_year, data, task_uuid, db_session, house=None):
     """Генерирует месячный акт в формате XLSX."""
-    pass    
+    """Генерирует годовой акт в формате XLSX."""
+    setlocale(LC_TIME, 'ru_RU.UTF-8')
+    env = Environment(loader=BaseLoader, autoescape=False)
+
+    company_name = data[0]['houses']['companies']['full_name']
+    #print(data[0], company_name)
+    all_works_lst = []
+    for act in data:
+        if act['mainworks_details'] != []:
+            for index, mainwork in enumerate(act['mainworks_details']):
+                mainwork['mainwork_id'] = act['mainworks'][index]['id']
+                mainwork['name_work'] = act['mainworks'][index]['work']
+                mainwork['work_company_type'] = act['mainworks'][index]['companyWorkType']
+                mainwork['house'] = act['houses']['street'] + '-' + act['houses']['number']
+                mainwork['smeta_num'] = act['num']
+            all_works_lst.extend(act['mainworks_details'])        
+        if act['subworks_details'] != []:
+            for index, subwork in enumerate(act['subworks_details']):
+                subwork['mainwork_id'] = act['subworks'][index]['mainwork_id']
+                subwork['name_work'] = act['subworks'][index]['work']
+                subwork['work_company_type'] = act['subworks'][index]['companyWorkType']
+                subwork['house'] = act['houses']['street'] + '-' + act['houses']['number']
+                subwork['smeta_num'] = act['num']
+            all_works_lst.extend(act['subworks_details'])
+        if act['fixworks_details'] != []:
+            for index, fixwork in enumerate(act['fixworks_details']):
+                fixwork['mainwork_id'] = act['fixworks'][index]['mainwork_id']
+                fixwork['name_work'] = act['fixworks'][index]['work']
+                fixwork['work_company_type'] = act['fixworks'][index]['companyWorkType']
+                fixwork['house'] = act['houses']['street'] + '-' + act['houses']['number']
+                fixwork['smeta_num'] = act['num']
+            all_works_lst.extend(act['fixworks_details'])
+
+    #print("LENGTH DATA@@@@@@@@@@@@@@@@@@@@@@@", len(all_works_lst))
+    """for d in all_works_lst:
+        print("DATA@@@@@@@@@@@@@@@@@@@@@@@", d)"""
+    template_xlsx = load_workbook(settings.MONTH_ACT_FILE_TEMPLATE_PATH + settings.MONTH_ACT_FILE_TEMPLATE_NAME)
+    template_sheet = template_xlsx.active
+    print("MONTH YEAR", month_year.strftime('%B'))
+    month = MONTHS_MAP[month_year.month]
+    template_header_str1 = {
+        'month': MONTHS_MAP[month_year.month],
+        'year': month_year.year,
+        'company_name': company_name,
+    }
+
+
+    footer_text = [
+        'инженер ПТО ________________________ '
+        ]
+
+
+    write_header_data_month_act(template_sheet, template_header_str1, env)
+    end_write_row_num = 6
+    end_write_table_row_num = await write_table_data_month_act(template_sheet, all_works_lst, end_write_row_num, month)
+    write_footer_data_month_act(template_sheet, footer_text, template_header_str1, env, end_write_table_row_num)
+    if house:
+        ready_file_path = f'{settings.MONTH_ACT_FILE_READY_PATH}/{house}/{month_year.month}_{month_year.year}/'
+    else:
+        ready_file_path = f'{settings.MONTH_ACT_FILE_READY_PATH}/{month_year.year}/{month_year.month}_{month_year.year}/'
+    ready_file_name = f'{task_uuid}_{month_year.month}_{month_year.year}_акт_за_{month_year.month}_{data[0]["houses"]["street"]}-{data[0]["houses"]["number"]}.xlsx'
+
+    if house:
+        house_address = f'{data[0]["houses"]["street"]}-{data[0]["houses"]["number"]}'
+        db_file_name = f'{month_year.month}_{month_year.year}_акт_выполненных_работ_за_месяц_{house_address}.xlsx'
+    else:
+        db_file_name = f'{month_year.month}_{month_year.year}_акт_выполненных_работ_за_месяц.xlsx'
+
+    Path(ready_file_path).mkdir(parents=True, exist_ok=True)
+    template_xlsx.save(ready_file_path + ready_file_name)
+
+    month_act_obj = MonthActfiles(
+        name=db_file_name,
+        num=f'{month_year.month}_{month_year.year}',
+        date=datetime.now(),
+        month_year=month_year,
+        extention='xlsx',
+        url='',
+        path=ready_file_path + ready_file_name,
+        size='',
+        filetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        house_id=house if house else None
+    )
+    await create_mkd_works_db_object(db_session, month_act_obj)
+
+    task_ready_time = datetime.now()
+    await update_bg_task_status(db_session, task_uuid, 'done', task_ready_time)

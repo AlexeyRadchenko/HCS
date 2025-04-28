@@ -148,6 +148,13 @@ const generate_year_act = async () => {
         
       })
       generateFileInProccess.value = false;
+    } else if (response.status === 200 && response.data["message"] === "Works not found") {
+      ElMessage({
+        message: 'За указанный период нет выполненных работ',
+        type: 'warning',
+        showClose: true,
+        
+      })
     }
   }).catch((error) => {
     console.error('Error:', error);
@@ -155,7 +162,7 @@ const generate_year_act = async () => {
   let count = 0
   if (bg_year_status.value != 'create'){
     for (let i = 0; i < 30; i++) {
-      if (bg_year_status.value == 'create') {
+      if (bg_year_status.value == 'create' && bg_year_act_task_id.value == '') {
         break
       }
       await statusCheck(bg_year_act_task_id.value);
