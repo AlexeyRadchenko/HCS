@@ -35,7 +35,7 @@
                         <el-upload
                             ref="uploadSmeta"
                             :data="getDataSmetaFile"
-                            :action="api_main_url_port + 'api/v1/mkd_works_service/uploadfile/smeta'"
+                            :action="api_main_url_port + '/api/v1/mkd_works_service/uploadfile/smeta'"
                             :limit="1"
                             :on-exceed="handleExceedSmeta"
                             :auto-upload="false"
@@ -183,6 +183,7 @@
                             style="width: 100%"
                             filterable
                             clearable
+                            @change="val => onNameWorkChange(val, scope.row)"
                           />
                         </template>
                       </el-table-column>  
@@ -260,7 +261,7 @@ import secureStorage from '../../../storage/secStorage'
 import { edit_mkd_works, create_new_mkd_works, download_file_mkd_works, request_director_data_drom_db } from '../../../http/mkd-works-http-common'
 import dayjs from 'dayjs'
 import FileDownload from 'js-file-download'
-import { generate_data_object_to_post, clear_input_data, get_work_value_by_label, get_mainwork_numspav } from '../../../utils/utils';
+import { generate_data_object_to_post, clear_input_data, get_work_value_by_label, get_mainwork_numspav, formatWorkCode } from '../../../utils/utils';
 
 const props = defineProps({
     houseId: String,
@@ -444,7 +445,7 @@ watch(
     console.log(workFromDBdata.value)
     console.log("!!!!!!!!!!!!!!!!!!!!!!!!!",props.houseId, props.workID)
     console.log('ALLLLLLLLLOPT', props.allWorksOptions)*/
-    console.log('DB DATA WORK', workFromDBdata.value)
+    //console.log('DB DATA WORK', workFromDBdata.value)
     actInputFileData.value.workid = workFromDBdata.value.workId
     smetaInputFileData.value.workid = workFromDBdata.value.workId
     workInputData.value.workMonthAndYear = dayjs(workFromDBdata.value.monthWork).format('YYYY-MM-DD')
@@ -650,6 +651,15 @@ const downloadFile = (url, filename) => {
 const getHouseDirectorDataFromDB = () => {
   request_director_data_drom_db(props.houseId).then((response) =>{
     console.log(response.data)
+    console.log(response.data.director_fio)
+    if (response.data.director_fio === null && response.data.director_appartment === null) {
+      console.log('Сведения о председателе совета дома не найдены')
+      ElMessage({
+        message: 'Сведения о председателе совета дома не найдены',
+        type: 'warning',
+        showClose: true,
+      })
+    } 
     workInputData.value.directorSovietFIO = response.data.director_fio
     workInputData.value.directorAppartNum = response.data.director_appartment
   }).catch((error) =>{
@@ -657,11 +667,21 @@ const getHouseDirectorDataFromDB = () => {
   });
 }
 
+const onNameWorkChange = (val, row) => {
+  // Здесь вы можете получить нужное значение для numsprav по выбранной работе
+  // Например, если у вас есть функция get_mainwork_numspav:
+  console.log('Selected row:', row);
+  console.log('Selected value:', val);
+
+  row.numsprav = formatWorkCode(val)
+}
 onMounted(() => {
   console.log('Компонент был смонтирован!');
   api_main_url_port.value = import.meta.env.VITE_API_BASEURL;
+  console.log('API URL:', api_main_url_port.value);
   if (import.meta.env.VITE_API_BASEPORT) {
-    api_main_url_port.value = `${api_main_url_port}:${import.meta.env.VITE_API_BASEPORT}`;
+    api_main_url_port.value = `${api_main_url_port.value}:${import.meta.env.VITE_API_BASEPORT}`;
+    console.log('API URL with port:', api_main_url_port.value);
   }
 });
 </script>

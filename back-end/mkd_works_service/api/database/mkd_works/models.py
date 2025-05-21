@@ -244,8 +244,14 @@ class Actfiles(Base):
     date_upload = Column(DateTime(timezone=True), server_default=func.now())
 
     houses = relationship('Houses', back_populates='actfiles', lazy='joined')
-    acts = relationship('Acts', secondary='actshasactfiles', primaryjoin="Acts.id == Actshasactfiles.act_id",
-    secondaryjoin="Actfiles.uuid == Actshasactfiles.actfile_uuid", back_populates='actfiles', lazy='joined')
+    #acts = relationship('Acts', secondary='actshasactfiles', primaryjoin="Acts.id == Actshasactfiles.act_id",
+    #secondaryjoin="Actfiles.uuid == Actshasactfiles.actfile_uuid", back_populates='actfiles', lazy='joined')
+    acts = relationship(
+        'Acts',
+        secondary='actshasactfiles',
+        back_populates='actfiles',
+        lazy='select'  # или 'subquery'
+    )
 
 
 class Smetafiles(Base):
@@ -264,9 +270,14 @@ class Smetafiles(Base):
     date_upload = Column(DateTime(timezone=True), server_default=func.now())
 
     houses = relationship('Houses', back_populates='smetafiles', lazy='joined')
-    acts = relationship('Acts', secondary='actshassmetafiles', back_populates='smetafiles', primaryjoin="Acts.id == Actshassmetafiles.act_id",
-    secondaryjoin="Smetafiles.uuid == Actshassmetafiles.smetafile_uuid", lazy='joined')
-
+    #acts = relationship('Acts', secondary='actshassmetafiles', back_populates='smetafiles', primaryjoin="Acts.id == Actshassmetafiles.act_id",
+    #secondaryjoin="Smetafiles.uuid == Actshassmetafiles.smetafile_uuid", lazy='joined')
+    acts = relationship(
+        'Acts',
+        secondary='actshassmetafiles',
+        back_populates='smetafiles',
+        lazy='subquery'
+    )
 
 class Techfiles(Base):
     __tablename__ = "techfiles"

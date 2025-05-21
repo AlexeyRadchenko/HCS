@@ -301,11 +301,11 @@ export var get_work_value_by_label = function (label, data) {
 
     for (let element of data) {
         const normalizedElementLabel = normalizeText(element.label);
+        //console.log("CHECKING:", JSON.stringify(normalizedLabel), JSON.stringify(normalizedElementLabel).length);
+        //console.log("CHECKING DATA:", normalizedLabel.substring(0,20), normalizedElementLabel.substring(0,20));
         
-        //console.log("CHECKING:", JSON.stringify(normalizedElementLabel), JSON.stringify(normalizedElementLabel).length);
-        
-        if (normalizedElementLabel.substring(0,5) === normalizedLabel.substring(0,5)) {
-            //console.log("MATCH FOUND!");
+        if (normalizedElementLabel.substring(0,20) === normalizedLabel.substring(0,20)) {
+            //console.log("MATCH FOUND!", element.value, element.label);
             return { value: element.value, label: element.label };
         }
     }    
@@ -318,4 +318,12 @@ export var get_mainwork_numspav = function (workname) {
     let result = workname.match(/^\s*(\d{1,2}\.)/);
     console.log('SEARCH RESULT:', result);
     return result ? result[1] : null; // Возвращаем число с точкой
+}
+
+export var formatWorkCode = function (str) {
+  if (str === undefined) return str;  
+  if (!str.includes('_')) return str;
+  let res = str.replace(/_/g, '.');
+  res = res.replace(/\.\d+$/, '');
+  return res;
 }
