@@ -97,6 +97,7 @@ export var get_works_reference_book = async function () {
 
 export var edit_mkd_works = async function (data) {
     setHeaders(http)
+    console.log('edit_mkd_works', data)
     return await http.post(api_main_url_port + '/api/v1/mkd_works_service/houses/works/edit/', data=data)
     .then(response => {
       if (response.status == 200)

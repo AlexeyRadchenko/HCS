@@ -46,7 +46,7 @@ async def get_mkd_works_all_by_house_id(
     ):
     all_works_by_house_id = await get_all_mkd_works_by_house_id(db_session, house_id)
     #print(">>>>>>>>>>>>>>>>>>>>>>", all_works_by_house_id[0])
-    #print(">>>>>>>>>>>>>>>>>>>>>>", all_works_by_house_id[0].subworks)
+    print(">>>>>>>>>>>>>>>>>>>>>>FIXWORKS", len(all_works_by_house_id[0].fixworks), all_works_by_house_id[0].fixworks[0].work)
     return all_works_by_house_id
 
 @router.get("/houses/works/future_id/{house_id}")
@@ -210,7 +210,8 @@ async def update_act_model(
     user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
-    #print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WORKS", work.works)
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WORKS", work.works)
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WORK ID", int(work.id))
     res = None
     if len(work.mainworks) > 0:
         res = await delete_act_old_works(db_session, int(work.id), 'mainworks')
@@ -218,7 +219,7 @@ async def update_act_model(
         res = await delete_act_old_works(db_session, int(work.id), 'subworks')
     if len(work.fixworks) > 0:
         res = await delete_act_old_works(db_session, int(work.id), 'fixworks')
-    #print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WORKS", res)    
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WORKS_DEL", res)    
     act_edit_model_object = Acts(
         id=int(work.id),
         num=work.num,
@@ -232,6 +233,7 @@ async def update_act_model(
     if len(work.works) > 0:
         for s in work.works:
             sum = calcSum(s.sum, sum=sum)
+            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WORKS", s.period)
             if s.workType == 'mainwork':
                 act_mainwork = Acthasmainworks(
                     act_id=int(work.id),
@@ -239,7 +241,8 @@ async def update_act_model(
                     sum=s.sum,
                     quantity=s.quantity,
                     unitcost=s.costofpart,
-                    notes = s.notes
+                    notes = s.notes,
+                    act_custom_period = s.period
                 )
                 create_mainwork_act_data = await create_mkd_works_db_object(db_session, act_mainwork)
                 #print("#######################################", create_mainwork_act_data)
@@ -250,7 +253,8 @@ async def update_act_model(
                     subwork_id=getWorkSubId(s.namework, '1'),
                     sum=s.sum,
                     quantity=s.quantity,
-                    unitcost=s.costofpart
+                    unitcost=s.costofpart,
+                    act_custom_period = s.period
                 )
                 update_subworks_act_data = await create_mkd_works_db_object(db_session, act_subwork)
                 #print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", update_subworks_act_data)
@@ -264,9 +268,11 @@ async def update_act_model(
                     fixwork_id=getWorkSubId(s.namework, '2'),
                     sum=s.sum,
                     quantity=s.quantity,
-                    unitcost=s.costofpart
+                    unitcost=s.costofpart,
+                    act_custom_period = s.period
                 )
                 update_fixworks_act_data = await create_mkd_works_db_object(db_session, act_fixwork)
+                print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@UPDATE", update_fixworks_act_data.act_custom_period)
                 if not update_fixworks_act_data == 1:
                     create_fixwork_act_data = await create_mkd_works_db_object(db_session, act_fixwork)
 
@@ -313,7 +319,9 @@ async def create_act(
                         sum=s.sum,
                         quantity=s.quantity,
                         unitcost=s.costofpart,
-                        notes = s.notes
+                        notes = s.notes,
+                        act_custom_period = s.period
+                        
                     )
                     create_mainwork_act_data = await create_mkd_works_db_object(db_session, act_mainwork)
                     #print("#######################################", create_mainwork_act_data)
@@ -325,7 +333,8 @@ async def create_act(
                         sum=s.sum,
                         quantity=s.quantity,
                         unitcost=s.costofpart,
-                        notes = s.notes
+                        notes = s.notes,
+                        act_custom_period = s.period
                     )
                     create_subworks_act_data = await create_mkd_works_db_object(db_session, act_subwork)
                     #print("#######################################", create_subworks_act_data)
@@ -338,7 +347,8 @@ async def create_act(
                         sum=s.sum,
                         quantity=s.quantity,
                         unitcost=s.costofpart,
-                        notes = s.notes
+                        notes = s.notes,
+                        act_custom_period = s.period
                     )
                     create_fixwork_act_data = await create_mkd_works_db_object(db_session, act_fixwork)
 

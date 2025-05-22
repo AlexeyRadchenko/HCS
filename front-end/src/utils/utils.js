@@ -158,6 +158,11 @@ export let mkd_works_works_to_string = function(main, sub, fix) {
     for (let [index, element] of main.entries()) {works = works + element.work + '\n'}
     for (let [index, element] of sub.entries()) {works = works + element.work + '\n'}
     for (let [index, element] of fix.entries()) {works = works + element.work + '\n'}
+    if (works === null || works === undefined || works === '') {
+        for (let [index, element] of main.entries()) {console.log('MAIN', element)}
+        for (let [index, element] of sub.entries()) {console.log('SUB', element)}
+        for (let [index, element] of fix.entries()) {console.log('FIX', element)}
+    }
     return works
 }
 
@@ -176,12 +181,12 @@ export var get_period = function(main, sub, fix) {
     let mp = ''
     let sp = ''
     let fp = ''
-    console.log("---------->",sub, fix)
+    //console.log("---------->",sub, fix)
     if (sub.length > 0)
         sp = sub[0].period
     if (fix.length > 0)
         fp = ' ' + fix[0].period
-    console.log('-------', mp, sp, fp, mp + fp + sp )
+    //console.log('-------', mp, sp, fp, mp + fp + sp )
     return mp + fp + sp
 }
 
@@ -205,7 +210,9 @@ var getTypeWorkByName = function (nameW) {
 export var generate_data_object_to_post = function (workData, tableRowData, workID, houseID, periodOptions) {
     console.log("wokrID", workID)
     console.log("periodOptions", periodOptions)
-    
+    console.log("workData", workData)
+    console.log("tableRowData", tableRowData)
+
     let postdata = {
         id: workID != '' ? workID : '-1',
         house_id: houseID,
@@ -216,13 +223,13 @@ export var generate_data_object_to_post = function (workData, tableRowData, work
         all_sum: workData.actAllSumHandle,
         month_year_works: workData.workMonthAndYear,
         works: [],
-        mainworks: workData.mainworks ? workData.mainworks.map(element => ({id: element.id, workType: element.workType})) : [],
-        subworks: workData.subworks ? workData.subworks.map(element => ({id: element.id, workType: element.workType})) : [],
-        fixworks: workData.fixworks ? workData.fixworks.map(element => ({id: element.id, workType: element.workType})) : [],
+        mainworks: workData.mainworks ? workData.mainworks.map(element => ({id: element.mainwork_id, workType: element.workType})) : [],
+        subworks: workData.subworks ? workData.subworks.map(element => ({id: element.subwork_id, workType: element.workType})) : [],
+        fixworks: workData.fixworks ? workData.fixworks.map(element => ({id: element.fixwork_id, workType: element.workType})) : [],
     }
     
     for (let [index, element] of tableRowData.entries()) {
-        //console.log('POST ELEMENT', element.nameWorkOrService)
+        console.log('POST ELEMENT', element)
         postdata.num = element.numsprav
         console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", element.workType, element.nameWorkOrService) 
         let typeWorkInput = element.nameWorkOrService.value ? element.nameWorkOrService.value : element.nameWorkOrService
@@ -238,6 +245,7 @@ export var generate_data_object_to_post = function (workData, tableRowData, work
             notes: element.notes,
         })
     }
+    console.log("POSTDATA", tableRowData)
     return postdata
 }
 
@@ -285,6 +293,8 @@ export var clear_input_data = function (inputData, tableRowData, actInputData, s
 }*/
 
 export var get_work_value_by_label = function (label, data) {
+    console.log("LABEL", label)
+    console.log("DATA", data)
     // Функция для жесткой нормализации строки
     function normalizeText(text) {
         return text
@@ -326,4 +336,16 @@ export var formatWorkCode = function (str) {
   let res = str.replace(/_/g, '.');
   res = res.replace(/\.\d+$/, '');
   return res;
+}
+
+export var get_detailed_work_id = function (element) {
+    if (element.fixwork_id)
+        return element.fixwork_id
+    else if (element.subwork_id)
+        return element.subwork_id
+    else if (element.mainwork_id)
+        return element.mainwork_id
+    else 
+        return -1
+
 }

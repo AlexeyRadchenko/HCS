@@ -261,7 +261,7 @@ import secureStorage from '../../../storage/secStorage'
 import { edit_mkd_works, create_new_mkd_works, download_file_mkd_works, request_director_data_drom_db } from '../../../http/mkd-works-http-common'
 import dayjs from 'dayjs'
 import FileDownload from 'js-file-download'
-import { generate_data_object_to_post, clear_input_data, get_work_value_by_label, get_mainwork_numspav, formatWorkCode } from '../../../utils/utils';
+import { generate_data_object_to_post, clear_input_data, get_work_value_by_label, get_mainwork_numspav, formatWorkCode, get_detailed_work_id } from '../../../utils/utils';
 
 const props = defineProps({
     houseId: String,
@@ -445,7 +445,7 @@ watch(
     console.log(workFromDBdata.value)
     console.log("!!!!!!!!!!!!!!!!!!!!!!!!!",props.houseId, props.workID)
     console.log('ALLLLLLLLLOPT', props.allWorksOptions)*/
-    //console.log('DB DATA WORK', workFromDBdata.value)
+    console.log('DB DATA WORK', workFromDBdata.value)
     actInputFileData.value.workid = workFromDBdata.value.workId
     smetaInputFileData.value.workid = workFromDBdata.value.workId
     workInputData.value.workMonthAndYear = dayjs(workFromDBdata.value.monthWork).format('YYYY-MM-DD')
@@ -470,23 +470,23 @@ watch(
     let works = [...workFromDBdata.value.mainworks, ...workFromDBdata.value.subworks, ...workFromDBdata.value.fixworks];
     if (works.length) {
       for (let [index, element] of works.entries()) {
-        //console.log("ELEMNT", element)
+        console.log("ELEMNT", element)
         if (index === 0) {
           tableData.value[0].numsprav =  element.workType != 'main' ? element.numsprav : get_mainwork_numspav(element.work)
           tableData.value[0].nameWorkOrService = get_work_value_by_label(element.work, props.allWorksOptions)
-          tableData.value[0].period = element.period
+          tableData.value[0].period = element.act_custom_period ? element.act_custom_period : element.period
           tableData.value[0].quantity = element.quantity
           tableData.value[0].costOfPart = element.unitcost
           tableData.value[0].sum = element.sum
           tableData.value[0].workType = element.workType
-          tableData.value[0].workSubId = element.id
+          tableData.value[0].workSubId = get_detailed_work_id(element)
           tableData.value[0].notes = element.notes ? element.notes : '' 
           continue
         }
         tableData.push({
           numsprav: element.workType != 'main' ? element.numsprav : get_mainwork_numspav(element.work),
           nameWorkOrService: get_work_value_by_label(element.work, props.allWorksOptions),
-          period: element.period,
+          period: element.act_custom_period ? element.act_custom_period : element.period,
           quantity: element.quantity,
           costOfPart :element.unitcost,
           sum: element.sum,

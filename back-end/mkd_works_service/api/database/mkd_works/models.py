@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy import BigInteger, Boolean, Column, ForeignKey, Integer, String, Text, DateTime, select, DECIMAL, Numeric
-from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.associationproxy import AssociationProxy
@@ -72,8 +72,28 @@ class Acthasmainworks(Base):
     notes = Column(String, nullable=True)
     act_custom_period = Column(String, nullable=True)
 
-    acts = relationship("Acts", back_populates="mainworks_details", lazy='joined', viewonly=True)
+    acts = relationship("Acts", back_populates="mainworks_details", primaryjoin="Acthasmainworks.act_id == Acts.id", lazy='joined', viewonly=True)
     mainworks = relationship('Mainworks', back_populates='acts_details', lazy='joined', viewonly=True)
+
+    @hybrid_property
+    def work(self):
+        return self.mainworks.work if self.mainworks else None
+
+    @hybrid_property
+    def workType(self):
+        return self.mainworks.workType if self.mainworks else None
+
+    @hybrid_property
+    def companyWorkType(self):
+        return self.mainworks.companyWorkType if self.mainworks else None
+    
+    @hybrid_property
+    def numsprav(self):
+        return self.mainworks.numsprav if self.mainworks else None
+    
+    @hybrid_property
+    def period(self):
+        return self.mainworks.period if self.mainworks else None
 
 
 class Acthassubworks(Base):
@@ -87,8 +107,28 @@ class Acthassubworks(Base):
     notes = Column(String, nullable=True)
     act_custom_period = Column(String, nullable=True)
 
-    acts = relationship("Acts", back_populates="subworks_details", lazy='joined', viewonly=True)
+    acts = relationship("Acts", back_populates="subworks_details", primaryjoin="Acthassubworks.act_id == Acts.id", lazy='joined', viewonly=True)
     subworks = relationship('Subworks', back_populates='acts_details', lazy='joined', viewonly=True)
+
+    @hybrid_property
+    def work(self):
+        return self.subworks.work if self.subworks else None
+
+    @hybrid_property
+    def workType(self):
+        return self.subworks.workType if self.subworks else None
+
+    @hybrid_property
+    def companyWorkType(self):
+        return self.subworks.companyWorkType if self.subworks else None
+    
+    @hybrid_property
+    def numsprav(self):
+        return self.subworks.numsprav if self.subworks else None
+    
+    @hybrid_property
+    def period(self):
+        return self.subworks.period if self.subworks else None
 
 
 class Acthasfixworks(Base):
@@ -102,8 +142,29 @@ class Acthasfixworks(Base):
     notes = Column(String, nullable=True)
     act_custom_period = Column(String, nullable=True)
 
-    acts = relationship("Acts", back_populates="fixworks_details", lazy='joined', viewonly=True)
+    acts = relationship("Acts", back_populates="fixworks_details", primaryjoin="Acthasfixworks.act_id == Acts.id", lazy='joined', viewonly=True)
     fixworks = relationship('Fixworks', back_populates='acts_details', lazy='joined', viewonly=True)
+
+
+    @hybrid_property
+    def work(self):
+        return self.fixworks.work if self.fixworks else None
+
+    @hybrid_property
+    def workType(self):
+        return self.fixworks.workType if self.fixworks else None
+
+    @hybrid_property
+    def companyWorkType(self):
+        return self.fixworks.companyWorkType if self.fixworks else None
+    
+    @hybrid_property
+    def numsprav(self):
+        return self.fixworks.numsprav if self.fixworks else None
+    
+    @hybrid_property
+    def period(self):
+        return self.fixworks.period if self.fixworks else None
 
 
 class Mainworks(Base):
@@ -203,7 +264,7 @@ class Fixworks(Base):
     mainworks = relationship('Mainworks', back_populates='fixworks', lazy='select')
     acts = relationship('Acts', secondary='acthasfixworks', back_populates='fixworks', lazy='select', viewonly=True)
     acts_details = relationship("Acthasfixworks", back_populates="fixworks", lazy='joined', viewonly=True)
-
+    
     #@property
     @hybrid_property
     def sum(self):
@@ -226,6 +287,8 @@ class Fixworks(Base):
     @hybrid_property
     def act_custom_period(self):
         return self.acts_details[0].act_custom_period if self.acts_details else None
+    
+ 
 
 
 class Actfiles(Base):
@@ -320,14 +383,14 @@ class Acts(Base):
         back_populates='acts', lazy='joined', overlaps="acts"
     )
 
-    mainworks_details = relationship("Acthasmainworks", back_populates="acts", lazy='joined', viewonly=True)
+    mainworks_details = relationship("Acthasmainworks", primaryjoin="Acts.id == Acthasmainworks.act_id", back_populates="acts", lazy='joined', viewonly=True)
 
     subworks = relationship(
         'Subworks', secondary='acthassubworks', primaryjoin="Acts.id == Acthassubworks.act_id",  secondaryjoin="Subworks.id == Acthassubworks.subwork_id", 
         back_populates='acts', lazy='joined', overlaps="acts"
     )
 
-    subworks_details = relationship("Acthassubworks", back_populates="acts", lazy='joined', viewonly=True)
+    subworks_details = relationship("Acthassubworks", primaryjoin="Acts.id == Acthassubworks.act_id", back_populates="acts", lazy='joined', viewonly=True)
 
 
     fixworks = relationship(
@@ -335,7 +398,7 @@ class Acts(Base):
         secondaryjoin="Fixworks.id == Acthasfixworks.fixwork_id", overlaps='acts'
     )
 
-    fixworks_details = relationship("Acthasfixworks", back_populates="acts", lazy='joined', viewonly=True)
+    fixworks_details = relationship("Acthasfixworks", primaryjoin="Acts.id == Acthasfixworks.act_id", back_populates="acts", lazy='joined', viewonly=True)
 
     actfiles = relationship(
         'Actfiles', secondary='actshasactfiles', back_populates='acts', lazy='joined', order_by="desc(Actfiles.date_upload)"

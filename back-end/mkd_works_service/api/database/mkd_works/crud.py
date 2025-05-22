@@ -13,6 +13,7 @@ from .models import (Houses, Acts, Mainworks, Subworks, Fixworks, Actfiles, Smet
 
 async def create_mkd_works_db_object(db: AsyncSession, obj: Any):
     db.add(obj),
+    print(obj.act_custom_period)
     await db.commit()
     await db.refresh(obj)
     return obj

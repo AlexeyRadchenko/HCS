@@ -71,6 +71,11 @@ class ActHasSubworksScheme(BaseModel):
     unitcost: Optional[str]
     notes: Optional[str]
     act_custom_period: Optional[str]=None
+    work: Optional[str]=None
+    workType: Optional[str]=None
+    companyWorkType: Optional[str]=None
+    period: Optional[str]=None
+    numsprav: Optional[str]=None
 
     class Config:
         from_attributes = True
@@ -83,6 +88,11 @@ class ActHasMainworksScheme(BaseModel):
     unitcost: Optional[str]
     notes: Optional[str]
     act_custom_period: Optional[str]=None
+    work: Optional[str]=None
+    workType: Optional[str]=None
+    companyWorkType: Optional[str]=None
+    period: Optional[str]=None
+    numsprav: Optional[str]=None
 
     class Config:
         from_attributes = True
@@ -95,6 +105,11 @@ class ActHasFixworksScheme(BaseModel):
     unitcost: Optional[str]
     notes: Optional[str]
     act_custom_period: Optional[str]=None
+    work: Optional[str]=None
+    workType: Optional[str]=None
+    companyWorkType: Optional[str]=None
+    period: Optional[str]=None
+    numsprav: Optional[str]=None
 
     class Config:
         from_attributes = True                   
