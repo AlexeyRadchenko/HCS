@@ -35,7 +35,7 @@
                         <el-upload
                             ref="uploadSmeta"
                             :data="getDataSmetaFile"
-                            :action="api_main_url_port + '/api/v1/mkd_works_service/uploadfile/smeta'"
+                            :action="sendingFileSmetaApiUrl"
                             :limit="1"
                             :on-exceed="handleExceedSmeta"
                             :auto-upload="false"
@@ -123,7 +123,7 @@
                       <el-upload
                           ref="uploadAct"
                           :data="getDataActFile"
-                          :action="api_main_url_port + '/api/v1/mkd_works_service/uploadfile/act'"
+                          :action="sendingFileActApiUrl"
                           :limit="1"
                           :on-exceed="handleExceedAct"
                           :auto-upload="false"
@@ -303,6 +303,8 @@ const uploadHeaders = {
 }
 const loading = ref(true)
 const api_main_url_port = ref('')
+const sendingFileSmetaApiUrl = ref('')
+const sendingFileActApiUrl = ref('')
 const dialogMKDWorksAddVisibleSub = defineModel('dialogMKDWorksAddVisibleSub')
 const workFromDBdata = defineModel('workFromDBdata')
 const btnSmetaDisable = ref(false)
@@ -752,6 +754,9 @@ onMounted(() => {
     api_main_url_port.value = `${api_main_url_port.value}:${import.meta.env.VITE_API_BASEPORT}`;
     //console.log('API URL with port:', api_main_url_port.value);
   }
+  console.log('API URL with port:', api_main_url_port.value);
+  sendingFileSmetaApiUrl.value = api_main_url_port.value + '/api/v1/mkd_works_service/uploadfile/smeta'
+  sendingFileActApiUrl.value = api_main_url_port.value + '/api/v1/mkd_works_service/uploadfile/act'
 });
 </script>
 

@@ -126,7 +126,7 @@ async def create_upload_act_file(
             "workid": int(workid), #send work id from db object
             }
     
-@router.post("/uploadfile/smeta/")
+@router.post("/uploadfile/smeta")
 async def create_upload_smeta_file(
     houseid: Annotated[int, Form()],
     workid: Annotated[str, Form()],
