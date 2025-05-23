@@ -180,11 +180,22 @@
                             v-model="scope.row.nameWorkOrService"
                             :options="allWorksOptions"
                             placeholder="Выберите работу услугу"
-                            style="width: 100%"
+                            style="width: 100%; margin-top: 1.7em;"
                             filterable
                             clearable
                             @change="val => onNameWorkChange(val, scope.row)"
                           />
+                          <el-popover
+                            placement="bottom"
+                            title="Выбранное наименование работ:"
+                            :width="410"
+                            trigger="click"
+                            :content="showSelectedWorkFullText(scope.row.nameWorkOrService)"
+                          >
+                            <template #reference>
+                              <el-link type="info" style="font-size: 0.9em; margin-left: 11em;">текст полностью</el-link>
+                            </template>
+                          </el-popover>
                         </template>
                       </el-table-column>  
                       <el-table-column label="Периодичость" width="200">
@@ -193,10 +204,22 @@
                             v-model="scope.row.period"
                             :options="allPeriodsOptions"
                             placeholder="Периодичность"
-                            style="width: 100%"
+                            style="width: 100%; margin-top: 1.7em;"
                             filterable
                             clearable
+                            @change="val => onPeriodValueChange(val, scope.row)"
                           />
+                          <el-popover
+                            placement="bottom"
+                            title="Выбранная периодичность:"
+                            :width="300"
+                            trigger="click"
+                            :content="showSelectedPeriodFullText(scope.row.period)"
+                          >
+                            <template #reference>
+                              <el-link type="info" style="font-size: 0.9em; margin-left: 3em;">текст полностью</el-link>
+                            </template>
+                          </el-popover>
                         </template>
                       </el-table-column>
                       <el-table-column label="Кол-во единиц измерений" width="80">
@@ -261,7 +284,8 @@ import secureStorage from '../../../storage/secStorage'
 import { edit_mkd_works, create_new_mkd_works, download_file_mkd_works, request_director_data_drom_db } from '../../../http/mkd-works-http-common'
 import dayjs from 'dayjs'
 import FileDownload from 'js-file-download'
-import { generate_data_object_to_post, clear_input_data, get_work_value_by_label, get_mainwork_numspav, formatWorkCode, get_detailed_work_id } from '../../../utils/utils';
+import { generate_data_object_to_post, clear_input_data, get_work_value_by_label, get_mainwork_numspav,
+   formatWorkCode, get_detailed_work_id, getPeriodLabelByValue } from '../../../utils/utils';
 
 const props = defineProps({
     houseId: String,
@@ -330,7 +354,7 @@ const smetaDownloadFile = ref({
 })
 
 const getDataActFile = () => {
-  console.log("sibdataloading", actInputFileData.value)
+  //console.log("sibdataloading", actInputFileData.value)
   return {
     actnum: actInputFileData.value.actnum, // любые ваши данные
     actdate: actInputFileData.value.actdate,
@@ -392,7 +416,7 @@ const getDataSmetaFile = () => {
   };
 }    
 const uploadActSuccess = (response) => {
-    console.log(response)
+    //console.log(response)
     actDownloadFile.value.filename = response.filename
     actDownloadFile.value.date = response.actdate ? dayjs(response.actdate).format('DD.MM.YYYY') : ''
     actDownloadFile.value.num = response.actnum
@@ -409,7 +433,7 @@ const uploadActSuccess = (response) => {
 }
 
 const uploadSmetaSuccess = (response) => {
-    console.log(response)
+    //console.log(response)
     smetaDownloadFile.value.filename = response.filename
     smetaDownloadFile.value.date = response.smetadate ? dayjs(response.smetadate).format('DD.MM.YYYY') : ''
     smetaDownloadFile.value.num = response.smetanum,
@@ -438,14 +462,14 @@ const uploadSmetaDisable = () => {
 watch(
   [() => props.dialogMKDWorksAddVisibleSub, () => props.allPeriodsOptions], 
   ([newShow, newOptions], [oldShow, oldOptions]) => {
-  console.log(newShow, oldShow)
+  //console.log(newShow, oldShow)
   if (newShow && props.modalCallType == 'edit' && ((oldOptions.length > 0) || (newOptions.length > 0))) {
     loading.value = false
     /*console.log(props.modalCallType, props.editRowIndex)
     console.log(workFromDBdata.value)
     console.log("!!!!!!!!!!!!!!!!!!!!!!!!!",props.houseId, props.workID)
     console.log('ALLLLLLLLLOPT', props.allWorksOptions)*/
-    console.log('DB DATA WORK', workFromDBdata.value)
+    //console.log('DB DATA WORK', workFromDBdata.value)
     actInputFileData.value.workid = workFromDBdata.value.workId
     smetaInputFileData.value.workid = workFromDBdata.value.workId
     workInputData.value.workMonthAndYear = dayjs(workFromDBdata.value.monthWork).format('YYYY-MM-DD')
@@ -511,9 +535,9 @@ const handleExceedSmeta = (files) => {
     uploadSmeta.value.clearFiles()
   }
   const file = files[0]
-  console.log(file)
+  //console.log(file)
   file.uid = genFileId()
-  console.log(file)
+  //console.log(file)
   if (uploadSmeta.value) {
     uploadSmeta.value.handleStart(file)
   }
@@ -526,12 +550,12 @@ const submitUploadSmeta = () => {
 }
 
 const handleExceedAct = (files) => { 
-  console.log("!act", uploadAct.value)
+  //console.log("!act", uploadAct.value)
   if (uploadAct.value) {
     uploadAct.value.clearFiles()
   }
   const file = files[0]
-  console.log(file)
+  //console.log(file)
   file.uid = genFileId()
   if (uploadAct.value) {
     uploadAct.value.handleStart(file)
@@ -580,7 +604,7 @@ const onCancleBtnClick = () => {
 }
 
 const onSaveBtnClick =  () => {
-  console.log('CAll TYPE', props.modalCallType)
+  //console.log('CAll TYPE', props.modalCallType)
   //console.log("periodOptions", props.allPeriodsOptions)
   if (props.modalCallType === 'edit') {
     //console.log("call edit func")
@@ -607,7 +631,7 @@ const onSaveBtnClick =  () => {
     let periods = props.allPeriodsOptions
     //console.log("periodOptionsCreate", props.allPeriodsOptions)
     let data = generate_data_object_to_post(workInputData.value, tableData.value, props.workID, props.houseId, props.allPeriodsOptions)
-    console.log(data.works.length, data.works)
+    //console.log(data.works.length, data.works)
     if (data.works.length != 0 && data.works[0].namework == '') {
       //console.log('message add work')
       ElMessage({
@@ -650,10 +674,10 @@ const downloadFile = (url, filename) => {
 
 const getHouseDirectorDataFromDB = () => {
   request_director_data_drom_db(props.houseId).then((response) =>{
-    console.log(response.data)
-    console.log(response.data.director_fio)
+    //console.log(response.data)
+    //console.log(response.data.director_fio)
     if (response.data.director_fio === null && response.data.director_appartment === null) {
-      console.log('Сведения о председателе совета дома не найдены')
+      //console.log('Сведения о председателе совета дома не найдены')
       ElMessage({
         message: 'Сведения о председателе совета дома не найдены',
         type: 'warning',
@@ -670,18 +694,63 @@ const getHouseDirectorDataFromDB = () => {
 const onNameWorkChange = (val, row) => {
   // Здесь вы можете получить нужное значение для numsprav по выбранной работе
   // Например, если у вас есть функция get_mainwork_numspav:
-  console.log('Selected row:', row);
-  console.log('Selected value:', val);
+  //console.log('Selected row:', row);
+  //console.log('Selected value:', val);
 
   row.numsprav = formatWorkCode(val)
+  row.workSubId = val
+
 }
+
+const onPeriodValueChange = (val, row) => {
+  //console.log('Selected row:', row);
+  //console.log('Selected value:', val);
+
+  row.period = val;
+  const label = getPeriodLabelByValue(val, props.allPeriodsOptions);
+  // теперь label содержит текст выбранного периода
+  //console.log('Label выбранного периода:', label);
+}
+
+const showSelectedPeriodFullText = (val) => {
+  console.log('showSelectedPeriodFullText VAL:', val)
+  // Если val null или undefined — вернуть пустую строку
+  if (val === null || val === undefined) return '';
+  // Если val — число, привести к строке
+  if (typeof val === 'number') {
+    const label = getPeriodLabelByValue(val, props.allPeriodsOptions);
+    //console.log('Label выбранного периода:', label);
+    return label
+  }
+  // Если val — строка, вернуть как есть
+  return val;
+}
+
+const showSelectedWorkFullText = (val) => {
+  //console.log('TYPE', typeof val)
+  //console.log('showSelectedWorkFullText VAL:', val)
+  // Если val null или undefined — вернуть пустую строку
+  if (val === null || val === undefined) return '';
+  // Если val — число, привести к строке
+  if (typeof val === 'number') {
+    const label = get_work_value_by_label(val.label, props.allWorksOptions);
+    console.log('Label выбранного периода:', label);
+    return label
+  }
+  if (typeof val === 'object') {
+    return val.label
+  }
+  // Если val — строка, вернуть как есть
+  return val;
+}
+
 onMounted(() => {
-  console.log('Компонент был смонтирован!');
+  //console.log('Компонент был смонтирован!');
   api_main_url_port.value = import.meta.env.VITE_API_BASEURL;
-  console.log('API URL:', api_main_url_port.value);
+  //console.log('API URL:', api_main_url_port.value);
   if (import.meta.env.VITE_API_BASEPORT) {
     api_main_url_port.value = `${api_main_url_port.value}:${import.meta.env.VITE_API_BASEPORT}`;
-    console.log('API URL with port:', api_main_url_port.value);
+    //console.log('API URL with port:', api_main_url_port.value);
   }
 });
 </script>

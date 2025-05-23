@@ -12,11 +12,15 @@ from .models import (Houses, Acts, Mainworks, Subworks, Fixworks, Actfiles, Smet
 
 
 async def create_mkd_works_db_object(db: AsyncSession, obj: Any):
-    db.add(obj),
-    print(obj.act_custom_period)
+    db.add(obj)
     await db.commit()
     await db.refresh(obj)
     return obj
+
+async def create_mkd_works_db_objects(db: AsyncSession, obj_list: List[Any]):
+    db.add_all(obj_list)
+    await db.commit()
+    return obj_list
 
 async def get_all_houses(db: AsyncSession):
     result = await db.execute(

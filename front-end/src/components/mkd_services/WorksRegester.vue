@@ -116,9 +116,9 @@ const formatToDecimal = (row, column, cellValue, index) => {
 
 const EditRow = (index) => {
   //tableData.value.splice(index, 1)
-  console.log("Asdasdasd", modalCallType.value)
+  //console.log("Asdasdasd", modalCallType.value)
   modalCallType.value = 'edit'
-  console.log("Asdasdasd", modalCallType.value)
+  //console.log("Asdasdasd", modalCallType.value)
   showMKDWorkAddModal.value = true
   editRowIndex.value = index
   workFromDBdataMain.value = tableData.value[index]
@@ -163,7 +163,7 @@ const yearWorkFromDB = function (row, column, cellValue, index) {
 
 const worksDataFromDBtoTableView = (worksData) => {
   for (let [index, element] of worksData.entries()) {
-    console.log("ELEMENT FROM DB", element)
+    //console.log("ELEMENT FROM DB", element)
     tableData.value.push({
       numOrder: index + 1,
       numSprav: element.numsprav ? element.numsprav : get_mkd_works_sprav_name(element.mainworks, element.subworks, element.fixworks),
@@ -204,8 +204,8 @@ const updateTableData = () => {
 }
 
 watch(() => props.selectedHouseId, (newSelectedHouseId, oldSelectedHouseId) => {
-  console.log("newProps", newSelectedHouseId, oldSelectedHouseId)
-  console.log(props.selectedHouseName)
+  //console.log("newProps", newSelectedHouseId, oldSelectedHouseId)
+  //console.log(props.selectedHouseName)
   loading.value = true
   get_mkd_works_get_all_works_by_house_id(newSelectedHouseId).then((response) => {
     tableData.value = []
@@ -243,8 +243,8 @@ const downloadFile = (url, filename) => {
 
 
 onMounted(() => {
-  console.log('Компонент был смонтирован!');
-  console.log('props!', props.selectedHouseId);
+  //console.log('Компонент был смонтирован!');
+  //console.log('props!', props.selectedHouseId);
   get_mkd_works_get_all_works_by_house_id(props.selectedHouseId).then((response) => {
     worksDataFromDBtoTableView(response.data)
     workFromDBdataMain.value = initEmptyRowData()

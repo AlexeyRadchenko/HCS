@@ -124,14 +124,23 @@ const getSelectedHouse = computed(() => {
 })
 
 const periodsNames = computed(() => { 
-    let options = works_periods.value.map((item, idx) => {
+
+    /*let options = works_periods.value.map((item, idx) => {
     return {
       value: idx,
       label: item
     }
   })
   //console.log('Options', options)
-  return options
+  return options*/
+
+   // Получаем только уникальные значения из works_periods
+  const uniquePeriods = Array.from(new Set(works_periods.value));
+  return uniquePeriods.map((item, idx) => (
+  {
+    value: idx,
+    label: item ? item : 'Не указано'
+  }))
 })
 
 

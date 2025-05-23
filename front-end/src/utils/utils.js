@@ -293,8 +293,8 @@ export var clear_input_data = function (inputData, tableRowData, actInputData, s
 }*/
 
 export var get_work_value_by_label = function (label, data) {
-    console.log("LABEL", label)
-    console.log("DATA", data)
+    //console.log("LABEL", label)
+    //console.log("DATA", data)
     // Функция для жесткой нормализации строки
     function normalizeText(text) {
         return text
@@ -332,7 +332,7 @@ export var get_mainwork_numspav = function (workname) {
 
 export var formatWorkCode = function (str) {
   if (str === undefined) return str;  
-  if (!str.includes('_')) return str;
+  if (!str.includes('_')) return str+'.';
   let res = str.replace(/_/g, '.');
   res = res.replace(/\.\d+$/, '');
   return res;
@@ -348,4 +348,9 @@ export var get_detailed_work_id = function (element) {
     else 
         return -1
 
+}
+
+export var getPeriodLabelByValue = function (value, allPeriodsOptions) {
+  const found = allPeriodsOptions.find(option => option.value === value);
+  return found ? found.label : '';
 }

@@ -34,17 +34,6 @@ class HousesMKDSchema(BaseModel):
         from_attributes = True
         
 
-"""class MainWorksSchema(BaseModel):
-    id: Optional[int]
-    work: Optional[str]
-    workType: Optional[str]
-    companyWorkType: Optional[str]
-    notes: Optional[str]
-    period: Optional[str] = None
-    act_custom_period: Optional[str]=None
-
-    class Config:
-        from_attributes = True"""
 
 class MainWorksSchema(BaseModel):
     id: Optional[int]
@@ -53,12 +42,12 @@ class MainWorksSchema(BaseModel):
     companyWorkType: Optional[str]
     numsprav: Optional[str]
     period: Optional[str] = None
-    sum: Optional[str]
-    quantity: Optional[str]
-    unitcost: Optional[str]
-    notes: Optional[str]
-    mainwork_id: Optional[int] = None
-    act_custom_period: Optional[str]=None
+    #sum: Optional[str]
+    #quantity: Optional[str]
+    #unitcost: Optional[str]
+    #notes: Optional[str]
+    #mainwork_id: Optional[int] = None
+    #act_custom_period: Optional[str]=None
 
     class Config:
         from_attributes = True
@@ -124,11 +113,11 @@ class SubWorksSchema(BaseModel):
     base: Optional[str]
     numsprav: Optional[str]
     mainwork_id: Optional[int]
-    sum: Optional[str]
-    quantity: Optional[str]
-    unitcost: Optional[str]
-    notes: Optional[str]
-    act_custom_period: Optional[str]=None
+    #sum: Optional[str]
+    #quantity: Optional[str]
+    #unitcost: Optional[str]
+    #notes: Optional[str]
+    #act_custom_period: Optional[str]=None
 
     class Config:
         from_attributes = True
@@ -143,11 +132,11 @@ class FixWorksSchema(BaseModel):
     base: Optional[str]
     numsprav: Optional[str]
     mainwork_id: Optional[int]
-    sum: Optional[str]
-    quantity: Optional[str]
-    unitcost: Optional[str]
-    notes: Optional[str]
-    act_custom_period: Optional[str]=None
+    #sum: Optional[str]
+    #quantity: Optional[str]
+    #unitcost: Optional[str]
+    #notes: Optional[str]
+    #act_custom_period: Optional[str]=None
 
     class Config:
         from_attributes = True

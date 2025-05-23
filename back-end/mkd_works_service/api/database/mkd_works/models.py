@@ -182,7 +182,7 @@ class Mainworks(Base):
     acts = relationship('Acts', secondary='acthasmainworks', back_populates='mainworks', lazy='select')
     acts_details = relationship("Acthasmainworks", back_populates="mainworks", lazy='joined', viewonly=True)
     
-    @hybrid_property
+    """@hybrid_property
     def sum(self):
         return self.acts_details[0].sum if self.acts_details else None
 
@@ -202,7 +202,7 @@ class Mainworks(Base):
     
     @hybrid_property
     def act_custom_period(self):
-        return self.acts_details[0].act_custom_period if self.acts_details else None
+        return self.acts_details[0].act_custom_period if self.acts_details else None"""
     
 
 
@@ -225,8 +225,8 @@ class Subworks(Base):
     """sum = AssociationProxy('acts_details', 'sum', creator=lambda values: values[0] if values else None)
     quantity = AssociationProxy('acts_details', 'quantity', creator=lambda values: values[0] if values else None)
     unitcost = AssociationProxy('acts_details', 'unitcost', creator=lambda values: values[0] if values else None)"""
-    #@property
-    @hybrid_property
+   
+    """@hybrid_property
     def sum(self):
         return self.acts_details[0].sum if self.acts_details else None
 
@@ -246,7 +246,7 @@ class Subworks(Base):
     
     @hybrid_property
     def act_custom_period(self):
-        return self.acts_details[0].act_custom_period if self.acts_details else None
+        return self.acts_details[0].act_custom_period if self.acts_details else None"""
 
 class Fixworks(Base):
     __tablename__ = "fixworks"
@@ -265,7 +265,7 @@ class Fixworks(Base):
     acts = relationship('Acts', secondary='acthasfixworks', back_populates='fixworks', lazy='select', viewonly=True)
     acts_details = relationship("Acthasfixworks", back_populates="fixworks", lazy='joined', viewonly=True)
     
-    #@property
+    """#@property
     @hybrid_property
     def sum(self):
         return self.acts_details[0].sum if self.acts_details else None
@@ -286,7 +286,7 @@ class Fixworks(Base):
     
     @hybrid_property
     def act_custom_period(self):
-        return self.acts_details[0].act_custom_period if self.acts_details else None
+        return self.acts_details[0].act_custom_period if self.acts_details else None"""
     
  
 
