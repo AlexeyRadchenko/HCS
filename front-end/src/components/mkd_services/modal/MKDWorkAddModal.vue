@@ -145,17 +145,23 @@
                           </template>
                       </el-upload>
                   </el-col>
-                  <el-col :span="12">
-                    <el-text size="large">Прикрепленные документы:</el-text>
+                  <el-col :span="12" style="border: 1px solid #dcdfe6; border-radius: 4px; padding: 1em; margin-left: 0.8em;">
+                    <el-text size="large" >Прикрепленные документы:</el-text>
                     <el-row :gutter="20" class="mkd-works-apply-docs-margin">
-                    <el-col :span="24">
+                    <el-col :span="24" >
                       <el-row :gutter="20">
-                        <el-col :span="5">{{ actDownloadFile.date }}</el-col>
-                        <el-col :span="19"><el-link @click.prevent="downloadFile(actDownloadFile.url + actDownloadFile.uuid, actDownloadFile.filename)">{{ actDownloadFile.filename }}</el-link></el-col>
+                        <el-col :span="3">Акт: </el-col>
+                        <el-col :span="8" v-if="!actDownloadFile.url">Файл акта не прикреплен</el-col>
+                        <el-col :span="4">{{ actDownloadFile.url ? actDownloadFile.date : '' }}</el-col>
+                        <el-col :span="4">{{ actDownloadFile.url ? actDownloadFile.num : ''}}</el-col>
+                        <el-col :span="8"><el-link @click.prevent="downloadFile(actDownloadFile.url + actDownloadFile.uuid, actDownloadFile.filename)">{{ actDownloadFile.filename }}</el-link></el-col>
                       </el-row>
                       <el-row :gutter="20" class="mkd-works-apply-docs-margin">
-                        <el-col :span="5">{{ smetaDownloadFile.date }}</el-col>
-                        <el-col :span="19"><el-link @click.prevent="downloadFile(smetaDownloadFile.url + smetaDownloadFile.uuid, smetaDownloadFile.filename)">{{ smetaDownloadFile.filename }}</el-link></el-col>
+                        <el-col :span="3">Смета: </el-col>
+                        <el-col :span="8" v-if="!smetaDownloadFile.url">Файл сметы не прикреплен</el-col>
+                        <el-col :span="4">{{ smetaDownloadFile.url ? smetaDownloadFile.date : '' }}</el-col>
+                        <el-col :span="4">{{ smetaDownloadFile.url ? smetaDownloadFile.num : ''}}</el-col>
+                        <el-col :span="8"><el-link @click.prevent="downloadFile(smetaDownloadFile.url + smetaDownloadFile.uuid, smetaDownloadFile.filename)"><el-text type="success">{{ smetaDownloadFile.filename }}</el-text></el-link></el-col>
                       </el-row>
                     </el-col>     
                 </el-row>
@@ -427,6 +433,9 @@ const uploadActSuccess = (response) => {
       workFromDBdata.value.workId = response.workid
     }
     btnActDisable.value = false
+    actInputFileData.value.actdate = ''
+    actInputFileData.value.actnum = ''
+    actInputFileData.value.workid = null
     ElMessage({
       showClose: true,
       message: 'Файл акта успешно загружен',
@@ -444,6 +453,11 @@ const uploadSmetaSuccess = (response) => {
       workFromDBdata.value.workId = response.workid
     }
     btnSmetaDisable.value = false
+
+    smetaInputFileData.value.smetadate = ''
+    smetaInputFileData.value.smetanum = ''
+    smetaInputFileData.value.workid = null
+
     ElMessage({
       showClose: true,
       message: 'Файл сметы успешно загружен',
@@ -496,7 +510,7 @@ watch(
     let works = [...workFromDBdata.value.mainworks, ...workFromDBdata.value.subworks, ...workFromDBdata.value.fixworks];
     if (works.length) {
       for (let [index, element] of works.entries()) {
-        console.log("ELEMNT", element)
+        //console.log("ELEMNT", element)
         if (index === 0) {
           tableData.value[0].numsprav =  element.workType != 'main' ? element.numsprav : get_mainwork_numspav(element.work)
           tableData.value[0].nameWorkOrService = get_work_value_by_label(element.work, props.allWorksOptions)
@@ -532,7 +546,7 @@ watch(
 
 //upload files methods
 const handleExceedSmeta = (files) => { 
-  console.log("!smeta")
+  //console.log("!smeta")
   if (uploadSmeta.value) {
     uploadSmeta.value.clearFiles()
   }
@@ -715,7 +729,7 @@ const onPeriodValueChange = (val, row) => {
 }
 
 const showSelectedPeriodFullText = (val) => {
-  console.log('showSelectedPeriodFullText VAL:', val)
+  //console.log('showSelectedPeriodFullText VAL:', val)
   // Если val null или undefined — вернуть пустую строку
   if (val === null || val === undefined) return '';
   // Если val — число, привести к строке
@@ -736,7 +750,7 @@ const showSelectedWorkFullText = (val) => {
   // Если val — число, привести к строке
   if (typeof val === 'number') {
     const label = get_work_value_by_label(val.label, props.allWorksOptions);
-    console.log('Label выбранного периода:', label);
+    //console.log('Label выбранного периода:', label);
     return label
   }
   if (typeof val === 'object') {

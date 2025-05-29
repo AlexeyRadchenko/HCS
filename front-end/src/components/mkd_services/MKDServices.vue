@@ -148,14 +148,14 @@ const increment = () => {
   count.value++;
 };
 const handleOpen = (key, keyPath) => {
-  console.log(key, keyPath)
+  //console.log(key, keyPath)
 }
 
 const handleMenuItemClick = (item) => {
   const companyIdhouseId = item.index.split('-')
   selectedCompanyId.value = companyIdhouseId[0];
   selectedHouseId.value = companyIdhouseId[1];
-  console.log(item, companyIdhouseId)
+  //console.log(item, companyIdhouseId)
 }
 onMounted(() => {
   console.log('Компонент был смонтирован!');

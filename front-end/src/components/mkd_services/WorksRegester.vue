@@ -1,7 +1,11 @@
 <template>
     <div class="mkd-services-works-regester-wrapper-conteiner">
       <!--<el-text class="mx-1" size="large">{{ selectedCompanyId }} - {{ selectedHouseId }}</el-text>-->
-      <el-table :data="tableData" style="width: 100%" max-height="900" v-loading="loading">
+      <el-table :data="tableData"
+       style="width: 100%;"
+       :max-height="'67vh'"
+       v-loading="loading" 
+       :default-sort="{ prop: 'monthWork', order: 'descending' }" >
         <el-table-column fixed prop="numOrder" label="№" width="50" />
         <el-table-column fixed prop="numSprav" label="Разд. Справ." width="69" />
         <el-table-column label="Наименование работы" width="500">
@@ -31,8 +35,8 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="monthWork" label="Месяц пров. работ" width="100" :formatter="monthWorkFromDB" />
-        <el-table-column prop="yearWork" label="Год пров. работ" width="100" :formatter="yearWorkFromDB"/>
+        <el-table-column prop="monthWork" label="Месяц пров. работ" width="100" :formatter="monthWorkFromDB" sortable />
+        <el-table-column prop="yearWork" label="Год пров. работ" width="100" :formatter="yearWorkFromDB" />
         <el-table-column prop="sumWork" label="Стоимость работ" width="100" :formatter="formatToDecimal"/>
         <el-table-column fixed="right" label="Редактирование" min-width="120">
           <template #default="scope">
@@ -240,6 +244,7 @@ const downloadFile = (url, filename) => {
     console.error('Error:', error);
   });
 }
+
 
 
 onMounted(() => {

@@ -195,7 +195,7 @@ export var get_quantity_works = function (sub, fix) {
 }
 
 var getTypeWorkByName = function (nameW) {
-    console.log('NAME SELECT TYEPE', nameW)
+    //console.log('NAME SELECT TYEPE', nameW)
     let numType = nameW.split('_')[1]
     if (numType === '1') {
         return 'subwork'
@@ -208,10 +208,10 @@ var getTypeWorkByName = function (nameW) {
 }
 
 export var generate_data_object_to_post = function (workData, tableRowData, workID, houseID, periodOptions) {
-    console.log("wokrID", workID)
-    console.log("periodOptions", periodOptions)
-    console.log("workData", workData)
-    console.log("tableRowData", tableRowData)
+    //console.log("wokrID", workID)
+    //console.log("periodOptions", periodOptions)
+    //console.log("workData", workData)
+    //console.log("tableRowData", tableRowData)
 
     let postdata = {
         id: workID != '' ? workID : '-1',
@@ -229,9 +229,9 @@ export var generate_data_object_to_post = function (workData, tableRowData, work
     }
     
     for (let [index, element] of tableRowData.entries()) {
-        console.log('POST ELEMENT', element)
+        //console.log('POST ELEMENT', element)
         postdata.num = element.numsprav
-        console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", element.workType, element.nameWorkOrService) 
+        //console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", element.workType, element.nameWorkOrService) 
         let typeWorkInput = element.nameWorkOrService.value ? element.nameWorkOrService.value : element.nameWorkOrService
         postdata.works.push({
             numsprav: element.numsprav,
@@ -245,7 +245,7 @@ export var generate_data_object_to_post = function (workData, tableRowData, work
             notes: element.notes,
         })
     }
-    console.log("POSTDATA", tableRowData)
+    //console.log("POSTDATA", tableRowData)
     return postdata
 }
 
@@ -320,13 +320,13 @@ export var get_work_value_by_label = function (label, data) {
         }
     }    
 
-    console.log("NO MATCH FOUND!");
+    //console.log("NO MATCH FOUND!");
     return null;
 };
 
 export var get_mainwork_numspav = function (workname) {
     let result = workname.match(/^\s*(\d{1,2}\.)/);
-    console.log('SEARCH RESULT:', result);
+    //console.log('SEARCH RESULT:', result);
     return result ? result[1] : null; // Возвращаем число с точкой
 }
 
