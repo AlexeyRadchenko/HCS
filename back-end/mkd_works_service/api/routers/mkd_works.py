@@ -97,7 +97,7 @@ async def create_upload_act_file(
             )
         cr_act_doc = await create_mkd_works_db_object(db_session, actfile)
         
-        if workid == 'undefined':
+        if not workid or workid in ('', 'undefined'):
             #print("not exist", workid)
             act = Acts(
                 house_id=houseid,
@@ -158,7 +158,7 @@ async def create_upload_smeta_file(
             )
         cr_smeta_doc = await create_mkd_works_db_object(db_session, smetafile)
 
-        if workid == 'undefined':
+        if not workid or workid in ('', 'undefined'):
             #print("not exist", workid)
             act = Acts(
                 house_id=houseid,

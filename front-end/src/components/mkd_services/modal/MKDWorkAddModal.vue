@@ -425,6 +425,7 @@ const getDataSmetaFile = () => {
 }    
 const uploadActSuccess = (response) => {
     //console.log(response)
+    actDownloadFile.value.url = response.url
     actDownloadFile.value.filename = response.filename
     actDownloadFile.value.date = response.actdate ? dayjs(response.actdate).format('DD.MM.YYYY') : ''
     actDownloadFile.value.num = response.actnum
@@ -445,6 +446,7 @@ const uploadActSuccess = (response) => {
 
 const uploadSmetaSuccess = (response) => {
     //console.log(response)
+    smetaDownloadFile.value.url = response.url
     smetaDownloadFile.value.filename = response.filename
     smetaDownloadFile.value.date = response.smetadate ? dayjs(response.smetadate).format('DD.MM.YYYY') : ''
     smetaDownloadFile.value.num = response.smetanum,
@@ -479,6 +481,7 @@ watch(
   [() => props.dialogMKDWorksAddVisibleSub, () => props.allPeriodsOptions], 
   ([newShow, newOptions], [oldShow, oldOptions]) => {
   //console.log(newShow, oldShow)
+  clearUploadDocFilesObj()
   if (newShow && props.modalCallType == 'edit' && ((oldOptions.length > 0) || (newOptions.length > 0))) {
     loading.value = false
     /*console.log(props.modalCallType, props.editRowIndex)
@@ -538,6 +541,7 @@ watch(
   } else if (newShow && props.modalCallType == 'add') {
     loading.value = false
     clear_input_data(workInputData, tableData, actInputFileData, smetaInputFileData)
+    clearDownloadFilesData()
   }
   //console.log(workInputData.value.workMonthAndYear, dayjs(workFromDBdata.value.date).format('MM.YYYY'))
 })
@@ -561,6 +565,14 @@ const handleExceedSmeta = (files) => {
 
 const submitUploadSmeta = () => {
   if (uploadSmeta.value) {
+    if (smetaInputFileData.value.smetanum === '' || smetaInputFileData.value.smetadate === '') {
+      ElMessage({
+        showClose: true,
+        message: 'Для загрузки файла сметы необходимо указать номер и дату сметы',
+        type: 'warning',
+      })
+      return
+    }
     uploadSmeta.value.submit()
   }
 }
@@ -580,6 +592,14 @@ const handleExceedAct = (files) => {
 
 const submitUploadAct = () => {
   if (uploadAct.value) {
+    if (actInputFileData.value.actnum === '' || actInputFileData.value.actdate === '') {
+      ElMessage({
+        showClose: true,
+        message: 'Для загрузки файла акта необходимо указать номер и дату акта',
+        type: 'warning',
+      })
+      return
+    }
     uploadAct.value.submit()
   }
 }
@@ -617,11 +637,15 @@ const onAddItem = () => {
 
 const onCancleBtnClick = () => {
   dialogMKDWorksAddVisibleSub.value = false
+  loading.value = false
+  clear_input_data(workInputData, tableData, actInputFileData, smetaInputFileData)
+  clearDownloadFilesData()
+  clearUploadDocFilesObj()
 }
 
 const onSaveBtnClick =  () => {
-  //console.log('CAll TYPE', props.modalCallType)
-  //console.log("periodOptions", props.allPeriodsOptions)
+  console.log('CAll TYPE', props.modalCallType)
+  console.log("periodOptions", props.allPeriodsOptions)
   if (props.modalCallType === 'edit') {
     //console.log("call edit func")
     let data = generate_data_object_to_post(workInputData.value, tableData.value, props.workID, props.houseId, props.allPeriodsOptions)
@@ -633,6 +657,8 @@ const onSaveBtnClick =  () => {
           showClose: true,
         })
         dialogMKDWorksAddVisibleSub.value = false
+        clearUploadDocFilesObj()
+        clearDownloadFilesData()
         emit('update-data');
       }
   }).catch((error) => {
@@ -642,12 +668,14 @@ const onSaveBtnClick =  () => {
           message: 'Ошибка при сохранении',
           type: 'error',
     })
+    clearUploadDocFilesObj()
+    clearDownloadFilesData()
   });
   }else if (props.modalCallType === 'add') {
     let periods = props.allPeriodsOptions
     //console.log("periodOptionsCreate", props.allPeriodsOptions)
     let data = generate_data_object_to_post(workInputData.value, tableData.value, props.workID, props.houseId, props.allPeriodsOptions)
-    //console.log(data.works.length, data.works)
+    //console.log("BBBBBBB", data.works.length, data.works)
     if (data.works.length != 0 && data.works[0].namework == '') {
       //console.log('message add work')
       ElMessage({
@@ -666,6 +694,8 @@ const onSaveBtnClick =  () => {
             showClose: true,
           })
           dialogMKDWorksAddVisibleSub.value = false
+          clearUploadDocFilesObj()
+          clearDownloadFilesData()
           emit('update-data');
         }
       }).catch((error) => {
@@ -675,9 +705,18 @@ const onSaveBtnClick =  () => {
           message: 'Ошибка при сохранении',
           type: 'error',
         })
+        clearDownloadFilesData()
+        clearUploadDocFilesObj()
       });
     }
   }
+}
+
+const clearUploadDocFilesObj = () => {
+  if (uploadSmeta.value)
+    uploadSmeta.value.clearFiles()
+  if (uploadAct.value)
+    uploadAct.value.clearFiles()
 }
 
 const downloadFile = (url, filename) => {
@@ -758,6 +797,21 @@ const showSelectedWorkFullText = (val) => {
   }
   // Если val — строка, вернуть как есть
   return val;
+}
+
+const clearDownloadFilesData = () => {
+  actDownloadFile.value.num = ''
+  actDownloadFile.value.date = ''
+  actDownloadFile.value.url = ''
+  actDownloadFile.value.uuid = ''
+  actDownloadFile.value.workid = ''
+  actDownloadFile.value.filename= ''
+  smetaDownloadFile.value.num = ''
+  smetaDownloadFile.value.date = ''
+  smetaDownloadFile.value.url = ''
+  smetaDownloadFile.value.uuid = ''
+  smetaDownloadFile.value.workid = ''
+  smetaDownloadFile.value.filename = ''
 }
 
 onMounted(() => {
