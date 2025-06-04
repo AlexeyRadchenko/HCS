@@ -27,7 +27,7 @@ export var get_mkd_works_get_all_houses = async function () {
     return await http.get(api_main_url_port + '/api/v1/mkd_works_service/houses/all')
     .then(response => {
       if (response.status == 200)
-        console.log(response)
+        //console.log(response)
         return response
     })
     .catch(e => {
@@ -45,7 +45,7 @@ export var get_mkd_works_get_all_works_by_house_id = async function (house_id) {
     return await http.get(api_main_url_port + '/api/v1/mkd_works_service/houses/works/all/' + house_id)
     .then(response => {
       if (response.status == 200)
-        console.log(response)
+        //console.log(response)
         return response
     })
     .catch(e => {
@@ -81,7 +81,7 @@ export var get_works_reference_book = async function () {
     return await http.get(api_main_url_port + '/api/v1/mkd_works_service/get_reference_book_data/all')
     .then(response => {
       if (response.status == 200)
-        console.log(response)
+        //console.log(response)
         return response
     })
     .catch(e => {

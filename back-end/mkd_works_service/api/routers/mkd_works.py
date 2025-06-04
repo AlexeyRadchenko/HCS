@@ -13,7 +13,8 @@ from ..database.mkd_works.crud import (
     select_smeta_doc_by_uuid, get_year_acts_by_house_id, get_acts_by_year_and_house_id, get_year_acts_by_house_id_and_year, get_bg_task_status,
     get_year_acts_file_by_year_act_uuid, get_techdoc_file_by_uuid, get_tech_files_by_house_id, delete_act_old_works,
     get_mkd_director_data_from_db_by_house_id, get_month_acts_by_house_id, get_month_acts_files_data_by_house_id_and_month_year, 
-    get_acts_by_month_year_and_house_id, get_month_acts_file_by_year_act_uuid, create_mkd_works_db_objects
+    get_acts_by_month_year_and_house_id, get_month_acts_file_by_year_act_uuid, create_mkd_works_db_objects, update_act_has_actfiles_db,
+    update_act_has_smetafiles_db, select_act_doc_by_uuid_and_act_id, select_smeta_doc_by_uuid_and_act_id
     )
 from ..database.mkd_works.models import (Acts, Actfiles, Actshasactfiles, Smetafiles, Actshassmetafiles, Acthasmainworks, Acthassubworks, Acthasfixworks, BGTasks,
     Techfiles)
@@ -98,33 +99,36 @@ async def create_upload_act_file(
         cr_act_doc = await create_mkd_works_db_object(db_session, actfile)
         
         if not workid or workid in ('', 'undefined'):
+            acthasactfiles = None
             #print("not exist", workid)
-            act = Acts(
+            """act = Acts(
                 house_id=houseid,
                 all_sum='0',
             )
             cr_work = await create_mkd_works_db_object(db_session, act)
             acthasactfiles = Actshasactfiles(
-                act_id=cr_work.id,
+                act_id=0,
                 actfile_uuid=cr_act_doc.uuid
-            )
-            workid=cr_work.id
+            )"""
+            workid="-1"
         else:
             #print("exist", workid)
             #create act document with ref to act.id=workid
             acthasactfiles = Actshasactfiles(
                 act_id=int(workid),
                 actfile_uuid=cr_act_doc.uuid
-            )          
+            )    
         await chunked_copy(file, fullpath)
-        ref_obj = await create_mkd_works_db_object(db_session, acthasactfiles)
+        if acthasactfiles:
+            ref_obj = await create_mkd_works_db_object(db_session, acthasactfiles)
         return {
             "filename": file.filename,
             "actdate": actdate,
             "actnum": actnum,
             "url": url,
+            "uuid": cr_act_doc.uuid,
             "workid": int(workid), #send work id from db object
-            }
+        }
     
 @router.post("/uploadfile/smeta")
 async def create_upload_smeta_file(
@@ -159,8 +163,9 @@ async def create_upload_smeta_file(
         cr_smeta_doc = await create_mkd_works_db_object(db_session, smetafile)
 
         if not workid or workid in ('', 'undefined'):
+            acthassmetafiles = None
             #print("not exist", workid)
-            act = Acts(
+            """act = Acts(
                 house_id=houseid,
                 all_sum='0',
             )
@@ -168,8 +173,8 @@ async def create_upload_smeta_file(
             acthassmetafiles = Actshassmetafiles(
                 act_id=cr_work.id,
                 smetafile_uuid=cr_smeta_doc.uuid
-            )
-            workid=cr_work.id
+            )"""
+            workid="-1"
         else:
             #print("exist", workid)
             #create act document with ref to act.id=workid
@@ -178,12 +183,14 @@ async def create_upload_smeta_file(
                 smetafile_uuid=cr_smeta_doc.uuid
             )            
         await chunked_copy(file, fullpathsmeta)
-        ref_obj = await create_mkd_works_db_object(db_session, acthassmetafiles)
+        if acthassmetafiles:
+            ref_obj = await create_mkd_works_db_object(db_session, acthassmetafiles)
         return {
             "filename": file.filename,
             "smetadate": smetadate,
             "smetanum": smetanum,
             "url": url,
+            "uuid": cr_smeta_doc.uuid,
             "workid": int(workid), #send work id from db object
             }    
 
@@ -212,6 +219,7 @@ async def update_act_model(
     ):
     #print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WORKS", work.works)
     #print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WORK ID", int(work.id))
+    #print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>WORK", work)
     res = None
     if len(work.mainworks) > 0:
         res = await delete_act_old_works(db_session, int(work.id), 'mainworks')
@@ -287,8 +295,19 @@ async def update_act_model(
     #print("-----------------", sum, act_edit_model_object.all_sum)
     if sum != work.all_sum:
         act_edit_model_object.all_sum = sum
-        print("-----------------", sum, act_edit_model_object.all_sum)
+        #print("-----------------", sum, act_edit_model_object.all_sum)
     acts_update = await update_act_db(db_session, act_edit_model_object)
+    if acts_update == 1:
+        #print("!!!!!!!!!!!!!!ACTID:", work.actUUID)
+        #print("!!!!!!!!!!!!!!SMETAID:", work.smetaUUID)
+        if work.actUUID:
+            exist_act_files = await select_act_doc_by_uuid_and_act_id(db_session, work.actUUID, int(work.id))
+            if not exist_act_files:
+                act_file_update = await update_act_has_actfiles_db(db_session, int(work.id), work.actUUID)
+        if work.smetaUUID:
+            exist_smeta_files = await select_smeta_doc_by_uuid_and_act_id(db_session, work.smetaUUID, int(work.id))
+            if not exist_smeta_files:
+                smeta_file_update = await update_act_has_smetafiles_db(db_session, int(work.id), work.smetaUUID)
     if acts_update == 1:
         #print("!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", acts_update)
         return             
@@ -323,7 +342,7 @@ async def create_act(
                 if s.workType == 'mainwork':
                     act_mainwork = Acthasmainworks(
                         act_id=create_db_act_data.id,
-                        mainwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '0'),
+                        mainwork_id=getWorkSubId(s.workSubId, '0') if s.workSubId != -1 else getWorkSubId(s.namework, '0'),
                         sum=s.sum,
                         quantity=s.quantity,
                         unitcost=s.costofpart,
@@ -337,7 +356,7 @@ async def create_act(
                 if s.workType == 'subwork':
                     act_subwork = Acthassubworks(
                         act_id=create_db_act_data.id,
-                        subwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '1'),
+                        subwork_id=getWorkSubId(s.workSubId, '1') if s.workSubId != -1 else getWorkSubId(s.namework, '1'),
                         sum=s.sum,
                         quantity=s.quantity,
                         unitcost=s.costofpart,
@@ -349,9 +368,11 @@ async def create_act(
                     continue
 
                 if s.workType == 'fixwork':
+                    #print("3333333333333333333", s.workSubId, s.namework)
+                    #print("$4444444444", getWorkSubId(s.namework, '2'))
                     act_fixwork = Acthasfixworks(
                         act_id=create_db_act_data.id,
-                        fixwork_id=s.workSubId if s.workSubId != -1 else getWorkSubId(s.namework, '2'),
+                        fixwork_id=getWorkSubId(s.workSubId, '2') if s.workSubId != -1 else getWorkSubId(s.namework, '2'),
                         sum=s.sum,
                         quantity=s.quantity,
                         unitcost=s.costofpart,
@@ -368,6 +389,28 @@ async def create_act(
         acts_create = await update_act_db(db_session, act_create_model_object)
         if acts_create:
             #print("!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", acts_create)
+            #print("!!!!!!!!!!!!!!ACTID:", work.actUUID)
+            #print("!!!!!!!!!!!!!!SMETAID:", work.smetaUUID)
+            if work.smetaUUID:
+                exist_act_files = await select_act_doc_by_uuid_and_act_id(db_session, work.actUUID, int(work.id))
+                if not exist_act_files:
+                    acthassmetafiles = Actshassmetafiles(
+                        act_id=create_db_act_data.id,
+                        smetafile_uuid=work.smetaUUID
+                    )
+                    act_file_attach = await create_mkd_works_db_object(db_session, acthassmetafiles)
+                else:
+                    return {"error": f"document not update act exist with uuid: {work.actUUID}", "status_code": 422}
+            if work.actUUID:
+                exist_smeta_files = await select_smeta_doc_by_uuid_and_act_id(db_session, work.smetaUUID, int(work.id))
+                if not exist_smeta_files:
+                    actshasactfiles = Actshasactfiles(
+                        act_id=create_db_act_data.id,
+                        actfile_uuid=work.actUUID
+                    )
+                    act_file_attach = await create_mkd_works_db_object(db_session, actshasactfiles)
+                else:
+                    return {"error": f"document not update smeta exist with uuid: {work.smetaUUID}", "status_code": 422}
             return             
         return {"error": "document not update", "status_code": 422}
     
@@ -449,7 +492,7 @@ async def get_bg_status_by_uuid(
     if uuid:
         task = await get_bg_task_status(db_session, uuid)
         if task:
-            print(task, task.status)
+            #print(task, task.status)
             return task
 
     
@@ -507,7 +550,7 @@ async def get_bg_status_by_uuid(
     if uuid:
         task = await get_bg_task_status(db_session, uuid)
         if task:
-            print(task, task.status)
+            #print(task, task.status)
             return task
         
 @router.get("/download/monthact/{uuid}")

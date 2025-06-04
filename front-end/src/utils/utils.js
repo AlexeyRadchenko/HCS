@@ -207,7 +207,7 @@ var getTypeWorkByName = function (nameW) {
     return
 }
 
-export var generate_data_object_to_post = function (workData, tableRowData, workID, houseID, periodOptions) {
+export var generate_data_object_to_post = function (workData, tableRowData, workID, houseID, periodOptions, actDownloadFile, smetaDownloadFile) {
     //console.log("wokrID", workID)
     //console.log("periodOptions", periodOptions)
     //console.log("workData", workData)
@@ -220,9 +220,10 @@ export var generate_data_object_to_post = function (workData, tableRowData, work
         all_sum: workData.actAllSumHandle,
         directorSovietFIO: workData.directorSovietFIO,
         directorAppartNum: workData.directorAppartNum,
-        all_sum: workData.actAllSumHandle,
         month_year_works: workData.workMonthAndYear,
         works: [],
+        actUUID: actDownloadFile ? actDownloadFile.uuid : '',
+        smetaUUID: smetaDownloadFile ? smetaDownloadFile.uuid : '',
         mainworks: workData.mainworks ? workData.mainworks.map(element => ({id: element.mainwork_id, workType: element.workType})) : [],
         subworks: workData.subworks ? workData.subworks.map(element => ({id: element.subwork_id, workType: element.workType})) : [],
         fixworks: workData.fixworks ? workData.fixworks.map(element => ({id: element.fixwork_id, workType: element.workType})) : [],
@@ -354,3 +355,28 @@ export var getPeriodLabelByValue = function (value, allPeriodsOptions) {
   const found = allPeriodsOptions.find(option => option.value === value);
   return found ? found.label : '';
 }
+
+export var validatePostData = function (postData) {
+    if (postData.works.length != 0 && postData.works[0].namework == '') {
+      console.log('1')
+      return { isValid: false, message: 'Укажите наименование работы!' }
+    } else if (postData.works.length == 0) {
+      console.log('2')
+      return { isValid: false, message: 'Заполните сведения о работе!' }
+    } else if (postData.works.some(work => work.period === null || work.period === undefined)) {
+      console.log('3')
+      return { isValid: false, message: 'Укажите периодичность для всех работ!' }
+    } else if (postData.works.some(work => work.sum === '' || work.sum === null || work.sum === undefined)) {
+      console.log('4')
+      return { isValid: false, message: 'Укажите цену выполненной работы (оказанной услуги) в рублях !' }
+    } else if (postData.works.some(work => work.sum === work)) {
+        console.log('4')
+        return { isValid: false, message: 'Укажите цену выполненной работы (оказанной услуги) в рублях !' }
+    } else if (postData.month_year_works === '' || postData.month_year_works === null || postData.month_year_works === "Invalid Date") {
+      console.log('CHEK MONTH YEAR', postData.month_year_works === '' || postData.month_year_works === null || postData.month_year_works === "Invalid Date")
+      console.log('message add month year', postData.month_year_works)
+      console.log('5')
+      return { isValid: false, message: 'Укажитe месяц и год проведения работ !' }
+    }
+    return { isValid: true, message: '' }
+}    

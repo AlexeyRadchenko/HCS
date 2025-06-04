@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 from typing import List, Optional, Any
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from uuid import UUID
 
 
@@ -275,7 +275,7 @@ class TableWorkNewSchema(BaseModel):
     costofpart: Optional[str] = None
     sum: Optional[str] = None
     workType: Optional[str] = None
-    workSubId: Optional[int] = None
+    workSubId: Optional[str] = None
     notes: Optional[str] = None  
 
 class EditWorksListSchema(BaseModel):
@@ -288,12 +288,20 @@ class WorkEditSchema(BaseModel):
     house_id: Optional[int]
     all_sum: Optional[str]
     directorSovietFIO: Optional[str]
-    directorAppartNum: Optional[str]  
+    directorAppartNum: Optional[str]
+    actUUID: Optional[UUID] = None
+    smetaUUID: Optional[UUID] = None  
     month_year_works: Optional[datetime]
     works: List[TableWorkRowEditSchema]
     mainworks:List[EditWorksListSchema]
     subworks:List[EditWorksListSchema]
     fixworks:List[EditWorksListSchema]
+
+    @field_validator('actUUID', 'smetaUUID', mode='before')
+    def empty_str_to_none(cls, v):
+        if v == "" or v is None:
+            return None
+        return v
 
 class WorkNewSchema(BaseModel):
     id: Optional[str]
@@ -302,11 +310,19 @@ class WorkNewSchema(BaseModel):
     all_sum: Optional[str] = None
     directorSovietFIO: Optional[str] = None
     directorAppartNum: Optional[str] = None
+    actUUID: Optional[UUID] = None
+    smetaUUID: Optional[UUID] = None 
     month_year_works: datetime | str = None
     works: List[TableWorkNewSchema]
     mainworks:List[EditWorksListSchema] | None = None
     subworks:List[EditWorksListSchema] | None = None 
-    fixworks:List[EditWorksListSchema] | None = None   
+    fixworks:List[EditWorksListSchema] | None = None
+
+    @field_validator('actUUID', 'smetaUUID', mode='before')
+    def empty_str_to_none(cls, v):
+        if v == "" or v is None:
+            return None
+        return v
 
 class YearActFilesSchema(BaseModel):
     uuid: Optional[UUID]

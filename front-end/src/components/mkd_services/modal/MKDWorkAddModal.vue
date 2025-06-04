@@ -5,11 +5,11 @@
           <el-container>
             <main style="width: 100%;">
                 <el-row :gutter="20">   
-                    <el-col :span="12">
+                    <el-col :span="11">
                         <el-text class="mx-1" size="large">Приложить файл сметы</el-text>
                     </el-col>
-                    <el-col :span="12">
-                        <el-text class="mx-1" size="large">Сведения для составления акта</el-text>
+                    <el-col :span="13">
+                        <el-text size="large" style="">Сведения для составления акта</el-text>
                     </el-col>
                 </el-row>
                 <el-row class="file-inout-row-cl" :gutter="20">
@@ -65,7 +65,7 @@
                         clearable
                       />
                     </el-col>
-                    <el-col :span="2">
+                    <el-col :span="3">
                       <el-input
                         v-model="workInputData.directorAppartNum"
                         style="width: 100%"
@@ -73,8 +73,8 @@
                         clearable
                       />
                     </el-col>
-                    <el-col :span="4">
-                      <el-button type="primary" @click="getHouseDirectorDataFromDB">Заполнить из базы</el-button>
+                    <el-col :span="3">
+                      <el-button type="primary" style="width: 100%;" @click="getHouseDirectorDataFromDB">Заполнить из базы</el-button>
                     </el-col>
                 </el-row>
                 <el-row :gutter="20">   
@@ -96,7 +96,7 @@
                         v-model="workInputData.actAllSumHandle"
                         style="width: 100%"
                         placeholder="Общая сумма"
-                        clearable
+                        disabled
                       />
                     </el-col>
                 </el-row>
@@ -145,26 +145,28 @@
                           </template>
                       </el-upload>
                   </el-col>
-                  <el-col :span="12" style="border: 1px solid #dcdfe6; border-radius: 4px; padding: 1em; margin-left: 0.8em;">
-                    <el-text size="large" >Прикрепленные документы:</el-text>
-                    <el-row :gutter="20" class="mkd-works-apply-docs-margin">
-                    <el-col :span="24" >
-                      <el-row :gutter="20">
-                        <el-col :span="3">Акт: </el-col>
-                        <el-col :span="8" v-if="!actDownloadFile.url">Файл акта не прикреплен</el-col>
-                        <el-col :span="4">{{ actDownloadFile.url ? actDownloadFile.date : '' }}</el-col>
-                        <el-col :span="4">{{ actDownloadFile.url ? actDownloadFile.num : ''}}</el-col>
-                        <el-col :span="8"><el-link @click.prevent="downloadFile(actDownloadFile.url + actDownloadFile.uuid, actDownloadFile.filename)">{{ actDownloadFile.filename }}</el-link></el-col>
-                      </el-row>
+                  <el-col :span="13">
+                    <div style="border: 1px solid #dcdfe6; border-radius: 4px; padding: 1em; width: 92%;">
+                      <el-text size="large" >Прикрепленные документы:</el-text>
                       <el-row :gutter="20" class="mkd-works-apply-docs-margin">
-                        <el-col :span="3">Смета: </el-col>
-                        <el-col :span="8" v-if="!smetaDownloadFile.url">Файл сметы не прикреплен</el-col>
-                        <el-col :span="4">{{ smetaDownloadFile.url ? smetaDownloadFile.date : '' }}</el-col>
-                        <el-col :span="4">{{ smetaDownloadFile.url ? smetaDownloadFile.num : ''}}</el-col>
-                        <el-col :span="8"><el-link @click.prevent="downloadFile(smetaDownloadFile.url + smetaDownloadFile.uuid, smetaDownloadFile.filename)"><el-text type="success">{{ smetaDownloadFile.filename }}</el-text></el-link></el-col>
+                        <el-col :span="24" >
+                        <el-row :gutter="20">
+                          <el-col :span="3">Акт: </el-col>
+                          <el-col :span="8" v-if="!actDownloadFile.url">Файл акта не прикреплен</el-col>
+                          <el-col :span="4">{{ actDownloadFile.url ? actDownloadFile.date : '' }}</el-col>
+                          <el-col :span="4">{{ actDownloadFile.url ? actDownloadFile.num : ''}}</el-col>
+                          <el-col :span="8"><el-link @click.prevent="downloadFile(actDownloadFile.url + actDownloadFile.uuid, actDownloadFile.filename)">{{ actDownloadFile.filename }}</el-link></el-col>
+                        </el-row>
+                        <el-row :gutter="20" class="mkd-works-apply-docs-margin">
+                          <el-col :span="3">Смета: </el-col>
+                          <el-col :span="8" v-if="!smetaDownloadFile.url">Файл сметы не прикреплен</el-col>
+                          <el-col :span="4">{{ smetaDownloadFile.url ? smetaDownloadFile.date : '' }}</el-col>
+                          <el-col :span="4">{{ smetaDownloadFile.url ? smetaDownloadFile.num : ''}}</el-col>
+                          <el-col :span="8"><el-link @click.prevent="downloadFile(smetaDownloadFile.url + smetaDownloadFile.uuid, smetaDownloadFile.filename)"><el-text type="success">{{ smetaDownloadFile.filename }}</el-text></el-link></el-col>
+                        </el-row>
+                        </el-col>     
                       </el-row>
-                    </el-col>     
-                </el-row>
+                    </div>  
                   </el-col>
                 </el-row>
                 <el-row>
@@ -240,7 +242,12 @@
                       </el-table-column>
                       <el-table-column label="Цена выполненной работы (оказанной услуги) в рублях" width="120">
                         <template #default="scope">
-                          <el-input v-model="scope.row.sum" style="width: 100%" :parser="rublesFormatParser" :formatter="formatToDecimal"/>
+                          <el-input
+                           v-model="scope.row.sum" 
+                           style="width: 100%" 
+                           :parser="rublesFormatParser" 
+                           :formatter="formatToDecimal"
+                           @change="val => onWorkSumValueChange(val)" />
                         </template>
                       </el-table-column>
                       <el-table-column label="Комментарий" width="140">
@@ -291,7 +298,7 @@ import { edit_mkd_works, create_new_mkd_works, download_file_mkd_works, request_
 import dayjs from 'dayjs'
 import FileDownload from 'js-file-download'
 import { generate_data_object_to_post, clear_input_data, get_work_value_by_label, get_mainwork_numspav,
-   formatWorkCode, get_detailed_work_id, getPeriodLabelByValue } from '../../../utils/utils';
+   formatWorkCode, get_detailed_work_id, getPeriodLabelByValue, validatePostData } from '../../../utils/utils';
 
 const props = defineProps({
     houseId: String,
@@ -372,6 +379,7 @@ const getDataActFile = () => {
 };
 
 const formatToDecimal = (value) => {
+    value = String(value);
     // Если строка пустая или не определена, возвращаем "0.00"
     if (!value || value.trim() === '') {
         return '0.00';
@@ -396,6 +404,7 @@ const formatToDecimal = (value) => {
 
 const rublesFormatParser = (value) => {
   // Если строка пустая или не определена, возвращаем "0.00"
+  value = String(value);
   if (!value || value.trim() === '') {
       return '0.00';
   }
@@ -430,6 +439,7 @@ const uploadActSuccess = (response) => {
     actDownloadFile.value.date = response.actdate ? dayjs(response.actdate).format('DD.MM.YYYY') : ''
     actDownloadFile.value.num = response.actnum
     actDownloadFile.value.workid = response.workid
+    actDownloadFile.value.uuid = response.uuid
     if (!workFromDBdata.value.workId) {
       workFromDBdata.value.workId = response.workid
     }
@@ -451,6 +461,7 @@ const uploadSmetaSuccess = (response) => {
     smetaDownloadFile.value.date = response.smetadate ? dayjs(response.smetadate).format('DD.MM.YYYY') : ''
     smetaDownloadFile.value.num = response.smetanum,
     smetaDownloadFile.value.workid = response.workid
+    smetaDownloadFile.value.uuid = response.uuid
     if (!workFromDBdata.value.workId) {
       workFromDBdata.value.workId = response.workid
     }
@@ -476,6 +487,12 @@ const uploadSmetaDisable = () => {
 }
 
 
+// 5. Пересчёт orderNum после удаления строки
+const recountOrderNums = () => {
+  tableData.value.forEach((row, idx) => {
+    row.orderNum = idx + 1
+  })
+}
 
 watch(
   [() => props.dialogMKDWorksAddVisibleSub, () => props.allPeriodsOptions], 
@@ -484,6 +501,57 @@ watch(
   clearUploadDocFilesObj()
   if (newShow && props.modalCallType == 'edit' && ((oldOptions.length > 0) || (newOptions.length > 0))) {
     loading.value = false
+    // --- Исправление: копируем tableData из workFromDBdata.value, если оно есть ---
+    if (workFromDBdata.value && Array.isArray(workFromDBdata.value.tableData)) {
+      tableData.value = workFromDBdata.value.tableData.map(row => ({ ...row }))
+    } else {
+      // fallback: старый способ, если tableData нет
+      tableData.value = [{
+        orderNum: 1,
+        numsprav: '',
+        nameWorkOrService: '',
+        period: '',
+        quantity: '',
+        costOfPart: '',
+        sum: '0.00',
+        workType: '',
+        workSubId: '',
+        notes: ''
+      }]
+      // ...старый код по формированию из mainworks/subworks/fixworks...
+      let works = [...workFromDBdata.value.mainworks, ...workFromDBdata.value.subworks, ...workFromDBdata.value.fixworks];
+      if (works.length) {
+        for (let [index, element] of works.entries()) {
+          console.log("ELEMNT", element)
+          if (index === 0) {
+            tableData.value[0].orderNum = 1
+            tableData.value[0].numsprav =  element.workType != 'main' ? element.numsprav : get_mainwork_numspav(element.work)
+            tableData.value[0].nameWorkOrService = get_work_value_by_label(element.work, props.allWorksOptions)
+            tableData.value[0].period = element.act_custom_period ? element.act_custom_period : element.period
+            tableData.value[0].quantity = element.quantity
+            tableData.value[0].costOfPart = element.unitcost
+            tableData.value[0].sum = element.sum
+            tableData.value[0].workType = element.workType
+            tableData.value[0].workSubId = get_detailed_work_id(element)
+            tableData.value[0].notes = element.notes ? element.notes : '' 
+            continue
+          }
+          console.log("PUSH LEMENET", element)
+          tableData.push({
+            orderNum: index + 1,
+            numsprav: element.workType != 'main' ? element.numsprav : get_mainwork_numspav(element.work),
+            nameWorkOrService: get_work_value_by_label(element.work, props.allWorksOptions),
+            period: element.act_custom_period ? element.act_custom_period : element.period,
+            quantity: element.quantity,
+            costOfPart :element.unitcost,
+            sum: element.sum,
+            workType: element.workType,
+            workSubId: element.id,
+          })
+        }  
+      }
+    }
+    
     /*console.log(props.modalCallType, props.editRowIndex)
     console.log(workFromDBdata.value)
     console.log("!!!!!!!!!!!!!!!!!!!!!!!!!",props.houseId, props.workID)
@@ -510,34 +578,8 @@ watch(
     smetaDownloadFile.value.uuid = workFromDBdata.value.smeta.uuid
     smetaDownloadFile.value.workid = workFromDBdata.value.smeta.workId
     smetaDownloadFile.value.filename = workFromDBdata.value.smeta.name
-    let works = [...workFromDBdata.value.mainworks, ...workFromDBdata.value.subworks, ...workFromDBdata.value.fixworks];
-    if (works.length) {
-      for (let [index, element] of works.entries()) {
-        //console.log("ELEMNT", element)
-        if (index === 0) {
-          tableData.value[0].numsprav =  element.workType != 'main' ? element.numsprav : get_mainwork_numspav(element.work)
-          tableData.value[0].nameWorkOrService = get_work_value_by_label(element.work, props.allWorksOptions)
-          tableData.value[0].period = element.act_custom_period ? element.act_custom_period : element.period
-          tableData.value[0].quantity = element.quantity
-          tableData.value[0].costOfPart = element.unitcost
-          tableData.value[0].sum = element.sum
-          tableData.value[0].workType = element.workType
-          tableData.value[0].workSubId = get_detailed_work_id(element)
-          tableData.value[0].notes = element.notes ? element.notes : '' 
-          continue
-        }
-        tableData.push({
-          numsprav: element.workType != 'main' ? element.numsprav : get_mainwork_numspav(element.work),
-          nameWorkOrService: get_work_value_by_label(element.work, props.allWorksOptions),
-          period: element.act_custom_period ? element.act_custom_period : element.period,
-          quantity: element.quantity,
-          costOfPart :element.unitcost,
-          sum: element.sum,
-          workType: element.workType,
-          workSubId: element.id,
-          })
-      }  
-    }
+    
+    recountOrderNums()
   } else if (newShow && props.modalCallType == 'add') {
     loading.value = false
     clear_input_data(workInputData, tableData, actInputFileData, smetaInputFileData)
@@ -620,6 +662,7 @@ const tableData = ref([
 
 const deleteRow = (index) => {
   tableData.value.splice(index, 1)
+  recountOrderNums()
 }
 
 const onAddItem = () => {
@@ -647,45 +690,65 @@ const onSaveBtnClick =  () => {
   console.log('CAll TYPE', props.modalCallType)
   console.log("periodOptions", props.allPeriodsOptions)
   if (props.modalCallType === 'edit') {
-    //console.log("call edit func")
-    let data = generate_data_object_to_post(workInputData.value, tableData.value, props.workID, props.houseId, props.allPeriodsOptions)
-    edit_mkd_works(data).then((response) => {
-      if (response.status === 200 && response.statusText === 'OK') {
-        ElMessage({
-          message: 'Данные успешно отредактированы',
-          type: 'success',
+    console.log("call edit func")
+    let data = generate_data_object_to_post(
+      workInputData.value,
+      tableData.value, props.workID, props.houseId, props.allPeriodsOptions, actDownloadFile.value, smetaDownloadFile.value)
+    const { isValid, message } = validatePostData(data)
+    if (!isValid) {
+      console.log('error on save edit data')
+      ElMessage({
           showClose: true,
+          message: message,
+          type: 'warning',
+      })
+      return
+    }else {
+      edit_mkd_works(data).then((response) => {
+        if (response.status === 200 && response.statusText === 'OK') {
+          ElMessage({
+            message: 'Данные успешно отредактированы',
+            type: 'success',
+            showClose: true,
+          })
+          dialogMKDWorksAddVisibleSub.value = false
+          emit('update-data');
+          clearUploadDocFilesObj()
+          clearDownloadFilesData()
+        }
+      }).catch((error) => {
+        console.error('Error:', error);
+        ElMessage({
+              showClose: true,
+              message: 'Ошибка при сохранении',
+              type: 'error',
         })
-        dialogMKDWorksAddVisibleSub.value = false
         clearUploadDocFilesObj()
         clearDownloadFilesData()
-        emit('update-data');
-      }
-  }).catch((error) => {
-    console.error('Error:', error);
-    ElMessage({
-          showClose: true,
-          message: 'Ошибка при сохранении',
-          type: 'error',
-    })
-    clearUploadDocFilesObj()
-    clearDownloadFilesData()
-  });
+      });
+    }
+    
   }else if (props.modalCallType === 'add') {
-    let periods = props.allPeriodsOptions
+    //let periods = props.allPeriodsOptions
     //console.log("periodOptionsCreate", props.allPeriodsOptions)
-    let data = generate_data_object_to_post(workInputData.value, tableData.value, props.workID, props.houseId, props.allPeriodsOptions)
-    //console.log("BBBBBBB", data.works.length, data.works)
-    if (data.works.length != 0 && data.works[0].namework == '') {
+    
+    let data = generate_data_object_to_post(
+      workInputData.value, tableData.value, props.workID, 
+      props.houseId, props.allPeriodsOptions, actDownloadFile.value, smetaDownloadFile.value)
+    const { isValid, message } = validatePostData(data)
+    if (!isValid) {
       //console.log('message add work')
       ElMessage({
           showClose: true,
-          message: 'Укажите наименование работы!',
+          message: message,
           type: 'warning',
       })
-    } else {
+    }
+    else {
       //console.log('call create handlrer')
-      let data = generate_data_object_to_post(workInputData.value, tableData.value, props.workID, props.houseId, props.allPeriodsOptions)
+      let data = generate_data_object_to_post(
+        workInputData.value, 
+        tableData.value, props.workID, props.houseId, props.allPeriodsOptions, actDownloadFile.value, smetaDownloadFile.value)
       create_new_mkd_works(data).then((response) => {
         if (response.status === 200 && response.statusText === 'OK') {
           ElMessage({
@@ -694,9 +757,9 @@ const onSaveBtnClick =  () => {
             showClose: true,
           })
           dialogMKDWorksAddVisibleSub.value = false
+          emit('update-data');
           clearUploadDocFilesObj()
           clearDownloadFilesData()
-          emit('update-data');
         }
       }).catch((error) => {
         console.error('Error:', error);
@@ -754,6 +817,7 @@ const onNameWorkChange = (val, row) => {
 
   row.numsprav = formatWorkCode(val)
   row.workSubId = val
+  console.log("CHANGE____", val)
 
 }
 
@@ -765,6 +829,18 @@ const onPeriodValueChange = (val, row) => {
   const label = getPeriodLabelByValue(val, props.allPeriodsOptions);
   // теперь label содержит текст выбранного периода
   //console.log('Label выбранного периода:', label);
+}
+
+const onWorkSumValueChange = (val) => {
+  console.log('onWorkSumValueChange VAL:', val)
+  let sum = 0.00;
+  for (let element of tableData.value) {
+    let floatSum = parseFloat(String(element.sum).replace(/,/g, '.')) || 0; // Преобразуем строку в число
+    sum += floatSum;
+  }
+  workInputData.value.actAllSumHandle = String(sum.toFixed(2))
+  console.log(workInputData.value.actAllSumHandle)
+  
 }
 
 const showSelectedPeriodFullText = (val) => {

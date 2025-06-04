@@ -8,7 +8,7 @@ from datetime import datetime
 
 from ..database import row2dict
 from .models import (Houses, Acts, Mainworks, Subworks, Fixworks, Actfiles, Smetafiles, Acthassubworks, Acthasfixworks, YearActfiles, MonthActfiles, 
-    Acthasmainworks, BGTasks, Techfiles)
+    Acthasmainworks, BGTasks, Techfiles, Actshasactfiles, Actshassmetafiles)
 
 
 async def create_mkd_works_db_object(db: AsyncSession, obj: Any):
@@ -170,6 +170,32 @@ async def update_acthasfixworks_db(db: AsyncSession, obj: Acthasfixworks, actID:
     await db.commit()
     return result.rowcount
 
+async def update_act_has_actfiles_db(db: AsyncSession, actid: int, actfileuuid: str):
+    result = await db.execute(
+        update(
+            Actshasactfiles
+        )
+        .values(
+            actfile_uuid=actfileuuid
+        )
+        .where(Actshasactfiles.act_id == actid)
+    )
+    await db.commit()
+    return result.rowcount
+
+async def update_act_has_smetafiles_db(db: AsyncSession, actid: int, smetafileuuid: str):
+    result = await db.execute(
+        update(
+            Actshassmetafiles
+        )
+        .values(
+            smetafile_uuid=smetafileuuid
+        )
+        .where(Actshassmetafiles.act_id == actid)
+    )
+    await db.commit()
+    return result.rowcount
+
 async def select_act_doc_by_uuid(db: AsyncSession, uuid: str):
     result = await db.execute(
         select(
@@ -189,6 +215,17 @@ async def select_act_doc_by_uuid(db: AsyncSession, uuid: str):
     )
     return result.one_or_none()
 
+async def select_act_doc_by_uuid_and_act_id(db: AsyncSession, uuid: str, act_id: int):
+    result = await db.execute(
+        select(
+            Actshasactfiles.actfile_uuid,
+            Actshasactfiles.act_id
+        )
+        .where(and_(Actshasactfiles.actfile_uuid == uuid, Actshasactfiles.act_id == act_id))
+    )
+    return result.one_or_none()
+
+
 async def select_smeta_doc_by_uuid(db: AsyncSession, uuid: str):
     result = await db.execute(
         select(
@@ -205,6 +242,16 @@ async def select_smeta_doc_by_uuid(db: AsyncSession, uuid: str):
             Smetafiles.date_upload
         )
         .where(Smetafiles.uuid == uuid)
+    )
+    return result.one_or_none()
+
+async def select_smeta_doc_by_uuid_and_act_id(db: AsyncSession, uuid: str, act_id: int):
+    result = await db.execute(
+        select(
+            Actshassmetafiles.smetafile_uuid,
+            Actshassmetafiles.act_id
+        )
+        .where(and_(Actshassmetafiles.smetafile_uuid == uuid, Actshassmetafiles.act_id == act_id))
     )
     return result.one_or_none()
 

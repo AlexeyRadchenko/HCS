@@ -30,7 +30,7 @@
             <div style="display: flex; align-items: center">
               <span>{{ scope.row.act.num }}</span>
               <span style="margin-left: 10px; margin-bottom: 0.2em;">
-                <el-link type="success" :underline="false" v-if="scope.row.act.url" @click.prevent="downloadFile(scope.row.smeta.url + scope.row.smeta.uuid, scope.row.smeta.name)">Файл Акта</el-link>
+                <el-link type="success" :underline="false" v-if="scope.row.act.url" @click.prevent="downloadFile(scope.row.act.url + scope.row.act.uuid, scope.row.act.name)">Файл Акта</el-link>
               </span>
             </div>
           </template>
@@ -44,7 +44,7 @@
               link
               type="primary"
               size="small"
-              @click.prevent="EditRow(scope.$index)"
+              @click.prevent="EditRow(scope.row.numOrder - 1, scope.row)"
             >
               редактировать
             </el-button>
@@ -100,6 +100,7 @@ const tableData = ref([])
 
 const formatToDecimal = (row, column, cellValue, index) => {
     // Если строка пустая или не определена, возвращаем "0.00"
+    cellValue = String(cellValue);
     if (!cellValue || cellValue.trim() === '') {
         return '0.00';
     }
@@ -118,16 +119,17 @@ const formatToDecimal = (row, column, cellValue, index) => {
     return cellValue;
 }
 
-const EditRow = (index) => {
+const EditRow = (index, row) => {
   //tableData.value.splice(index, 1)
   //console.log("Asdasdasd", modalCallType.value)
   modalCallType.value = 'edit'
   //console.log("Asdasdasd", modalCallType.value)
   showMKDWorkAddModal.value = true
   editRowIndex.value = index
-  workFromDBdataMain.value = tableData.value[index]
-  //console.log("dddddddddddddddddddddddddddddddddd", tableData.value[index].workId)
-  workID.value = String(tableData.value[index].workId)
+  workFromDBdataMain.value = row
+  //console.log("dddddddddddddddddddddddddddddddddd", index, tableData.value[index])
+  //console.log("dddddddddddddddddddddddddddddddddd+2", tableData.value)
+  workID.value = String(row.workId)
 }
 
 const onAddItem = () => {
