@@ -226,14 +226,17 @@ async def write_table_data_month_act(doc_sheet, write_data, start_write_row_num,
     border_left = Border(top=thin, left=thin, right=thin, bottom=None)
     alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     alignment_left = Alignment(horizontal="left", vertical="center", wrap_text=True)
+    alignment_right = Alignment(horizontal="right", vertical="center", wrap_text=True)
     font = Font(name='Times New Roman', size=12)
     font_bold = Font(name='Times New Roman', size=12, bold=True)
+    font_italic = Font(name='Times New Roman', size=12, italic=True, bold=True)
 
     cell_style = NamedStyle(name="styled_cell", border=border, alignment=alignment, font=font)
-    cell_style_font_bold_only = NamedStyle(name="styled_cell_font_bold_only", font=font_bold)
+    cell_style_font_bold_only = NamedStyle(name="styled_cell_font_bold_only", font=font_bold, alignment=alignment_right)
     cell_style_font_only = NamedStyle(name="styled_cell_font_only", font=font)
     cell_style_left = NamedStyle(name="styled_cell_left", border=border_left, alignment=alignment_left, font=font_bold)
     cell_styel_work_group = NamedStyle(name="styled_cell_work_group", alignment=alignment, font=font_bold)
+    cell_style_font_bold_italic = NamedStyle(name="styled_cell_font_bold_italic", font=font_italic)
 
     groups = await group_by_company_works_type(write_data)
     num_work_order = 1
@@ -244,6 +247,7 @@ async def write_table_data_month_act(doc_sheet, write_data, start_write_row_num,
         apply_style(doc_sheet[f'A{start_write_row_num}'], cell_styel_work_group)
         start_write_row_num += 1
         for work in group['works']:
+            #print("START ROW NUM: ", start_write_row_num)
             doc_sheet[f'A{start_write_row_num}'].value = num_work_order
             doc_sheet[f'B{start_write_row_num}'].value = work['house']
             doc_sheet[f'C{start_write_row_num}'].value = work['name_work']
@@ -254,12 +258,14 @@ async def write_table_data_month_act(doc_sheet, write_data, start_write_row_num,
             start_write_row_num += 1
             num_work_order += 1
         doc_sheet[f'A{start_write_row_num}'].value = f'Итого: {group["group"]}'
+        apply_style(doc_sheet[f'A{start_write_row_num}'], cell_style_font_bold_italic)
         doc_sheet.merge_cells(f'A{start_write_row_num}:D{start_write_row_num}')
         doc_sheet[f'E{start_write_row_num}'].value = group['group_sum']
         apply_style(doc_sheet[f'E{start_write_row_num}'], cell_style_font_bold_only)
         total_sum_of_groups = calcSum(*[group['group_sum']], sum=total_sum_of_groups)
         start_write_row_num += 1
     doc_sheet[f'A{start_write_row_num}'].value = f'Итого за {month}:'
+    apply_style(doc_sheet[f'A{start_write_row_num}'], cell_style_font_bold_italic)
     doc_sheet[f'E{start_write_row_num}'].value = total_sum_of_groups
     apply_style(doc_sheet[f'E{start_write_row_num}'], cell_style_font_bold_only)    
     return start_write_row_num + 1    
@@ -384,7 +390,6 @@ async def genereate_year_act_xlsx_file_v2(year, house, data, task_uuid, db_sessi
 
 async def genereate_month_act_xlsx_file_v2(month_year, data, task_uuid, db_session, house=None):
     """Генерирует месячный акт в формате XLSX."""
-    """Генерирует годовой акт в формате XLSX."""
     setlocale(LC_TIME, 'ru_RU.UTF-8')
     env = Environment(loader=BaseLoader, autoescape=False)
 
@@ -422,7 +427,7 @@ async def genereate_month_act_xlsx_file_v2(month_year, data, task_uuid, db_sessi
         print("DATA@@@@@@@@@@@@@@@@@@@@@@@", d)"""
     template_xlsx = load_workbook(settings.MONTH_ACT_FILE_TEMPLATE_PATH + settings.MONTH_ACT_FILE_TEMPLATE_NAME)
     template_sheet = template_xlsx.active
-    print("MONTH YEAR", month_year.strftime('%B'))
+    #print("MONTH YEAR", month_year.strftime('%B'))
     month = MONTHS_MAP[month_year.month]
     template_header_str1 = {
         'month': MONTHS_MAP[month_year.month],

@@ -5,8 +5,9 @@
                 <el-row>
                     <el-col :span="8"><div class="service-title"><el-text><h1>{{ serviceTitle }}</h1></el-text></div></el-col>  
                     <el-col :span="11"><div></div></el-col>
-                    <el-col :span="3"><div class="all-works-regestry-btn-wrapper"><el-button type="primary" @click="dialogWorksRegistryMain = true">Реестр актов формы КС-2</el-button></div></el-col>
-                    <el-col :span="2"><div class="all-works-btn-wrapper"><el-button type="primary" @click="dialogTypeOfWorksTableVisibleMain = true">Виды работ</el-button></div></el-col>
+                    <el-col :span="5"><div class="all-works-btn-wrapper"><el-button type="primary" @click="dialogTypeOfWorksTableVisibleMain = true">Справочник по видам работ</el-button></div></el-col>
+                    <!--<el-col :span="3"><div class="all-works-regestry-btn-wrapper"><el-button type="primary" @click="dialogWorksRegistryMain = true">Реестр актов формы КС-2</el-button></div></el-col>
+                    <el-col :span="2"><div class="all-works-btn-wrapper"><el-button type="primary" @click="dialogTypeOfWorksTableVisibleMain = true">Виды работ</el-button></div></el-col>-->
                 </el-row>  
             </el-header>
             <el-container style="height: 49em">
@@ -61,7 +62,7 @@
                           :active-tab-month="activeTabMain"
                             />
                         </el-tab-pane>
-                        <el-tab-pane label="Тех. Документация">
+                        <!--<el-tab-pane label="Тех. Документация">
                           <MKDTechnicDocs
                           :selected-house-id="selectedHouseId"
                           :selected-company-id="selectedCompanyId"
@@ -70,7 +71,7 @@
                             />
                         </el-tab-pane>
                         <el-tab-pane label="Фотофиксация работ"></el-tab-pane>
-                        <el-tab-pane label="Фотофиксация аварий"></el-tab-pane>
+                        <el-tab-pane label="Фотофиксация аварий"></el-tab-pane>-->
                       </el-tabs>     
                     </el-col>
                   </el-row>

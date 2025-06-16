@@ -260,7 +260,7 @@ async def get_year_acts_by_house_id_and_year(db: AsyncSession, year: datetime, h
         select(
             YearActfiles
         )
-        .where(and_(YearActfiles.house_id == house_id, func.extract("year", YearActfiles.date) == year.year))
+        .where(and_(YearActfiles.house_id == house_id, func.extract("year", YearActfiles.year) == year.year))
     )
     return result.one_or_none()
 
@@ -287,6 +287,14 @@ async def get_month_acts_by_house_id(db: AsyncSession, house_id:int):
         select(
             MonthActfiles
         ).where(MonthActfiles.house_id == house_id)
+    )
+    return result.scalars().unique().all()
+
+async def get_month_acts_full_list(db: AsyncSession):
+    result = await db.execute(
+        select(
+            MonthActfiles
+        )
     )
     return result.scalars().unique().all()
 
@@ -323,7 +331,6 @@ async def get_month_acts_files_data_by_house_id_and_month_year(db: AsyncSession,
     return result.one_or_none()
 
 async def get_acts_by_month_year_and_house_id(db: AsyncSession, month_year: datetime, house_id:Optional[int] = None):
-    print("get_acts_by_month_year_and_house_id", month_year, house_id)
     if not house_id:
         result = await db.execute(
             select(
@@ -336,7 +343,7 @@ async def get_acts_by_month_year_and_house_id(db: AsyncSession, month_year: date
                 )
             )
         )
-        print("WARIANT ONE")
+        #print("WARIANT ONE")
     else:
         result = await db.execute(
             select(
@@ -350,7 +357,7 @@ async def get_acts_by_month_year_and_house_id(db: AsyncSession, month_year: date
                 )
             )
         )
-        print("WARIANT TWO")
+        #print("WARIANT TWO")
     return result.scalars().unique().all()
 
 

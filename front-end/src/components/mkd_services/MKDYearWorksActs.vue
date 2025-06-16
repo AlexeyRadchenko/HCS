@@ -158,6 +158,7 @@ const generate_year_act = async () => {
     }
   }).catch((error) => {
     console.error('Error:', error);
+    return
   });
   let count = 0
   if (bg_year_status.value != 'create'){

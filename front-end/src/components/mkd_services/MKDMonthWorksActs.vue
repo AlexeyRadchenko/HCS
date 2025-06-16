@@ -17,9 +17,11 @@
       </el-row>
       <el-row class="mkd-services-month-year-works-act-row">
         <el-col :span="24">
-            <el-table :data="tableData" style="width: 100%" max-height="900" v-loading="tableDataLoading">
+            <el-table :data="tableData" style="width: 100%" max-height="900" v-loading="tableDataLoading"
+            :default-sort="{ prop: 'actYear', order: 'descending' }">
                 <el-table-column fixed prop="numOrder" label="№ П/П" width="90" />
-                <el-table-column prop="actYear" label="Год и месяц" width="100" />
+                <el-table-column prop="actMonth" label="Месяц" width="100" />
+                <el-table-column prop="actYear" label="Год" width="80" sortable />
                 <el-table-column prop="actDate" label="Дата акта" width="100" />
                 <el-table-column prop="actNum" label="№ Акта" width="140" />
                 <el-table-column prop="actFile" label="Наименование" width="320" />
@@ -43,10 +45,12 @@
 <script setup>
 // Импортируйте необходимые функции, если нужно
 import { ref, reactive, computed, onMounted, watch, defineModel, toRaw } from 'vue';
-import { get_month_files_list_by_house, generate_month_file_by_house_and_month_and_year, get_bg_task_status_by_task_uuid,
-    get_month_act_file_by_uuid } from '../../http/mkd-works-http-common'
+import { get_month_files_list_by_house, generate_month_file_by_house_and_month_and_year, generate_month_file_by_month_and_year,
+   get_bg_task_status_by_task_uuid, get_month_act_file_by_uuid, get_month_files_full_list } from '../../http/mkd-works-http-common'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
+import 'dayjs/locale/ru'
+dayjs.locale('ru')
 import FileDownload from 'js-file-download'
 
 const props = defineProps({
@@ -119,14 +123,16 @@ const refreshTableData = async () => {
       if (!props.selectedHouseId) {
         throw new Error('selectedHouseId is not defined');
       }
-      const response = await get_month_files_list_by_house(props.selectedHouseId);
+      //const response = await get_month_files_list_by_house(props.selectedHouseId);
+      const response = await get_month_files_full_list()
       if (!response || !response.data) {
         throw new Error('Response is null or does not contain data');
       }
       for (let [index, element] of response.data.entries()) {
         refreshData.push({
           numOrder: index + 1,
-          actYear: dayjs(element.year).year(),
+          actMonth: dayjs(element.month_year).format('MMMM'),
+          actYear: dayjs(element.month_year).format('YYYY'),
           actDate: dayjs(element.date).format('DD.MM.YYYY'),
           actNum: element.num,
           actFile: element.name,
@@ -169,7 +175,7 @@ const generate_month_act = async () => {
     }) 
     return 
   }
-  generate_month_file_by_house_and_month_and_year(selectedMonthYear.value, props.selectedHouseId).then((response) => {
+  generate_month_file_by_month_and_year(selectedMonthYear.value).then((response) => {
     console.log(response)
     if (response.status === 200 && response.data["message"] === "task started") {
       generateFileInProccess.value = true;
