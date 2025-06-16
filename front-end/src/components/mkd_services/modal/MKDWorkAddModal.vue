@@ -522,7 +522,7 @@ watch(
       let works = [...workFromDBdata.value.mainworks, ...workFromDBdata.value.subworks, ...workFromDBdata.value.fixworks];
       if (works.length) {
         for (let [index, element] of works.entries()) {
-          console.log("ELEMNT", element)
+          //console.log("ELEMNT", element)
           if (index === 0) {
             tableData.value[0].orderNum = 1
             tableData.value[0].numsprav =  element.workType != 'main' ? element.numsprav : get_mainwork_numspav(element.work)
@@ -536,7 +536,7 @@ watch(
             tableData.value[0].notes = element.notes ? element.notes : '' 
             continue
           }
-          console.log("PUSH LEMENET", element)
+          //console.log("PUSH LEMENET", element)
           tableData.push({
             orderNum: index + 1,
             numsprav: element.workType != 'main' ? element.numsprav : get_mainwork_numspav(element.work),
@@ -687,10 +687,10 @@ const onCancleBtnClick = () => {
 }
 
 const onSaveBtnClick =  () => {
-  console.log('CAll TYPE', props.modalCallType)
-  console.log("periodOptions", props.allPeriodsOptions)
+  //console.log('CAll TYPE', props.modalCallType)
+  //console.log("periodOptions", props.allPeriodsOptions)
   if (props.modalCallType === 'edit') {
-    console.log("call edit func")
+    //console.log("call edit func")
     let data = generate_data_object_to_post(
       workInputData.value,
       tableData.value, props.workID, props.houseId, props.allPeriodsOptions, actDownloadFile.value, smetaDownloadFile.value)
@@ -817,7 +817,7 @@ const onNameWorkChange = (val, row) => {
 
   row.numsprav = formatWorkCode(val)
   row.workSubId = val
-  console.log("CHANGE____", val)
+  //console.log("CHANGE____", val)
 
 }
 
@@ -832,14 +832,14 @@ const onPeriodValueChange = (val, row) => {
 }
 
 const onWorkSumValueChange = (val) => {
-  console.log('onWorkSumValueChange VAL:', val)
+  //console.log('onWorkSumValueChange VAL:', val)
   let sum = 0.00;
   for (let element of tableData.value) {
     let floatSum = parseFloat(String(element.sum).replace(/,/g, '.')) || 0; // Преобразуем строку в число
     sum += floatSum;
   }
   workInputData.value.actAllSumHandle = String(sum.toFixed(2))
-  console.log(workInputData.value.actAllSumHandle)
+  //console.log(workInputData.value.actAllSumHandle)
   
 }
 
