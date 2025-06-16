@@ -239,6 +239,9 @@ async def write_table_data_month_act(doc_sheet, write_data, start_write_row_num,
     cell_style_font_bold_italic = NamedStyle(name="styled_cell_font_bold_italic", font=font_italic)
 
     groups = await group_by_company_works_type(write_data)
+    for group in groups:
+        group['works'] = sorted(group['works'], key=lambda x: x['house'])
+
     num_work_order = 1
     total_sum_of_groups = 0.00
     for group in groups:

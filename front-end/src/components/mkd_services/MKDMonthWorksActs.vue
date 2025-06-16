@@ -115,7 +115,7 @@ const statusCheck = async (uuid) => {
   }
 }*/
 const refreshTableData = async () => {
-  console.log('year act watch', activeTabMonth);
+  console.log('month act watch', activeTabMonth);
   if (!generateFileInProccess.value) {
     tableDataLoading.value = true;
     let refreshData = [];
@@ -175,36 +175,42 @@ const generate_month_act = async () => {
     }) 
     return 
   }
+  generateFileInProccess.value = true;
   generate_month_file_by_month_and_year(selectedMonthYear.value).then((response) => {
-    console.log(response)
+    console.log("RSPONSE BUTTON CLICK", response, response.status, response.data["message"] )
     if (response.status === 200 && response.data["message"] === "task started") {
-      generateFileInProccess.value = true;
       bg_year_act_task_id.value = response.data['task_id']
-
+      return
     }else if (response.status === 200 && response.data["message"] === "month act exist") {
       bg_year_status.value = 'create'
+      generateFileInProccess.value = false;
       ElMessage({
         message: 'Акт за месяц уже создан',
         type: 'warning',
         showClose: true,
         
       })
+      return
     } else if (response.status === 200 && response.data["message"] === "Works not found") {
+      generateFileInProccess.value = false;
       ElMessage({
         message: 'За указанный период нет выполненных работ',
         type: 'warning',
         showClose: true,
-        
       })
+      return
     }
   }).catch((error) => {
+    generateFileInProccess.value = false;
     console.error('Error:', error);
+    return
   });
   let count = 0
   if (bg_year_status.value != 'create') {
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 60; i++) {
       if (bg_year_status.value == 'create' && bg_year_act_task_id.value == '') {
-        break
+        generateFileInProccess.value = false;
+        return
       }
       await statusCheck(bg_year_act_task_id.value);
       count ++;
@@ -215,7 +221,7 @@ const generate_month_act = async () => {
           showClose: true,
         })
         generateFileInProccess.value = false
-        break
+        return
       }
       
       console.log('COUNT', count)

@@ -139,22 +139,23 @@ const generate_year_act = async () => {
     console.log(response)
     if (response.status === 200 && response.data["message"] === "task started") {
       bg_year_act_task_id.value = response.data['task_id']
+      return
     }else if (response.status === 200 && response.data["message"] === "year act exist") {
       bg_year_status.value = 'create'
       ElMessage({
         message: 'Годовой акт уже создан',
         type: 'warning',
         showClose: true,
-        
       })
       generateFileInProccess.value = false;
+      return
     } else if (response.status === 200 && response.data["message"] === "Works not found") {
       ElMessage({
         message: 'За указанный период нет выполненных работ',
         type: 'warning',
         showClose: true,
-        
       })
+      return
     }
   }).catch((error) => {
     console.error('Error:', error);
@@ -164,7 +165,7 @@ const generate_year_act = async () => {
   if (bg_year_status.value != 'create'){
     for (let i = 0; i < 30; i++) {
       if (bg_year_status.value == 'create' && bg_year_act_task_id.value == '') {
-        break
+        return
       }
       await statusCheck(bg_year_act_task_id.value);
       count ++;
@@ -175,7 +176,7 @@ const generate_year_act = async () => {
           showClose: true,
         })
         generateFileInProccess.value = false
-        break
+        return
       }
       
       console.log('COUNT', count)
