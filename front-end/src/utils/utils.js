@@ -231,7 +231,7 @@ export var generate_data_object_to_post = function (workData, tableRowData, work
     
     for (let [index, element] of tableRowData.entries()) {
         //console.log('POST ELEMENT', element)
-        postdata.num = element.numsprav
+        postdata.num = smetaDownloadFile.num ? smetaDownloadFile.num : ''
         //console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", element.workType, element.nameWorkOrService) 
         let typeWorkInput = element.nameWorkOrService.value ? element.nameWorkOrService.value : element.nameWorkOrService
         postdata.works.push({
@@ -247,6 +247,7 @@ export var generate_data_object_to_post = function (workData, tableRowData, work
         })
     }
     //console.log("POSTDATA", tableRowData)
+    //console.log("POSTDATA", postdata)
     return postdata
 }
 

@@ -115,7 +115,7 @@ const statusCheck = async (uuid) => {
   }
 }*/
 const refreshTableData = async () => {
-  console.log('month act watch', activeTabMonth);
+  //console.log('month act watch', activeTabMonth);
   if (!generateFileInProccess.value) {
     tableDataLoading.value = true;
     let refreshData = [];

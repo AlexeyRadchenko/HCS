@@ -319,6 +319,7 @@ async def create_act(
     user_auth: bool = Security(user_scope_authorize, scopes=[settings.SELF_USER_SCOPE, settings.MANAGEMENT_MKD_WORKS_SCOPE]),
     db_session: AsyncSession = Depends(get_async_session)
     ):
+    # print("NUM", work.num)
     # если -1, то работа новая несуществующая. Доки еще добавить
     #print("------------------------------------------------>>>>>>>>>>>", work)
     #print("------------------------------------------------>>>>>>>>>>>", work.id)

@@ -90,7 +90,7 @@ const statusCheck = async (uuid) => {
 }
 
 const refreshTableData = async () => {
-  console.log('year act watch', activeTabYear)
+  //console.log('year act watch', activeTabYear)
   if (!generateFileInProccess.value) {
     tableDataLoading.value = true
     let refreshData = []
